@@ -1,0 +1,19 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended",
+        "tslint-config-standard"
+    ],
+    "jsRules": {},
+    "rules": {
+        // allow paren-less arrow functions
+        "arrow-parens": false,
+        // allow omitting spaces inside object braces
+        "object-curly-spacing": false,
+        // disable alphabetically order of keys in object literals
+        "object-literal-sort-keys": false,
+        // max two lines
+        "no-consecutive-blank-lines": [true, 2]
+    },
+    "rulesDirectory": []
+}
