@@ -1,1 +1,1 @@
-# afeefa-ui-api-client
+# afeefa-ui-data
