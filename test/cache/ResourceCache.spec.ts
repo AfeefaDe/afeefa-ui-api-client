@@ -1,7 +1,7 @@
 import ResourceCache from '@src/cache/ResourceCache'
 import { expect } from 'chai'
 
-describe('Store - ResourceCache', () => {
+describe('Cache - ResourceCache', () => {
   it('creates resource cache', () => {
     const cache = new ResourceCache()
     expect(true).to.be.true()

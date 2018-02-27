@@ -5,7 +5,7 @@ function newPromise () {
   return new Promise((resolve, reject) => undefined)
 }
 
-describe('Store - RequestCache', () => {
+describe('Cache - RequestCache', () => {
   it('creates cache', () => {
     const cache = new RequestCache()
     expect(cache).to.be.an.instanceof(RequestCache)
