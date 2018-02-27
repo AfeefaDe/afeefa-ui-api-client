@@ -173,12 +173,8 @@ export default class Relation {
   public get info () {
     const isClone = this.isClone ? '(CLONE)' : ''
     const itemId = this.type === Relation.HAS_ONE ? `itemId="${this.id}" ` : ''
-    return `[Relation] id="${this.instanceId}${isClone}"
-      owner="${this.owner.type}(${this.owner.id})"
-      type="${this.type}" name="${this.name}" ` +
-      `${itemId}hasIncludedData="${this.hasIncludedData}"
-      fetched="${this.fetched}"
-      invalidated="${this.invalidated}"`
+    return `[Relation] id="${this.instanceId}${isClone}" owner="${this.owner.type}(${this.owner.id})" type="${this.type}" name="${this.name}" ` +
+      `${itemId}hasIncludedData="${this.hasIncludedData}" fetched="${this.fetched}" invalidated="${this.invalidated}"`
   }
 
   private findOrCreateItem (json) {

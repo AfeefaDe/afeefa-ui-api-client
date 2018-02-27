@@ -15,7 +15,9 @@
         // max two lines
         "no-consecutive-blank-lines": [true, 2],
         // allow console.log
-        "no-console": false
+        "no-console": false,
+        // allow long lines
+        "max-line-length": false
     },
     "rulesDirectory": []
 }

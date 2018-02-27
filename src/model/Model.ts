@@ -354,8 +354,7 @@ export default class Model {
   public get info () {
     const isClone = this._isClone ? '(CLONE)' : ''
     const loadedState = ['not', 'attributes', 'list', 'full'][this._loadingState]
-    return `[${this.class.name}] id="${this.id}" ID="${this._ID}${isClone}"
-      loaded="${loadedState}" request="${this._requestId}"`
+    return `[${this.class.name}] id="${this.id}" ID="${this._ID}${isClone}" loaded="${loadedState}" request="${this._requestId}"`
   }
 
   private get class (): typeof Model {
