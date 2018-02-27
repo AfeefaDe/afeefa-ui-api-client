@@ -1,4 +1,4 @@
-export default class ResourceCache {
+export declare class ResourceCache {
     private cache;
     purge(): void;
     getCache(key: any): any;
@@ -11,3 +11,5 @@ export default class ResourceCache {
     getItem(key: any, id: any): any;
     purgeItem(key: any, id: any): void;
 }
+declare const _default: ResourceCache;
+export default _default;

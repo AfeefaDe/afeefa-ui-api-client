@@ -1,4 +1,4 @@
-import ResourceCache from '@src/cache/ResourceCache'
+import { ResourceCache } from '@src/cache/ResourceCache'
 import { expect } from 'chai'
 
 describe('Cache - ResourceCache', () => {

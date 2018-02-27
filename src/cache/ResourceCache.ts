@@ -1,4 +1,4 @@
-export default class ResourceCache {
+export class ResourceCache {
   private cache = {}
 
   public purge () {
@@ -60,3 +60,5 @@ export default class ResourceCache {
     delete this.getCache(key).items[id]
   }
 }
+
+export default new ResourceCache()

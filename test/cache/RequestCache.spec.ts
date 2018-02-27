@@ -1,4 +1,4 @@
-import RequestCache from '@src/cache/RequestCache'
+import { RequestCache } from '@src/cache/RequestCache'
 import { expect } from 'chai'
 
 function newPromise () {
