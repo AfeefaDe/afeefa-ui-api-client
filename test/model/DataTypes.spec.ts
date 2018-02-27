@@ -1,5 +1,6 @@
-import DataTypes from '@src/model/DataTypes'
 import { expect } from 'chai'
+
+import DataTypes from '../../src/model/DataTypes'
 
 describe('Model - DataTypes', () => {
   it('returns boolean value', () => {

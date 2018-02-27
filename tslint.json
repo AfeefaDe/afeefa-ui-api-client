@@ -13,7 +13,9 @@
         // disable alphabetically order of keys in object literals
         "object-literal-sort-keys": false,
         // max two lines
-        "no-consecutive-blank-lines": [true, 2]
+        "no-consecutive-blank-lines": [true, 2],
+        // allow console.log
+        "no-console": false
     },
     "rulesDirectory": []
 }

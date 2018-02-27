@@ -1,6 +1,6 @@
-import LoadingState from '@src/api/LoadingState'
-import LoadingStrategy from '@src/api/LoadingStrategy'
-import resourceCache from '@src/cache/ResourceCache'
+import LoadingState from '../api/LoadingState'
+import LoadingStrategy from '../api/LoadingStrategy'
+import resourceCache from '../cache/ResourceCache'
 
 let ID = 0
 
@@ -27,7 +27,7 @@ export default class Relation {
 
   constructor ({owner, name, type, Model, associationType}) {
     if (!type || !Model) {
-      window.console.error('Relation configuration invalid', ...Array.from(arguments))
+      console.error('Relation configuration invalid', ...Array.from(arguments))
     }
 
     if (!associationType) {

@@ -1,5 +1,6 @@
-import { RequestCache } from '@src/cache/RequestCache'
 import { expect } from 'chai'
+
+import { RequestCache } from '../../src/cache/RequestCache'
 
 function newPromise () {
   return new Promise((resolve, reject) => undefined)

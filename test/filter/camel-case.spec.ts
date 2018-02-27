@@ -1,5 +1,6 @@
-import toCamelCase from '@src/filter/camel-case'
 import { expect } from 'chai'
+
+import toCamelCase from '../../src/filter/camel-case'
 
 describe('Filter - CamelCase', () => {
   it('camelizes', () => {
