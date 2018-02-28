@@ -70,7 +70,7 @@ export class Api {
     return promise
   }
 
-  public getItem ({resource, id, strategy}: {resource: Resource, id: number, strategy: number}) {
+  public getItem ({resource, id, strategy}: {resource: Resource, id: string, strategy: number}) {
     if (!strategy) {
       strategy = LoadingStrategy.LOAD_IF_NOT_FULLY_LOADED
     }
@@ -98,7 +98,9 @@ export class Api {
       return requestCache.getItem(itemType + id)
     }
 
-    const promise = resource.http.get({id}).then(response => {
+    // do not set id in request if it's a mocked id such as 'app'
+    const requestItemId = parseInt(id, 10) ? id : undefined
+    const promise = resource.http.get({id: requestItemId}).then(response => {
       const json = response.body.data || response.body // jsonapi spec || afeefa api spec
       this.setRequestId(json)
 

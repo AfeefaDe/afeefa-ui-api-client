@@ -8,7 +8,7 @@ export declare class Api {
     }): any;
     getItem({resource, id, strategy}: {
         resource: Resource;
-        id: number;
+        id: string;
         strategy: number;
     }): any;
     saveItem({resource, item, options}: {

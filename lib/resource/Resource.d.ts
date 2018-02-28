@@ -1,4 +1,5 @@
 import Model from '../model/Model';
+import Relation from '../model/Relation';
 export default class Resource {
     listParams: any;
     url: any;
@@ -31,7 +32,7 @@ export default class Resource {
      * Resource Cache Access
      */
     cachePurgeList(key: any, url: any): void;
-    cachePurgeRelation(relation: any): void;
+    cachePurgeRelation(relation: Relation): void;
     cachePurgeItem(key: any, id: any): void;
     cacheGetAllLists(key: any): any;
     findCachedItem(key: any, id: any): any;
