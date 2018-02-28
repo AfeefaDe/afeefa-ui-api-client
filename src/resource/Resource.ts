@@ -1,5 +1,6 @@
 import resourceCache from '../cache/ResourceCache'
 import Model from '../model/Model'
+import Relation from '../model/Relation'
 
 export default class Resource {
   public listParams
@@ -88,7 +89,7 @@ export default class Resource {
     resourceCache.purgeList(key, url)
   }
 
-  public cachePurgeRelation (relation) {
+  public cachePurgeRelation (relation: Relation) {
     relation.purgeFromCacheAndMarkInvalid()
   }
 
