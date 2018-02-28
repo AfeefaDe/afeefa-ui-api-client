@@ -2,6 +2,10 @@ import resourceCache from '../cache/ResourceCache'
 import Model from '../model/Model'
 
 export default class Resource {
+  public listParams
+  public url
+  public http
+
   constructor (...params) {
     this.init(...params)
   }

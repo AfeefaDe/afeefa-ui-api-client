@@ -1,5 +1,8 @@
 import Model from '../model/Model';
 export default class Resource {
+    listParams: any;
+    url: any;
+    http: any;
     constructor(...params: any[]);
     init(params?: any): void;
     /**

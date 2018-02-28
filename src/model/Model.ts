@@ -200,7 +200,7 @@ export default class Model {
    */
 
   public deserialize (json) {
-    if (!json._requestId && json._requestId !== 0) {
+    if (json._requestId === undefined) {
       console.error('No requestId given in json. Might be an error in normalizeJson()', this.info, json)
     }
 
