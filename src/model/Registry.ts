@@ -1,4 +1,3 @@
-import ResourceRegistry from '../resource/Registry'
 import BaseModel from './Model'
 
 export class ModelRegistry {
@@ -44,8 +43,6 @@ export class ModelRegistry {
 
   public initializeQuery (Model) {
     if (Model.hasOwnProperty('query')) {
-      const args = this.getArguments(Model.query).map(arg => ResourceRegistry.get(arg))
-      Model.query = Model.query(...args)
       for (const method of Model.query.getApi()) {
         if (Model[method]) {
           console.error('Das Model', Model.name, 'hat bereits eine Methode', method)
@@ -112,8 +109,7 @@ export class ModelRegistry {
       relations = superRelations
     }
     if (Model.hasOwnProperty('relations')) {
-      const args = this.getArguments(Model.relations).map(arg => this.get(arg))
-      relations = {...relations, ...Model.relations(...args)}
+      relations = {...relations, ...Model.relations()}
     }
     return relations
   }
