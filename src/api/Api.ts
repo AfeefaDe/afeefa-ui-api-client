@@ -9,6 +9,14 @@ import LoadingStrategy from './LoadingStrategy'
 export class Api {
   private requestId: number = 0
 
+  public onGetError = (apiError: ApiError) => null
+  public onAdd = (model: Model) => null
+  public onAddError = (apiError: ApiError) => null
+  public onSave = (oldModel: Model, model: Model) => null
+  public onSaveError = (apiError: ApiError) => null
+  public onDelete = (model: Model) => null
+  public onDeleteError = (apiError: ApiError) => null
+
   public getList ({resource, params}: {resource: Resource, params: any}) {
     // key of list in resource cache
     const listType = resource.getListType()
@@ -62,7 +70,8 @@ export class Api {
       return items
     }).catch(response => {
       console.log('error loading list', response)
-      throw new ApiError(response)
+      this.onGetError(new ApiError(response))
+      return []
     })
 
     // cache http call
@@ -118,7 +127,8 @@ export class Api {
       return item
     }).catch(response => {
       console.log('error loading item', response)
-      throw new ApiError(response)
+      this.onGetError(new ApiError(response))
+      return null
     })
 
     // cache http call
@@ -146,10 +156,12 @@ export class Api {
       item.deserialize(resource.getItemJson(json))
 
       resource.itemSaved(oldItem, item)
+      this.onSave(oldItem, item)
       return item
     }).catch(response => {
       console.log('error saving item', response)
-      throw new ApiError(response)
+      this.onSaveError(new ApiError(response))
+      return null
     })
 
     return promise
@@ -172,20 +184,25 @@ export class Api {
       item.deserialize(resource.getItemJson(json))
 
       resource.itemAdded(item)
+      this.onAdd(item)
+
       return item
     }).catch(response => {
       console.log('error adding item', response)
-      throw new ApiError(response)
+      this.onAddError(new ApiError(response))
+      return null
     })
   }
 
   public deleteItem ({resource, item}: {resource: Resource, item: Model}) {
     return resource.http.delete({id: item.id}).then(() => {
       resource.itemDeleted(item)
+      this.onDelete(item)
       return true
     }).catch(response => {
       console.log('error deleting item', response)
-      throw new ApiError(response)
+      this.onDeleteError(new ApiError(response))
+      return null
     })
   }
 
@@ -206,7 +223,8 @@ export class Api {
       return attributes
     }).catch(response => {
       console.log('error updating item attribtes', response)
-      throw new ApiError(response)
+      this.onSaveError(new ApiError(response))
+      return null
     })
   }
 

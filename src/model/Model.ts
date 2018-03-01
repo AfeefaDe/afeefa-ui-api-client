@@ -358,6 +358,6 @@ export default class Model {
   }
 
   private get class (): typeof Model {
-    return (this.constructor as typeof Model)
+    return this.constructor as typeof Model
   }
 }
