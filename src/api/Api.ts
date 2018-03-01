@@ -148,6 +148,8 @@ export class Api {
     const promise = resource.http.update(
       {id: item.id}, body
     ).then(response => {
+      // reset all tracked changes in order to force item.hasChanges to return false after save
+      item.markSaved()
       // get the original item for the case the given item is a clone
       item = resourceCache.getItem(itemType, item.id)
       const json = response.body.data || response.body // jsonapi spec || afeefa api spec
@@ -179,6 +181,8 @@ export class Api {
       const json = response.body.data || response.body
       this.setRequestId(json)
 
+      // reset all tracked changes in order to force item.hasChanges to return false after save
+      item.markSaved()
       item = resource.createItem(json)
       resourceCache.addItem(itemType, item)
       item.deserialize(resource.getItemJson(json))
@@ -196,6 +200,8 @@ export class Api {
 
   public deleteItem ({resource, item}: {resource: Resource, item: Model}) {
     return resource.http.delete({id: item.id}).then(() => {
+      // reset all tracked changes in order to force item.hasChanges to return false after save
+      item.markSaved()
       resource.itemDeleted(item)
       this.onDelete(item)
       return true
@@ -213,6 +219,9 @@ export class Api {
       attributes
     }
     return resource.http.update({id: item.id}, {data}).then(response => {
+      // reset all tracked changes in order to force item.hasChanges to return false after save
+      item.markSaved()
+
       const itemType = resource.getItemType()
 
       const json = response.body.data || response.body

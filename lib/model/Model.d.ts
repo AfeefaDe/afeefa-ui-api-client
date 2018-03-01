@@ -6,11 +6,13 @@ export default class Model {
     protected static _relationRemoteNameMap: {};
     id: any;
     type: string;
+    private _original;
     private _ID;
     private _loadingState;
     private _requestId;
     private _isClone;
     private _relations;
+    private _lastSnapshot;
     constructor();
     static attributes(): {
         id: {
@@ -60,12 +62,14 @@ export default class Model {
         id: any;
         type: string;
     };
+    hasChanges(): boolean;
+    markSaved(): void;
     /**
      * magic clone function :-)
      * clone anything but no model relations
      */
     _clone(value: any): any;
-    clone(): any;
+    clone(): Model;
     readonly info: string;
     private readonly class;
 }

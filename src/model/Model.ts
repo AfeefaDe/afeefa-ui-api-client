@@ -16,15 +16,27 @@ export default class Model {
   public id
   public type = Model.type
 
+  private _original: Model | null = null
   private _ID
   private _loadingState
   private _requestId
   private _isClone
   private _relations
+  private _lastSnapshot
 
   constructor () {
     Object.defineProperty(this, '_ID', {
       value: ++ID
+    })
+
+    Object.defineProperty(this, '_original', {
+      value: null,
+      writable: true
+    })
+
+    Object.defineProperty(this, '_lastSnapshot', {
+      value: null,
+      writable: true
     })
 
     Object.defineProperty(this, '_loadingState', {
@@ -275,6 +287,21 @@ export default class Model {
     return data
   }
 
+  public hasChanges (): boolean {
+    if (this._original) {
+      if (!this._lastSnapshot) {
+        this._lastSnapshot = JSON.stringify(this._original.serialize())
+      }
+      const json = JSON.stringify(this.serialize())
+      return this._lastSnapshot !== json
+    }
+    return false
+  }
+
+  public markSaved () {
+    this._lastSnapshot = JSON.stringify(this.serialize())
+  }
+
   /**
    * magic clone function :-)
    * clone anything but no model relations
@@ -284,14 +311,9 @@ export default class Model {
       const model = value
       const Constructor = model.class
       const clone = new Constructor()
-      clone._isClone = true
       for (const key of Object.keys(model)) {
-        // hide instance related properties
-        if (key.startsWith('__')) {
-          continue
-        }
         const keyVal = model[key]
-        // set model associations to null
+        // set model associations to null, let the clone fetch the relation
         if (keyVal instanceof Model) {
           clone[key] = null
           continue
@@ -327,7 +349,7 @@ export default class Model {
       const clone = {}
       for (const key of Object.keys(obj)) {
         const keyVal = obj[key]
-        // set model associations to null
+        // set model associations to null, let the clone fetch the relation
         if (keyVal instanceof Model) {
           clone[key] = null
           continue
@@ -341,7 +363,9 @@ export default class Model {
   }
 
   public clone () {
-    const clone = this._clone(this)
+    const clone: Model = this._clone(this) as Model
+    clone._isClone = true
+    clone._original = this
     clone._requestId = this._requestId
     clone._loadingState = this._loadingState
     for (const relationName of Object.keys(this._relations)) {
