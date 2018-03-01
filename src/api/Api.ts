@@ -9,13 +9,13 @@ import LoadingStrategy from './LoadingStrategy'
 export class Api {
   private requestId: number = 0
 
-  public onGetError = (apiError: ApiError) => null
-  public onAdd = (model: Model) => null
-  public onAddError = (apiError: ApiError) => null
-  public onSave = (oldModel: Model, model: Model) => null
-  public onSaveError = (apiError: ApiError) => null
-  public onDelete = (model: Model) => null
-  public onDeleteError = (apiError: ApiError) => null
+  public onGetError = (_apiError: ApiError) => null
+  public onAdd = (_model: Model) => null
+  public onAddError = (_apiError: ApiError) => null
+  public onSave = (_oldModel: Model, _model: Model) => null
+  public onSaveError = (_apiError: ApiError) => null
+  public onDelete = (_model: Model) => null
+  public onDeleteError = (_apiError: ApiError) => null
 
   public getList ({resource, params}: {resource: Resource, params: any}) {
     // key of list in resource cache

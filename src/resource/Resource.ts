@@ -11,7 +11,7 @@ export default class Resource {
     this.init(...params)
   }
 
-  public init (params?) {
+  public init (_params?) {
     // hook into
   }
 
@@ -41,7 +41,7 @@ export default class Resource {
     return json
   }
 
-  public getItemModel (json): typeof Model {
+  public getItemModel (_json): typeof Model {
     // hook into
     return Model
   }
@@ -57,7 +57,7 @@ export default class Resource {
   // transforms the given list prior to caching
   // useful to create a hierachical list from a flat list
   // e.g. for cateories
-  public transformList (items) {
+  public transformList (_items) {
     // hook into
   }
 
@@ -67,17 +67,17 @@ export default class Resource {
 
   // called after an item has been added
   // to enable custom resource cache treatment
-  public itemAdded (item) {
+  public itemAdded (_item) {
     // hook into
   }
 
   // called after an item has been deleted
   // to enable custom resource cache treatment
-  public itemDeleted (item) {
+  public itemDeleted (_item) {
     // hook into
   }
 
-  public itemSaved (itemOld, item) {
+  public itemSaved (_itemOld, _item) {
     // hook into
   }
 

@@ -5,7 +5,7 @@ export default class Resource {
     url: any;
     http: any;
     constructor(...params: any[]);
-    init(params?: any): void;
+    init(_params?: any): void;
     /**
      * Resource Config
      */
@@ -19,15 +19,15 @@ export default class Resource {
     getItemType(json?: any): string;
     getItemId(json: any): any;
     getItemJson(json: any): any;
-    getItemModel(json: any): typeof Model;
+    getItemModel(_json: any): typeof Model;
     createItem(json: any): Model;
-    transformList(items: any): void;
+    transformList(_items: any): void;
     /**
      * Api Hooks
      */
-    itemAdded(item: any): void;
-    itemDeleted(item: any): void;
-    itemSaved(itemOld: any, item: any): void;
+    itemAdded(_item: any): void;
+    itemDeleted(_item: any): void;
+    itemSaved(_itemOld: any, _item: any): void;
     /**
      * Resource Cache Access
      */

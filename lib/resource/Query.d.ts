@@ -13,6 +13,6 @@ export default class Query {
     protected init(): void;
     protected getApi(): string[];
     protected getResource(params?: any): any;
-    protected createResource(params: any): void;
+    protected createResource(_params: any): void;
     private clone();
 }

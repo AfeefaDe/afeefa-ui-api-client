@@ -4,9 +4,9 @@ export class RequestCache {
   public addItem (key, promise) {
     _cache[key] = promise
 
-    promise.then(result => {
+    promise.then(() => {
       delete _cache[key]
-    }).catch(e => {
+    }).catch(() => {
       delete _cache[key]
     })
   }

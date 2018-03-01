@@ -78,7 +78,7 @@ export default class Query {
     return this.resource
   }
 
-  protected createResource (params) {
+  protected createResource (_params) {
     console.error('Keine Resource definiert.')
   }
 

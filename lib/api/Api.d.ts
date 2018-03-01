@@ -3,13 +3,13 @@ import Resource from '../resource/Resource';
 import ApiError from './ApiError';
 export declare class Api {
     private requestId;
-    onGetError: (apiError: ApiError) => null;
-    onAdd: (model: Model) => null;
-    onAddError: (apiError: ApiError) => null;
-    onSave: (oldModel: Model, model: Model) => null;
-    onSaveError: (apiError: ApiError) => null;
-    onDelete: (model: Model) => null;
-    onDeleteError: (apiError: ApiError) => null;
+    onGetError: (_apiError: ApiError) => null;
+    onAdd: (_model: Model) => null;
+    onAddError: (_apiError: ApiError) => null;
+    onSave: (_oldModel: Model, _model: Model) => null;
+    onSaveError: (_apiError: ApiError) => null;
+    onDelete: (_model: Model) => null;
+    onDeleteError: (_apiError: ApiError) => null;
     getList({resource, params}: {
         resource: Resource;
         params: any;
