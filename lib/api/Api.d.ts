@@ -1,4 +1,5 @@
 import Model from '../model/Model';
+import Relation from '../model/Relation';
 import Resource from '../resource/Resource';
 import ApiError from './ApiError';
 export declare class Api {
@@ -10,8 +11,9 @@ export declare class Api {
     onSaveError: (_apiError: ApiError) => null;
     onDelete: (_model: Model) => null;
     onDeleteError: (_apiError: ApiError) => null;
-    getList({resource, params}: {
+    getList({resource, relation, params}: {
         resource: Resource;
+        relation: Relation | null;
         params: any;
     }): any;
     getItem({resource, id, strategy}: {

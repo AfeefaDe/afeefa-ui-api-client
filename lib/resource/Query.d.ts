@@ -1,10 +1,11 @@
+import Relation from '../model/Relation';
 export default class Query {
     private relationsToFetch;
-    private owner;
+    private relation;
     private resource;
     constructor();
     with(...relations: any[]): Query;
-    forOwner(owner: any): Query;
+    forRelation(relation: Relation): Query;
     get(id: any, strategy: any): any;
     getAll(params: any): any;
     save(model: any, options: any): any;

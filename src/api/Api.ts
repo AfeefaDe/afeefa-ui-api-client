@@ -1,6 +1,7 @@
 import requestCache from '../cache/RequestCache'
 import resourceCache from '../cache/ResourceCache'
 import Model from '../model/Model'
+import Relation from '../model/Relation'
 import Resource from '../resource/Resource'
 import ApiError from './ApiError'
 import LoadingState from './LoadingState'
@@ -17,11 +18,13 @@ export class Api {
   public onDelete = (_model: Model) => null
   public onDeleteError = (_apiError: ApiError) => null
 
-  public getList ({resource, params}: {resource: Resource, params: any}) {
+  public getList ({resource, relation, params}: {resource: Resource, relation: Relation | null, params: any}) {
     // key of list in resource cache
     const listType = resource.getListType()
+
     // different caches for different list params
-    const listParams = JSON.stringify({...resource.listParams, ...params})
+    let listParams = relation ? relation.listParams() : {}
+    listParams = JSON.stringify({...listParams, ...params})
 
     if (resourceCache.hasList(listType, listParams)) {
       // list already loaded

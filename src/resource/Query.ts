@@ -1,8 +1,9 @@
 import API from '../api/Api'
+import Relation from '../model/Relation'
 
 export default class Query {
   private relationsToFetch
-  private owner
+  private relation: Relation | null = null
   private resource
 
   constructor () {
@@ -15,9 +16,9 @@ export default class Query {
     return clone
   }
 
-  public forOwner (owner) {
+  public forRelation (relation: Relation) {
     const clone = this.clone()
-    clone.owner = owner
+    clone.relation = relation
     return clone
   }
 
@@ -36,7 +37,7 @@ export default class Query {
 
   public getAll (params) {
     const resource = this.getResource(params)
-    return API.getList({resource, params}).then(models => {
+    return API.getList({resource, relation: this.relation, params}).then(models => {
       models.forEach(model => {
         model.fetchRelationsAfterGet()
       })
@@ -65,13 +66,13 @@ export default class Query {
   }
 
   protected getApi () {
-    return ['with', 'get', 'getAll', 'save', 'delete', 'updateAttributes']
+    return ['with', 'forRelation', 'get', 'getAll', 'save', 'delete', 'updateAttributes']
   }
 
   protected getResource (params?) {
     if (!this.resource) {
       this.resource = this.createResource({
-        owner: this.owner,
+        relation: this.relation,
         params
       })
     }
@@ -86,6 +87,7 @@ export default class Query {
     const Constructor = this.constructor as typeof Query
     const clone = new Constructor()
     clone.relationsToFetch = this.relationsToFetch
+    clone.relation = this.relation
     return clone
   }
 }
