@@ -3,12 +3,17 @@ import resourceCache from '../cache/ResourceCache'
 import Model from '../model/Model'
 import Relation from '../model/Relation'
 import Resource from '../resource/Resource'
+import ResourceProvider from '../resource/ResourceProvider'
 import ApiError from './ApiError'
 import LoadingState from './LoadingState'
 import LoadingStrategy from './LoadingStrategy'
 
 export class Api {
   private requestId: number = 0
+
+  public resourceProviderFactory = (_url: string): ResourceProvider => {
+    return {} as ResourceProvider
+  }
 
   public onGetError = (_apiError: ApiError) => null
   public onAdd = (_model: Model) => null
@@ -45,7 +50,8 @@ export class Api {
     }
 
     // load list
-    const promise = resource.http.query(params).then(response => {
+    const resourceProvider = this.getResourceProvider(resource)
+    const promise = resourceProvider.query(params).then(response => {
       const items: any[] = []
 
       const data = response.body.data || response.body // jsonapi spec || afeefa api spec
@@ -118,7 +124,8 @@ export class Api {
 
     // do not set id in request if it's a mocked id such as 'app'
     const requestItemId = parseInt(id, 10) ? id : undefined
-    const promise = resource.http.get({id: requestItemId}).then(response => {
+    const resourceProvider = this.getResourceProvider(resource)
+    const promise = resourceProvider.get({id: requestItemId}).then(response => {
       const json = response.body.data || response.body // jsonapi spec || afeefa api spec
       this.setRequestId(json)
 
@@ -157,7 +164,8 @@ export class Api {
     // we do not allow saving items that are not cached beforehand
     const oldItem = resourceCache.getItem(itemType, item.id).clone()
 
-    const promise = resource.http.update(
+    const resourceProvider = this.getResourceProvider(resource)
+    const promise = resourceProvider.update(
       {id: item.id}, body
     ).then(response => {
       // reset all tracked changes in order to force item.hasChanges to return false after save
@@ -190,10 +198,11 @@ export class Api {
     const itemJson = item.serialize()
     const body = options.wrapInDataProperty === false ? itemJson : {data: itemJson}
 
-    return resource.http.save(
+    const resourceProvider = this.getResourceProvider(resource)
+    return resourceProvider.save(
       {id: item.id}, body
     ).then(response => {
-      const json = response.body.data || response.body
+      const json = response.body.data || response.body // jsonapi spec || afeefa api spec
       this.setRequestId(json)
 
       // reset all tracked changes in order to force item.hasChanges to return false after save
@@ -217,7 +226,8 @@ export class Api {
     {resource, item}:
     {resource: Resource, item: Model}
   ): Promise<boolean | null> {
-    return resource.http.delete({id: item.id}).then(() => {
+    const resourceProvider = this.getResourceProvider(resource)
+    return resourceProvider.delete({id: item.id}).then(() => {
       // reset all tracked changes in order to force item.hasChanges to return false after save
       item.markSaved()
       resource.itemDeleted(item)
@@ -239,13 +249,14 @@ export class Api {
       type: item.type,
       attributes
     }
-    return resource.http.update({id: item.id}, {data}).then(response => {
+    const resourceProvider = this.getResourceProvider(resource)
+    return resourceProvider.update({id: item.id}, {data}).then(response => {
       // reset all tracked changes in order to force item.hasChanges to return false after save
       item.markSaved()
 
       const itemType = resource.getItemType()
 
-      const json = response.body.data || response.body
+      const json = response.body.data || response.body // jsonapi spec || afeefa api spec
       this.setRequestId(json)
 
       const cachedItem = resourceCache.getItem(itemType, item.id)
@@ -256,6 +267,10 @@ export class Api {
       this.onSaveError(new ApiError(response))
       return null
     })
+  }
+
+  private getResourceProvider (resource: Resource): ResourceProvider {
+    return this.resourceProviderFactory(resource.url)
   }
 
   private setRequestId (json, requestId?) {

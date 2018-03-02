@@ -1,3 +1,5 @@
+import IResponse from '../resource/IResponse'
+
 export default class ApiError extends Error {
   public response: any
 
@@ -11,7 +13,7 @@ export default class ApiError extends Error {
   }
 }
 
-function getErrorDescription (response) {
+function getErrorDescription (response: IResponse): string {
   let description = ''
   if (response.body && response.body.errors) {
     for (const error of response.body.errors) {

@@ -3,7 +3,7 @@ import Model from '../model/Model'
 import Relation from '../model/Relation'
 
 export default class Resource {
-  public url
+  public url: string = ''
   public http
 
   constructor (...params) {

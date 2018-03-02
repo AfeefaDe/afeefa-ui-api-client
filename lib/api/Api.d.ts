@@ -1,9 +1,11 @@
 import Model from '../model/Model';
 import Relation from '../model/Relation';
 import Resource from '../resource/Resource';
+import ResourceProvider from '../resource/ResourceProvider';
 import ApiError from './ApiError';
 export declare class Api {
     private requestId;
+    resourceProviderFactory: (_url: string) => ResourceProvider;
     onGetError: (_apiError: ApiError) => null;
     onAdd: (_model: Model) => null;
     onAddError: (_apiError: ApiError) => null;
@@ -44,6 +46,7 @@ export declare class Api {
         item: Model;
         attributes: object;
     }): Promise<any | null>;
+    private getResourceProvider(resource);
     private setRequestId(json, requestId?);
 }
 declare const _default: Api;
