@@ -18,7 +18,10 @@ export class Api {
   public onDelete = (_model: Model) => null
   public onDeleteError = (_apiError: ApiError) => null
 
-  public getList ({resource, relation, params}: {resource: Resource, relation: Relation | null, params: any}) {
+  public getList (
+    {resource, relation, params}:
+    {resource: Resource, relation: Relation | null, params: any}
+  ): Promise<Model[]> {
     // key of list in resource cache
     const listType = resource.getListType()
 
@@ -82,7 +85,10 @@ export class Api {
     return promise
   }
 
-  public getItem ({resource, id, strategy}: {resource: Resource, id: string, strategy: number}) {
+  public getItem (
+    {resource, id, strategy}:
+    {resource: Resource, id: string, strategy: number}
+  ): Promise<Model | null> {
     if (!strategy) {
       strategy = LoadingStrategy.LOAD_IF_NOT_FULLY_LOADED
     }
@@ -139,7 +145,10 @@ export class Api {
     return promise
   }
 
-  public saveItem ({resource, item, options = {}}: {resource: Resource, item: Model, options: any}) {
+  public saveItem (
+    {resource, item, options = {}}:
+    {resource: Resource, item: Model, options: {wrapInDataProperty?: boolean}}
+  ): Promise<Model | null> {
     const itemType = resource.getItemType()
     const itemJson = item.serialize()
     const body = options.wrapInDataProperty === false ? itemJson : {data: itemJson}
@@ -172,7 +181,10 @@ export class Api {
     return promise
   }
 
-  public addItem ({resource, item, options = {}}: {resource: Resource, item: Model, options: any}) {
+  public addItem (
+    {resource, item, options = {}}:
+    {resource: Resource, item: Model, options: {wrapInDataProperty?: boolean}}
+  ): Promise<Model | null> {
     const itemType = resource.getItemType()
 
     const itemJson = item.serialize()
@@ -201,7 +213,10 @@ export class Api {
     })
   }
 
-  public deleteItem ({resource, item}: {resource: Resource, item: Model}) {
+  public deleteItem (
+    {resource, item}:
+    {resource: Resource, item: Model}
+  ): Promise<boolean | null> {
     return resource.http.delete({id: item.id}).then(() => {
       // reset all tracked changes in order to force item.hasChanges to return false after save
       item.markSaved()
@@ -215,7 +230,10 @@ export class Api {
     })
   }
 
-  public updateItemAttributes ({resource, item, attributes}: {resource: Resource, item: Model, attributes: any}) {
+  public updateItemAttributes (
+    {resource, item, attributes}:
+    {resource: Resource, item: Model, attributes: object}
+  ): Promise<any | null> {
     const data = {
       id: item.id,
       type: item.type,
@@ -257,8 +275,6 @@ export class Api {
       this.setRequestId(json[key], requestId)
     }
   }
-
-
 }
 
 export default new Api()

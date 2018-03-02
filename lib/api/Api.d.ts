@@ -15,31 +15,35 @@ export declare class Api {
         resource: Resource;
         relation: Relation | null;
         params: any;
-    }): any;
+    }): Promise<Model[]>;
     getItem({resource, id, strategy}: {
         resource: Resource;
         id: string;
         strategy: number;
-    }): any;
+    }): Promise<Model | null>;
     saveItem({resource, item, options}: {
         resource: Resource;
         item: Model;
-        options: any;
-    }): any;
+        options: {
+            wrapInDataProperty?: boolean;
+        };
+    }): Promise<Model | null>;
     addItem({resource, item, options}: {
         resource: Resource;
         item: Model;
-        options: any;
-    }): any;
+        options: {
+            wrapInDataProperty?: boolean;
+        };
+    }): Promise<Model | null>;
     deleteItem({resource, item}: {
         resource: Resource;
         item: Model;
-    }): any;
+    }): Promise<boolean | null>;
     updateItemAttributes({resource, item, attributes}: {
         resource: Resource;
         item: Model;
-        attributes: any;
-    }): any;
+        attributes: object;
+    }): Promise<any | null>;
     private setRequestId(json, requestId?);
 }
 declare const _default: Api;

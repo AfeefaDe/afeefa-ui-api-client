@@ -1,3 +1,4 @@
+import Model from '../model/Model';
 import Relation from '../model/Relation';
 export default class Query {
     private relationsToFetch;
@@ -6,11 +7,11 @@ export default class Query {
     constructor();
     with(...relations: any[]): Query;
     forRelation(relation: Relation): Query;
-    get(id: any, strategy: any): any;
-    getAll(params: any): any;
-    save(model: any, options: any): any;
-    updateAttributes(model: any, attributes: any): any;
-    delete(model: any): any;
+    get(id: any, strategy: any): Promise<Model | null>;
+    getAll(params: any): Promise<Model[]>;
+    save(model: Model, options: object): Promise<Model | null>;
+    updateAttributes(model: Model, attributes: object): Promise<any>;
+    delete(model: any): Promise<boolean | null>;
     protected init(): void;
     protected getApi(): string[];
     protected getResource(params?: any): any;
