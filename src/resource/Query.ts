@@ -17,6 +17,9 @@ export default class Query {
   }
 
   public forRelation (relation: Relation) {
+    if (!relation) {
+      console.error('No relation given for Query.forRelation')
+    }
     const clone = this.clone()
     clone.relation = relation
     return clone

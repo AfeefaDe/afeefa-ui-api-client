@@ -3,7 +3,6 @@ import Model from '../model/Model'
 import Relation from '../model/Relation'
 
 export default class Resource {
-  public listParams
   public url
   public http
 
