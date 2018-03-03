@@ -1,11 +1,12 @@
 import API from '../api/Api'
 import Model from '../model/Model'
 import Relation from '../model/Relation'
+import Resource from './Resource'
 
 export default class Query {
   private relationsToFetch: Relation[] = []
   private relation: Relation | null = null
-  private resource
+  private resource: Resource | null = null
 
   constructor () {
     this.init()
@@ -39,7 +40,7 @@ export default class Query {
     })
   }
 
-  public getAll (params): Promise<Model[]> {
+  public getAll (params: object): Promise<Model[]> {
     const resource = this.getResource(params)
     return API.getList({resource, relation: this.relation, params}).then(models => {
       models.forEach(model => {
@@ -69,11 +70,11 @@ export default class Query {
     // fill in
   }
 
-  protected getApi () {
+  protected getApi (): string[] {
     return ['with', 'forRelation', 'get', 'getAll', 'save', 'delete', 'updateAttributes']
   }
 
-  protected getResource (params?) {
+  protected getResource (params?: object): Resource {
     if (!this.resource) {
       this.resource = this.createResource({
         relation: this.relation,
@@ -83,11 +84,12 @@ export default class Query {
     return this.resource
   }
 
-  protected createResource (_params) {
+  protected createResource (_params: object): Resource {
     console.error('Keine Resource definiert.')
+    return {} as Resource
   }
 
-  private clone () {
+  private clone (): Query {
     const Constructor = this.constructor as typeof Query
     const clone = new Constructor()
     clone.relationsToFetch = this.relationsToFetch
