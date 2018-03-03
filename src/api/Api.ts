@@ -39,12 +39,12 @@ export class Api {
       return Promise.resolve(resourceCache.getList(listType, listParams))
     }
 
-    if (!resource.url) {
+    if (!resource.getUrl()) {
       console.error('Keine resource.url konfiguriert', listType, listParams)
     }
 
     // list currently loading
-    const requestKey = resource.url + (params ? JSON.stringify(params) : '')
+    const requestKey = resource.getUrl() + (params ? JSON.stringify(params) : '')
     if (requestCache.hasItem(requestKey)) {
       return requestCache.getItem(requestKey)
     }
