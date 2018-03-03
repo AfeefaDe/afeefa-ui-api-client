@@ -1,16 +1,17 @@
 export default class Model {
     static type: string;
-    protected static _attributes: {};
-    protected static _relations: {};
-    protected static _attributeRemoteNameMap: {};
-    protected static _relationRemoteNameMap: {};
-    id: any;
+    static url: string;
+    protected static _attributes: object;
+    protected static _relations: object;
+    protected static _attributeRemoteNameMap: object;
+    protected static _relationRemoteNameMap: object;
+    id: string;
     type: string;
-    private _original;
     private _ID;
     private _loadingState;
     private _requestId;
     private _isClone;
+    private _original;
     private _relations;
     private _lastSnapshot;
     constructor();
@@ -42,7 +43,7 @@ export default class Model {
     /**
      * Relations
      */
-    readonly relations: any;
+    readonly relations: object;
     relation(name: any): any;
     hasRelation(name: any): boolean;
     fetchAllIncludedRelations(clone?: boolean): void;
@@ -59,7 +60,7 @@ export default class Model {
     normalizeJson(json: any): any;
     afterDeserializeAttributes(): void;
     serialize(): {
-        id: any;
+        id: string;
         type: string;
     };
     hasChanges(): boolean;

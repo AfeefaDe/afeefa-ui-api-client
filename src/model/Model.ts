@@ -1,5 +1,6 @@
 import LoadingState from '../api/LoadingState'
 import LoadingStrategy from '../api/LoadingStrategy'
+import { enumerable } from '../decorator/enumerable'
 import toCamelCase from '../filter/camel-case'
 import DataTypes from './DataTypes'
 import Relation from './Relation'
@@ -7,57 +8,39 @@ import Relation from './Relation'
 let ID = 0
 
 export default class Model {
-  public static type = 'models'
-  protected static _attributes = {}
-  protected static _relations = {}
-  protected static _attributeRemoteNameMap = {}
-  protected static _relationRemoteNameMap = {}
+  public static type: string = ''
+  public static url: string = ''
 
-  public id
-  public type = Model.type
+  protected static _attributes: object = {}
+  protected static _relations: object = {}
+  protected static _attributeRemoteNameMap: object = {}
+  protected static _relationRemoteNameMap: object = {}
 
+  public id: string = ''
+  public type: string = Model.type
+
+  @enumerable(false)
+  private _ID: number = ++ID
+
+  @enumerable(false)
+  private _loadingState: number = LoadingState.NOT_LOADED
+
+  @enumerable(false)
+  private _requestId: number = 0
+
+  @enumerable(false)
+  private _isClone: boolean = false
+
+  @enumerable(false)
   private _original: Model | null = null
-  private _ID
-  private _loadingState
-  private _requestId
-  private _isClone
-  private _relations
-  private _lastSnapshot
+
+  @enumerable(false)
+  private _relations: object = {}
+
+  @enumerable(false)
+  private _lastSnapshot: string = ''
 
   constructor () {
-    Object.defineProperty(this, '_ID', {
-      value: ++ID
-    })
-
-    Object.defineProperty(this, '_original', {
-      value: null,
-      writable: true
-    })
-
-    Object.defineProperty(this, '_lastSnapshot', {
-      value: null,
-      writable: true
-    })
-
-    Object.defineProperty(this, '_loadingState', {
-      value: LoadingState.NOT_LOADED,
-      writable: true
-    })
-
-    Object.defineProperty(this, '_requestId', {
-      value: 0,
-      writable: true
-    })
-
-    Object.defineProperty(this, '_isClone', {
-      value: false,
-      writable: true
-    })
-
-    Object.defineProperty(this, '_relations', {
-      value: {}
-    })
-
     // init attributes
     for (const name of Object.keys(this.class._attributes)) {
       const attr = this.class._attributes[name]

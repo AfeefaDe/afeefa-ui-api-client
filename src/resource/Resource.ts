@@ -18,6 +18,10 @@ export default class Resource {
    * Resource Config
    */
 
+  public getUrl () {
+    return this.url || this.getItemModel().url
+  }
+
   public getListType () {
     return this.getItemType()
   }
@@ -40,7 +44,7 @@ export default class Resource {
     return json
   }
 
-  public getItemModel (_json): typeof Model {
+  public getItemModel (_json?): typeof Model {
     // hook into
     return Model
   }

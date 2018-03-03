@@ -8,6 +8,7 @@ export default class Resource {
     /**
      * Resource Config
      */
+    getUrl(): string;
     getListType(): string;
     /**
      * Since Search or Todos resources return lists of mixed items
@@ -18,7 +19,7 @@ export default class Resource {
     getItemType(json?: any): string;
     getItemId(json: any): any;
     getItemJson(json: any): any;
-    getItemModel(_json: any): typeof Model;
+    getItemModel(_json?: any): typeof Model;
     createItem(json: any): Model;
     transformList(_items: any): void;
     /**

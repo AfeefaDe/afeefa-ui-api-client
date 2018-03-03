@@ -270,7 +270,8 @@ export class Api {
   }
 
   private getResourceProvider (resource: Resource): ResourceProvider {
-    return this.resourceProviderFactory(resource.url)
+    const url = resource.getUrl()
+    return this.resourceProviderFactory(url)
   }
 
   private setRequestId (json, requestId?) {
