@@ -19,7 +19,7 @@ export default class Resource {
    */
 
   public getUrl () {
-    return this.url || this.getItemModel().url
+    return this.url
   }
 
   public getListType () {

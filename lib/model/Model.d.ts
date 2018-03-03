@@ -1,6 +1,5 @@
 export default class Model {
     static type: string;
-    static url: string;
     protected static _attributes: object;
     protected static _relations: object;
     protected static _attributeRemoteNameMap: object;

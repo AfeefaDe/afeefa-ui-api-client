@@ -9,7 +9,6 @@ let ID = 0
 
 export default class Model {
   public static type: string = ''
-  public static url: string = ''
 
   protected static _attributes: object = {}
   protected static _relations: object = {}
