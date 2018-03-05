@@ -19,6 +19,9 @@ export default class Model {
   public type: string = Model.type
 
   @enumerable(false)
+  public $rels: object = {}
+
+  @enumerable(false)
   private _ID: number = ++ID
 
   @enumerable(false)
@@ -32,9 +35,6 @@ export default class Model {
 
   @enumerable(false)
   private _original: Model | null = null
-
-  @enumerable(false)
-  private _relations: object = {}
 
   @enumerable(false)
   private _lastSnapshot: string = ''
@@ -52,7 +52,7 @@ export default class Model {
       const relationConfig = this.class._relations[relationName]
       this[relationName] = relationConfig.type === Relation.HAS_MANY ? [] : null
       const relation = new Relation({owner: this, name: relationName, ...relationConfig})
-      this._relations[relationName] = relation
+      this.$rels[relationName] = relation
     }
 
     this.init()
@@ -106,11 +106,11 @@ export default class Model {
    */
 
   get relations () {
-    return this._relations
+    return this.$rels
   }
 
   public relation (name) {
-    return this._relations[name]
+    return this.$rels[name]
   }
 
   public hasRelation (name) {
@@ -118,8 +118,8 @@ export default class Model {
   }
 
   public fetchAllIncludedRelations (clone = false) {
-    for (const relationName of Object.keys(this._relations)) {
-      const relation = this._relations[relationName]
+    for (const relationName of Object.keys(this.$rels)) {
+      const relation = this.$rels[relationName]
       if (relation.hasIncludedData) {
         this.fetchRelation(relationName, clone)
       }
@@ -127,8 +127,8 @@ export default class Model {
   }
 
   public fetchRelationsAfterGet (relationsToFullyFetch: any[] = []) {
-    for (const relationName of Object.keys(this._relations)) {
-      const relation = this._relations[relationName]
+    for (const relationName of Object.keys(this.$rels)) {
+      const relation = this.$rels[relationName]
       if (relationsToFullyFetch.includes(relationName)) {
         this.fetchRelation(relationName, false, LoadingStrategy.LOAD_IF_NOT_FULLY_LOADED)
       } else if (relation.invalidated) {
@@ -246,7 +246,7 @@ export default class Model {
     for (const name of Object.keys(relationsJson)) {
       const localName = this.class._relationRemoteNameMap[name] || name
       if (this.hasRelation(localName)) {
-        const relation = this._relations[localName]
+        const relation = this.$rels[localName]
         relation.deserialize(relationsJson[name])
       }
     }
@@ -323,6 +323,7 @@ export default class Model {
     }
 
     if (value && typeof value.clone === 'function') {
+      console.log('has clone function', value)
       return value.clone()
     }
 
@@ -350,8 +351,8 @@ export default class Model {
     clone._original = this
     clone._requestId = this._requestId
     clone._loadingState = this._loadingState
-    for (const relationName of Object.keys(this._relations)) {
-      clone._relations[relationName] = this._relations[relationName].clone()
+    for (const relationName of Object.keys(this.$rels)) {
+      clone.$rels[relationName] = this.$rels[relationName].clone()
     }
     clone.fetchAllIncludedRelations(true)
     return clone

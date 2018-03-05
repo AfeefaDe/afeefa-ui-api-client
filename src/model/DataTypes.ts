@@ -1,42 +1,46 @@
+export interface IDataType<T> {
+  value (value: any): T
+}
+
 export default class DataTypes {
-  public static Boolean = {
-    value (value) {
+  public static Boolean: IDataType<boolean> = {
+    value (value: any): boolean {
       return !!value
     }
   }
 
-  public static String = {
-    value (value) {
+  public static String: IDataType<string> = {
+    value (value): string {
       return typeof value === 'string' ? value : ''
     }
   }
 
-  public static Array = {
-    value (value) {
+  public static Array: IDataType<any[]> = {
+    value (value): any[] {
       return Array.isArray(value) ? value : []
     }
   }
 
-  public static Date = {
-    value (value) {
+  public static Date: IDataType<Date | null> = {
+    value (value): Date | null {
       return !isNaN(Date.parse(value)) ? new Date(value) : null
     }
   }
 
-  public static Int = {
-    value (value) {
+  public static Int: IDataType<number> = {
+    value (value): number {
       return value ? (parseInt(value, 10) || 0) : 0
     }
   }
 
-  public static Number = {
-    value (value) {
+  public static Number: IDataType<number> = {
+    value (value): number {
       return value ? (parseFloat(value) || 0) : 0
     }
   }
 
-  public static Custom = {
-    value (value) {
+  public static Custom: IDataType<any> = {
+    value (value): any {
       return value
     }
   }
