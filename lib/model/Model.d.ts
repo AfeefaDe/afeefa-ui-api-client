@@ -1,32 +1,27 @@
+import IAttributeConfig from './IAttributeConfig';
+import IRelationConfig from './IRelationConfig';
 export default class Model {
     static type: string;
-    protected static _attributes: object;
-    protected static _relations: object;
+    protected static _attributes: {
+        [key: string]: IAttributeConfig;
+    };
+    protected static _relations: {
+        [key: string]: IRelationConfig;
+    };
     protected static _attributeRemoteNameMap: object;
     protected static _relationRemoteNameMap: object;
     id: string;
     type: string;
+    $rels: object;
     private _ID;
     private _loadingState;
     private _requestId;
     private _isClone;
     private _original;
-    private _relations;
     private _lastSnapshot;
     constructor();
     static attributes(): {
-        id: {
-            type: {
-                value(value: any): number;
-            };
-            default: null;
-        };
-        type: {
-            type: {
-                value(value: any): string;
-            };
-            default: null;
-        };
+        [key: string]: IAttributeConfig;
     };
     init(): void;
     /**

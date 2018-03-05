@@ -1,6 +1,4 @@
-export interface IDataType<T> {
-  value (value: any): T
-}
+import IDataType from './IDataType'
 
 export default class DataTypes {
   public static Boolean: IDataType<boolean> = {

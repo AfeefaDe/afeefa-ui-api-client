@@ -3,6 +3,8 @@ import LoadingStrategy from '../api/LoadingStrategy'
 import { enumerable } from '../decorator/enumerable'
 import toCamelCase from '../filter/camel-case'
 import DataTypes from './DataTypes'
+import IAttributeConfig from './IAttributeConfig'
+import IRelationConfig from './IRelationConfig'
 import Relation from './Relation'
 
 let ID = 0
@@ -10,8 +12,8 @@ let ID = 0
 export default class Model {
   public static type: string = ''
 
-  protected static _attributes: object = {}
-  protected static _relations: object = {}
+  protected static _attributes: {[key: string]: IAttributeConfig} = {}
+  protected static _relations: {[key: string]: IRelationConfig} = {}
   protected static _attributeRemoteNameMap: object = {}
   protected static _relationRemoteNameMap: object = {}
 
@@ -42,14 +44,14 @@ export default class Model {
   constructor () {
     // init attributes
     for (const name of Object.keys(this.class._attributes)) {
-      const attr = this.class._attributes[name]
+      const attr: IAttributeConfig = this.class._attributes[name]
       this[name] = attr.hasOwnProperty('default') ? attr.default : attr.type.value()
     }
     this.type = this.class.type
 
     // init relations
     for (const relationName of Object.keys(this.class._relations)) {
-      const relationConfig = this.class._relations[relationName]
+      const relationConfig: IRelationConfig = this.class._relations[relationName]
       this[relationName] = relationConfig.type === Relation.HAS_MANY ? [] : null
       const relation = new Relation({owner: this, name: relationName, ...relationConfig})
       this.$rels[relationName] = relation
@@ -58,7 +60,7 @@ export default class Model {
     this.init()
   }
 
-  public static attributes () {
+  public static attributes (): {[key: string]: IAttributeConfig} {
     return {
       id: {
         type: DataTypes.Int,

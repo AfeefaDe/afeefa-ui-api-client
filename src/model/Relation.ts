@@ -1,6 +1,7 @@
 import LoadingState from '../api/LoadingState'
 import LoadingStrategy from '../api/LoadingStrategy'
 import resourceCache from '../cache/ResourceCache'
+import ModelType from './Model'
 
 let ID = 0
 
@@ -10,22 +11,25 @@ export default class Relation {
   public static ASSOCIATION_COMPOSITION = 'composition'
   public static ASSOCIATION_LINK = 'link'
 
-  public owner
+  public owner: ModelType
   public name: string
-  public type
-  public Model
-  public associationType
-  public instanceId
+  public type: string
+  public Model: typeof ModelType
+  public associationType: string
+  public instanceId: number
   public isClone: boolean
-  public original
-  public isFetching
-  public fetched
-  public invalidated
+  public original: Relation | null
+  public isFetching: boolean | number = false
+  public fetched: boolean = false
+  public invalidated: boolean = false
 
   public id
   public hasIncludedData
 
-  constructor ({owner, name, type, Model, associationType}) {
+  constructor (
+    {owner, name, type, Model, associationType}:
+    {owner: ModelType, name: string, type: string, Model: typeof ModelType, associationType: string}
+  ) {
     if (!type || !Model) {
       console.error('Relation configuration invalid', ...Array.from(arguments))
     }
