@@ -2,7 +2,7 @@ import requestCache from '../cache/RequestCache'
 import resourceCache from '../cache/ResourceCache'
 import Model from '../model/Model'
 import Relation from '../model/Relation'
-import Resource from '../resource/Resource'
+import IResource from '../resource/IResource'
 import ResourceProvider from '../resource/ResourceProvider'
 import ApiError from './ApiError'
 import LoadingState from './LoadingState'
@@ -25,7 +25,7 @@ export class Api {
 
   public getList (
     {resource, relation, params}:
-    {resource: Resource, relation: Relation | null, params: any}
+    {resource: IResource, relation: Relation | null, params: any}
   ): Promise<Model[]> {
     // key of list in resource cache
     const listType = resource.getListType()
@@ -39,12 +39,12 @@ export class Api {
       return Promise.resolve(resourceCache.getList(listType, listParams))
     }
 
-    if (!resource.getUrl()) {
+    if (!resource.url) {
       console.error('Keine resource.url konfiguriert', listType, listParams)
     }
 
     // list currently loading
-    const requestKey = resource.getUrl() + (params ? JSON.stringify(params) : '')
+    const requestKey = resource.url + (params ? JSON.stringify(params) : '')
     if (requestCache.hasItem(requestKey)) {
       return requestCache.getItem(requestKey)
     }
@@ -61,14 +61,15 @@ export class Api {
         let item
         // update existing cached items but not replace them!
         const itemType = resource.getItemType(json)
-        const itemId = resource.getItemId(json)
+        const itemJson = resource.getItemJson(json)
+        const itemId = itemJson.id
         if (resourceCache.hasItem(itemType, itemId)) {
           item = resourceCache.getItem(itemType, itemId)
         } else {
           item = resource.createItem(json)
           resourceCache.addItem(itemType, item)
         }
-        item.deserialize(resource.getItemJson(json))
+        item.deserialize(itemJson)
 
         // add model to list
         items.push(item)
@@ -93,7 +94,7 @@ export class Api {
 
   public getItem (
     {resource, id, strategy}:
-    {resource: Resource, id: string, strategy: number}
+    {resource: IResource, id: string, strategy: number}
   ): Promise<Model | null> {
     if (!strategy) {
       strategy = LoadingStrategy.LOAD_IF_NOT_FULLY_LOADED
@@ -154,7 +155,7 @@ export class Api {
 
   public saveItem (
     {resource, item, options = {}}:
-    {resource: Resource, item: Model, options: {wrapInDataProperty?: boolean}}
+    {resource: IResource, item: Model, options: {wrapInDataProperty?: boolean}}
   ): Promise<Model | null> {
     const itemType = resource.getItemType()
     const itemJson = item.serialize()
@@ -191,7 +192,7 @@ export class Api {
 
   public addItem (
     {resource, item, options = {}}:
-    {resource: Resource, item: Model, options: {wrapInDataProperty?: boolean}}
+    {resource: IResource, item: Model, options: {wrapInDataProperty?: boolean}}
   ): Promise<Model | null> {
     const itemType = resource.getItemType()
 
@@ -224,7 +225,7 @@ export class Api {
 
   public deleteItem (
     {resource, item}:
-    {resource: Resource, item: Model}
+    {resource: IResource, item: Model}
   ): Promise<boolean | null> {
     const resourceProvider = this.getResourceProvider(resource)
     return resourceProvider.delete({id: item.id}).then(() => {
@@ -242,7 +243,7 @@ export class Api {
 
   public updateItemAttributes (
     {resource, item, attributes}:
-    {resource: Resource, item: Model, attributes: object}
+    {resource: IResource, item: Model, attributes: object}
   ): Promise<any | null> {
     const data = {
       id: item.id,
@@ -269,8 +270,8 @@ export class Api {
     })
   }
 
-  private getResourceProvider (resource: Resource): ResourceProvider {
-    const url = resource.getUrl()
+  private getResourceProvider (resource: IResource): ResourceProvider {
+    const url = resource.url
     return this.resourceProviderFactory(url)
   }
 

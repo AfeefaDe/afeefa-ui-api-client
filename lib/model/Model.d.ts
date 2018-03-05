@@ -1,8 +1,10 @@
+import Query from '../resource/Query';
 import { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig';
 import { IRelationsConfig } from './IRelationConfig';
 import Relation from './Relation';
 export default class Model {
     static type: string;
+    static query: Query | null;
     static _relations: IRelationsConfig;
     static _attributes: IAttributesConfig;
     static _attributeRemoteNameMap: object;

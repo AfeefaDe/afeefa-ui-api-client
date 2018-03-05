@@ -2,6 +2,8 @@ import LoadingState from '../api/LoadingState'
 import LoadingStrategy from '../api/LoadingStrategy'
 import { enumerable } from '../decorator/enumerable'
 import toCamelCase from '../filter/camel-case'
+import Query from '../resource/Query'
+import RelationQuery from '../resource/RelationQuery'
 import DataTypes from './DataTypes'
 import IAttributeConfig, { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig'
 import IRelationConfig, { IRelationsConfig } from './IRelationConfig'
@@ -11,6 +13,7 @@ let ID = 0
 
 export default class Model {
   public static type: string = ''
+  public static query: Query | null = null
 
   public static _relations: IRelationsConfig = {}
   public static _attributes: IAttributesConfig = {}
@@ -49,11 +52,14 @@ export default class Model {
     }
     this.type = this.class.type
 
+
     // init relations
     for (const relationName of Object.keys(this.class._relations)) {
       const relationConfig: IRelationConfig = this.class._relations[relationName]
       this[relationName] = relationConfig.type === Relation.HAS_MANY ? [] : null
-      const {remoteName, ...relationParams} = relationConfig // splice remoteName from config
+
+      relationConfig.Query = relationConfig.Query || RelationQuery
+      const {remoteName, ...relationParams} = relationConfig // splice remoteName
       const relation: Relation = new Relation({owner: this, name: relationName, ...relationParams})
       this.$rels[relationName] = relation
     }
@@ -67,7 +73,7 @@ export default class Model {
 
   public static attributes (): IAttributesMixedConfig {
     return {
-      id: DataTypes.Int,
+      id: DataTypes.String,
 
       type: DataTypes.String
     }

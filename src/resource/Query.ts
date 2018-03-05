@@ -12,6 +12,10 @@ export default class Query {
     this.init()
   }
 
+  public getApi (): string[] {
+    return ['with', 'forRelation', 'get', 'getAll', 'save', 'delete', 'updateAttributes']
+  }
+
   public with (...relations): Query {
     const clone = this.clone()
     clone.relationsToFetch = relations
@@ -40,8 +44,8 @@ export default class Query {
     })
   }
 
-  public getAll (params: object): Promise<Model[]> {
-    const resource = this.getResource(params)
+  public getAll (params?: object): Promise<Model[]> {
+    const resource = this.getResource()
     return API.getList({resource, relation: this.relation, params}).then(models => {
       models.forEach(model => {
         model.fetchRelationsAfterGet()
@@ -70,21 +74,14 @@ export default class Query {
     // fill in
   }
 
-  protected getApi (): string[] {
-    return ['with', 'forRelation', 'get', 'getAll', 'save', 'delete', 'updateAttributes']
-  }
-
-  protected getResource (params?: object): Resource {
+  protected getResource (): Resource {
     if (!this.resource) {
-      this.resource = this.createResource({
-        relation: this.relation,
-        params
-      })
+      this.resource = this.createResource(this.relation)
     }
     return this.resource
   }
 
-  protected createResource (_params: object): Resource {
+  protected createResource (_relation: Relation | null): Resource {
     console.error('Keine Resource definiert.')
     return {} as Resource
   }

@@ -1,32 +1,7 @@
-import Model from '../model/Model';
 import Relation from '../model/Relation';
-export default class Resource {
-    url: string;
+import BaseResource from './BaseResource';
+export default class Resource extends BaseResource {
     constructor(...params: any[]);
-    init(_params?: any): void;
-    /**
-     * Resource Config
-     */
-    getUrl(): string;
-    getListType(): string;
-    /**
-     * Since Search or Todos resources return lists of mixed items
-     * we need to decide what resource cache key is to be
-     * used based on the actual item's type.
-     * @see Search or Todos resources
-     */
-    getItemType(json?: any): string;
-    getItemId(json: any): any;
-    getItemJson(json: any): any;
-    getItemModel(_json?: any): typeof Model;
-    createItem(json: any): Model;
-    transformList(_items: any): void;
-    /**
-     * Api Hooks
-     */
-    itemAdded(_item: any): void;
-    itemDeleted(_item: any): void;
-    itemSaved(_itemOld: any, _item: any): void;
     /**
      * Resource Cache Access
      */

@@ -1,6 +1,7 @@
 import LoadingState from '../api/LoadingState'
 import LoadingStrategy from '../api/LoadingStrategy'
 import resourceCache from '../cache/ResourceCache'
+import RelationQueryType from '../resource/RelationQuery'
 import ModelType from './Model'
 
 let ID = 0
@@ -15,6 +16,8 @@ export default class Relation {
   public name: string
   public type: string
   public Model: typeof ModelType
+  public Query: typeof RelationQueryType
+  public query: RelationQueryType
   public associationType: string
   public instanceId: number
   public isClone: boolean
@@ -27,8 +30,8 @@ export default class Relation {
   public hasIncludedData: boolean = false
 
   constructor (
-    {owner, name, type, Model, associationType}:
-    {owner: ModelType, name: string, type: string, Model: typeof ModelType, associationType?: string}
+    {owner, name, type, Model, Query, associationType}:
+    {owner: ModelType, name: string, type: string, Model: typeof ModelType, Query: typeof RelationQueryType, associationType?: string}
   ) {
     if (!type || !Model) {
       console.error('Relation configuration invalid', ...Array.from(arguments))
@@ -42,13 +45,27 @@ export default class Relation {
     this.name = name
     this.type = type
     this.Model = Model
+    this.Query = Query
     this.associationType = associationType
 
+    this.query = new this.Query(this)
     this.instanceId = ++ID
     this.isClone = false
     this.original = null
 
     this.reset()
+  }
+
+  public getAll (params?: object): Promise<ModelType[]> {
+    return this.query.getAll(params)
+  }
+
+  public save (model: ModelType): Promise<ModelType | null> {
+    return this.query.save(model)
+  }
+
+  public delete (model): Promise<boolean | null> {
+    return this.query.delete(model)
   }
 
   public purgeFromCacheAndMarkInvalid () {
@@ -163,6 +180,7 @@ export default class Relation {
       name: this.name,
       type: this.type,
       Model: this.Model,
+      Query: this.Query,
       associationType: this.associationType
     })
 

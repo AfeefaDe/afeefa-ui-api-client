@@ -1,3 +1,4 @@
+import RelationQuery from '../resource/RelationQuery';
 import Model from './Model';
 export interface IRelationsConfig {
     [key: string]: IRelationConfig;
@@ -7,4 +8,5 @@ export default interface IRelationConfig {
     Model: typeof Model;
     associationType?: string;
     remoteName?: string;
+    Query: typeof RelationQuery;
 }

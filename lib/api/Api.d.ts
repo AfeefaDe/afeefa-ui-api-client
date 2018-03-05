@@ -1,6 +1,6 @@
 import Model from '../model/Model';
 import Relation from '../model/Relation';
-import Resource from '../resource/Resource';
+import IResource from '../resource/IResource';
 import ResourceProvider from '../resource/ResourceProvider';
 import ApiError from './ApiError';
 export declare class Api {
@@ -14,35 +14,35 @@ export declare class Api {
     onDelete: (_model: Model) => null;
     onDeleteError: (_apiError: ApiError) => null;
     getList({resource, relation, params}: {
-        resource: Resource;
+        resource: IResource;
         relation: Relation | null;
         params: any;
     }): Promise<Model[]>;
     getItem({resource, id, strategy}: {
-        resource: Resource;
+        resource: IResource;
         id: string;
         strategy: number;
     }): Promise<Model | null>;
     saveItem({resource, item, options}: {
-        resource: Resource;
+        resource: IResource;
         item: Model;
         options: {
             wrapInDataProperty?: boolean;
         };
     }): Promise<Model | null>;
     addItem({resource, item, options}: {
-        resource: Resource;
+        resource: IResource;
         item: Model;
         options: {
             wrapInDataProperty?: boolean;
         };
     }): Promise<Model | null>;
     deleteItem({resource, item}: {
-        resource: Resource;
+        resource: IResource;
         item: Model;
     }): Promise<boolean | null>;
     updateItemAttributes({resource, item, attributes}: {
-        resource: Resource;
+        resource: IResource;
         item: Model;
         attributes: object;
     }): Promise<any | null>;

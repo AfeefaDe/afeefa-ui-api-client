@@ -1,3 +1,4 @@
+import RelationQueryType from '../resource/RelationQuery';
 import ModelType from './Model';
 export default class Relation {
     static HAS_ONE: string;
@@ -8,6 +9,7 @@ export default class Relation {
     name: string;
     type: string;
     Model: typeof ModelType;
+    Query: typeof RelationQueryType;
     associationType: string;
     instanceId: number;
     isClone: boolean;
@@ -17,13 +19,17 @@ export default class Relation {
     invalidated: boolean;
     id: string | null;
     hasIncludedData: boolean;
-    constructor({owner, name, type, Model, associationType}: {
+    constructor({owner, name, type, Model, Query, associationType}: {
         owner: ModelType;
         name: string;
         type: string;
         Model: typeof ModelType;
+        Query: typeof RelationQueryType;
         associationType?: string;
     });
+    getAll(params?: object): Promise<ModelType[]>;
+    save(model: ModelType): Promise<ModelType | null>;
+    delete(model: any): Promise<boolean | null>;
     purgeFromCacheAndMarkInvalid(): void;
     listParams(): {
         owner_type: string;
@@ -44,6 +50,7 @@ export default class Relation {
      */
     clone(): Relation;
     readonly info: string;
+    private getQuery();
     private findOrCreateItem(json);
     private reset();
 }
