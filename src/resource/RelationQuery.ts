@@ -13,16 +13,16 @@ export default class RelationQuery {
   }
 
   public getApi (): string[] {
-    return ['getAll', 'save', 'delete']
+    return ['get', 'getAll', 'save', 'delete']
   }
 
   public setRelation (relation: Relation) {
     this.relation = relation
   }
 
-  public get (id: string): Promise<Model | null> {
+  public get (id: string, strategy?: number): Promise<Model | null> {
     const resource = this.getResource()
-    return API.getItem({resource, id}).then(model => {
+    return API.getItem({resource, id, strategy}).then(model => {
       return model
     })
   }

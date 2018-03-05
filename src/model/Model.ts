@@ -138,7 +138,7 @@ export default class Model {
     if (relation.type === Relation.HAS_ONE) {
       const currentItemState = (this[relationName] && this[relationName]._loadingState) || LoadingState.NOT_LOADED
       relation.fetchHasOne(id => {
-        return this[fetchFunction](relation.Model, id, clone, strategy).then(item => {
+        return this[fetchFunction](id, clone, strategy).then(item => {
           if (item && clone && relation.associationType === Relation.ASSOCIATION_COMPOSITION) {
             item = item.clone()
           }
@@ -147,7 +147,7 @@ export default class Model {
       }, currentItemState, strategy)
     } else {
       relation.fetchHasMany(() => {
-        return this[fetchFunction](relation.Model, clone, strategy).then(items => {
+        return this[fetchFunction](clone, strategy).then(items => {
           this[relationName] = []
           items.forEach(item => {
             if (item && clone && relation.associationType === Relation.ASSOCIATION_COMPOSITION) {

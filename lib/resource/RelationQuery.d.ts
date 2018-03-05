@@ -6,7 +6,7 @@ export default class RelationQuery {
     constructor(relation: Relation);
     getApi(): string[];
     setRelation(relation: Relation): void;
-    get(id: string): Promise<Model | null>;
+    get(id: string, strategy?: number): Promise<Model | null>;
     getAll(params?: object): Promise<Model[]>;
     save(model: Model): Promise<Model | null>;
     delete(model: any): Promise<boolean | null>;
