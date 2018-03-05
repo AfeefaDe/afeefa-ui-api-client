@@ -2,7 +2,6 @@ import Model from '../model/Model';
 import Relation from '../model/Relation';
 export default class Resource {
     url: string;
-    http: any;
     constructor(...params: any[]);
     init(_params?: any): void;
     /**

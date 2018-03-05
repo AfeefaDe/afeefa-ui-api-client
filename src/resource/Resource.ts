@@ -4,7 +4,6 @@ import Relation from '../model/Relation'
 
 export default class Resource {
   public url: string = ''
-  public http
 
   constructor (...params) {
     this.init(...params)
