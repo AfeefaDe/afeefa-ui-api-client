@@ -23,12 +23,12 @@ export default class Relation {
   public fetched: boolean = false
   public invalidated: boolean = false
 
-  public id
-  public hasIncludedData
+  public id: string | null = null
+  public hasIncludedData: boolean = false
 
   constructor (
     {owner, name, type, Model, associationType}:
-    {owner: ModelType, name: string, type: string, Model: typeof ModelType, associationType: string}
+    {owner: ModelType, name: string, type: string, Model: typeof ModelType, associationType?: string}
   ) {
     if (!type || !Model) {
       console.error('Relation configuration invalid', ...Array.from(arguments))

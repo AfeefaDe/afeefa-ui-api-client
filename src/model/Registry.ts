@@ -1,4 +1,7 @@
-import BaseModel from './Model'
+import IAttributeConfig, { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig'
+import IDataType from './IDataType'
+import IRelationConfig, { IRelationsConfig } from './IRelationConfig'
+import ModelType from './Model'
 
 export class ModelRegistry {
   private models = {}
@@ -54,21 +57,22 @@ export class ModelRegistry {
     }
   }
 
-  public initializeAttributes (Model) {
-    const attrs = this.setupAttributes(Model)
+  public initializeAttributes (Model: typeof ModelType) {
+    const mixedAttrs: IAttributesMixedConfig = this.setupAttributes(Model)
+    const attrs: IAttributesConfig = {}
+    // convert simple DataTypes attributes to IAttributeConfig
     // name: DataTypes.Int => name: { type: DataTypes.Int }
-    for (const name of Object.keys(attrs)) {
-      const attr = attrs[name]
-      if (!attr.type) {
-        attrs[name] = {
-          type: attr
-        }
+    for (const name of Object.keys(mixedAttrs)) {
+      let attr = mixedAttrs[name]
+      if (!(attr as any).type) {
+        attr = { type: attr as IDataType<any> }
       }
+      attrs[name] = attr as IAttributeConfig
     }
 
     const attributeRemoteNameMap = {}
     for (const name of Object.keys(attrs)) {
-      const attr = attrs[name]
+      const attr: IAttributeConfig = attrs[name]
       if (attr.remoteName) {
         attributeRemoteNameMap[attr.remoteName] = name
       }
@@ -77,9 +81,9 @@ export class ModelRegistry {
     Model._attributeRemoteNameMap = attributeRemoteNameMap
   }
 
-  public setupAttributes (Model) {
-    let attributes = {}
-    if (Model !== BaseModel) {
+  public setupAttributes (Model: typeof ModelType): IAttributesMixedConfig {
+    let attributes: IAttributesMixedConfig = {}
+    if (Model !== ModelType) {
       const superAttrs = this.setupAttributes(Object.getPrototypeOf(Model))
       attributes = superAttrs
     }
@@ -89,11 +93,11 @@ export class ModelRegistry {
     return attributes
   }
 
-  public initializeRelations (Model) {
-    const relations = this.setupRelations(Model)
+  public initializeRelations (Model: typeof ModelType) {
+    const relations: IRelationsConfig = this.setupRelations(Model)
     const relationRemoteNameMap = {}
     for (const name of Object.keys(relations)) {
-      const relation = relations[name]
+      const relation: IRelationConfig = relations[name]
       if (relation.remoteName) {
         relationRemoteNameMap[relation.remoteName] = name
       }
@@ -102,15 +106,13 @@ export class ModelRegistry {
     Model._relationRemoteNameMap = relationRemoteNameMap
   }
 
-  public setupRelations (Model) {
-    let relations = {}
-    if (Model !== BaseModel) {
+  public setupRelations (Model: typeof ModelType): IRelationsConfig {
+    let relations: IRelationsConfig = {}
+    if (Model !== ModelType) {
       const superRelations = this.setupRelations(Object.getPrototypeOf(Model))
       relations = superRelations
     }
-    if (Model.hasOwnProperty('relations')) {
-      relations = {...relations, ...Model.relations()}
-    }
+    relations = {...relations, ...Model.relations()}
     return relations
   }
 }

@@ -15,14 +15,14 @@ export default class Relation {
     isFetching: boolean | number;
     fetched: boolean;
     invalidated: boolean;
-    id: any;
-    hasIncludedData: any;
+    id: string | null;
+    hasIncludedData: boolean;
     constructor({owner, name, type, Model, associationType}: {
         owner: ModelType;
         name: string;
         type: string;
         Model: typeof ModelType;
-        associationType: string;
+        associationType?: string;
     });
     purgeFromCacheAndMarkInvalid(): void;
     listParams(): {

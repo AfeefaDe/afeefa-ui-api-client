@@ -3,8 +3,8 @@ import LoadingStrategy from '../api/LoadingStrategy'
 import { enumerable } from '../decorator/enumerable'
 import toCamelCase from '../filter/camel-case'
 import DataTypes from './DataTypes'
-import IAttributeConfig from './IAttributeConfig'
-import IRelationConfig from './IRelationConfig'
+import IAttributeConfig, { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig'
+import IRelationConfig, { IRelationsConfig } from './IRelationConfig'
 import Relation from './Relation'
 
 let ID = 0
@@ -12,16 +12,16 @@ let ID = 0
 export default class Model {
   public static type: string = ''
 
-  protected static _attributes: {[key: string]: IAttributeConfig} = {}
-  protected static _relations: {[key: string]: IRelationConfig} = {}
-  protected static _attributeRemoteNameMap: object = {}
-  protected static _relationRemoteNameMap: object = {}
+  public static _relations: IRelationsConfig = {}
+  public static _attributes: IAttributesConfig = {}
+  public static _attributeRemoteNameMap: object = {}
+  public static _relationRemoteNameMap: object = {}
 
   public id: string = ''
   public type: string = Model.type
 
   @enumerable(false)
-  public $rels: object = {}
+  public $rels: {[key: string]: Relation} = {}
 
   @enumerable(false)
   private _ID: number = ++ID
@@ -53,24 +53,23 @@ export default class Model {
     for (const relationName of Object.keys(this.class._relations)) {
       const relationConfig: IRelationConfig = this.class._relations[relationName]
       this[relationName] = relationConfig.type === Relation.HAS_MANY ? [] : null
-      const relation = new Relation({owner: this, name: relationName, ...relationConfig})
+      const {remoteName, ...relationParams} = relationConfig // splice remoteName from config
+      const relation: Relation = new Relation({owner: this, name: relationName, ...relationParams})
       this.$rels[relationName] = relation
     }
 
     this.init()
   }
 
-  public static attributes (): {[key: string]: IAttributeConfig} {
-    return {
-      id: {
-        type: DataTypes.Int,
-        default: null
-      },
+  public static relations (): IRelationsConfig {
+    return {}
+  }
 
-      type: {
-        type: DataTypes.String,
-        default: null
-      }
+  public static attributes (): IAttributesMixedConfig {
+    return {
+      id: DataTypes.Int,
+
+      type: DataTypes.String
     }
   }
 
@@ -90,38 +89,11 @@ export default class Model {
   }
 
   /**
-   * Attributes
-   */
-
-  public hasAttr (name) {
-    return !!this.class._attributes[name]
-  }
-
-  public getAttrValue (name, value) {
-    const attr = this.class._attributes[name]
-    // return custom value calclulation or the default calculation of the type
-    return attr.value ? attr.value(value) : attr.type.value(value)
-  }
-
-  /**
    * Relations
    */
-
-  get relations () {
-    return this.$rels
-  }
-
-  public relation (name) {
-    return this.$rels[name]
-  }
-
-  public hasRelation (name) {
-    return !!this.class._relations[name]
-  }
-
   public fetchAllIncludedRelations (clone = false) {
     for (const relationName of Object.keys(this.$rels)) {
-      const relation = this.$rels[relationName]
+      const relation: Relation = this.$rels[relationName]
       if (relation.hasIncludedData) {
         this.fetchRelation(relationName, clone)
       }
@@ -130,7 +102,7 @@ export default class Model {
 
   public fetchRelationsAfterGet (relationsToFullyFetch: any[] = []) {
     for (const relationName of Object.keys(this.$rels)) {
-      const relation = this.$rels[relationName]
+      const relation: Relation = this.$rels[relationName]
       if (relationsToFullyFetch.includes(relationName)) {
         this.fetchRelation(relationName, false, LoadingStrategy.LOAD_IF_NOT_FULLY_LOADED)
       } else if (relation.invalidated) {
@@ -140,13 +112,13 @@ export default class Model {
   }
 
   public refetchRelation (relationName) {
-    const relation = this.relation(relationName)
+    const relation: Relation = this.$rels[relationName]
     relation.fetched = false
     this.fetchRelation(relationName, false)
   }
 
   public fetchRelation (relationName, clone, strategy = LoadingStrategy.LOAD_IF_NOT_CACHED) {
-    const relation = this.relation(relationName)
+    const relation: Relation = this.$rels[relationName]
 
     if (relation.fetched) {
       return
@@ -248,7 +220,7 @@ export default class Model {
     for (const name of Object.keys(relationsJson)) {
       const localName = this.class._relationRemoteNameMap[name] || name
       if (this.hasRelation(localName)) {
-        const relation = this.$rels[localName]
+        const relation: Relation = this.$rels[localName]
         relation.deserialize(relationsJson[name])
       }
     }
@@ -368,5 +340,19 @@ export default class Model {
 
   private get class (): typeof Model {
     return this.constructor as typeof Model
+  }
+
+  private hasAttr (name) {
+    return !!this.class._attributes[name]
+  }
+
+  private getAttrValue (name, value) {
+    const attr: IAttributeConfig = this.class._attributes[name]
+    // return custom value calclulation or the default calculation of the type
+    return attr.value ? attr.value(value) : attr.type.value(value)
+  }
+
+  private hasRelation (name) {
+    return !!this.class._relations[name]
   }
 }

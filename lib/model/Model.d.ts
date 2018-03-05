@@ -1,18 +1,17 @@
-import IAttributeConfig from './IAttributeConfig';
-import IRelationConfig from './IRelationConfig';
+import { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig';
+import { IRelationsConfig } from './IRelationConfig';
+import Relation from './Relation';
 export default class Model {
     static type: string;
-    protected static _attributes: {
-        [key: string]: IAttributeConfig;
-    };
-    protected static _relations: {
-        [key: string]: IRelationConfig;
-    };
-    protected static _attributeRemoteNameMap: object;
-    protected static _relationRemoteNameMap: object;
+    static _relations: IRelationsConfig;
+    static _attributes: IAttributesConfig;
+    static _attributeRemoteNameMap: object;
+    static _relationRemoteNameMap: object;
     id: string;
     type: string;
-    $rels: object;
+    $rels: {
+        [key: string]: Relation;
+    };
     private _ID;
     private _loadingState;
     private _requestId;
@@ -20,9 +19,8 @@ export default class Model {
     private _original;
     private _lastSnapshot;
     constructor();
-    static attributes(): {
-        [key: string]: IAttributeConfig;
-    };
+    static relations(): IRelationsConfig;
+    static attributes(): IAttributesMixedConfig;
     init(): void;
     /**
      * Inspects the given JSON and calculates a richness
@@ -30,16 +28,8 @@ export default class Model {
      */
     calculateLoadingStateFromJson(json: any): number;
     /**
-     * Attributes
-     */
-    hasAttr(name: any): boolean;
-    getAttrValue(name: any, value: any): any;
-    /**
      * Relations
      */
-    readonly relations: object;
-    relation(name: any): any;
-    hasRelation(name: any): boolean;
     fetchAllIncludedRelations(clone?: boolean): void;
     fetchRelationsAfterGet(relationsToFullyFetch?: any[]): void;
     refetchRelation(relationName: any): void;
@@ -67,4 +57,7 @@ export default class Model {
     clone(): Model;
     readonly info: string;
     private readonly class;
+    private hasAttr(name);
+    private getAttrValue(name, value);
+    private hasRelation(name);
 }
