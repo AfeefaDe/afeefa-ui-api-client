@@ -94,7 +94,7 @@ export class Api {
 
   public getItem (
     {resource, id, strategy}:
-    {resource: IResource, id: string, strategy: number}
+    {resource: IResource, id: string, strategy?: number}
   ): Promise<Model | null> {
     if (!strategy) {
       strategy = LoadingStrategy.LOAD_IF_NOT_FULLY_LOADED

@@ -12,8 +12,19 @@ export default class RelationQuery {
     this.init()
   }
 
+  public getApi (): string[] {
+    return ['getAll', 'save', 'delete']
+  }
+
   public setRelation (relation: Relation) {
     this.relation = relation
+  }
+
+  public get (id: string): Promise<Model | null> {
+    const resource = this.getResource()
+    return API.getItem({resource, id}).then(model => {
+      return model
+    })
   }
 
   public getAll (params?: object): Promise<Model[]> {

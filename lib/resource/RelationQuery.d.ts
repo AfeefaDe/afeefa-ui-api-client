@@ -4,7 +4,9 @@ import RelationResource from './RelationResource';
 export default class RelationQuery {
     private relation;
     constructor(relation: Relation);
+    getApi(): string[];
     setRelation(relation: Relation): void;
+    get(id: string): Promise<Model | null>;
     getAll(params?: object): Promise<Model[]>;
     save(model: Model): Promise<Model | null>;
     delete(model: any): Promise<boolean | null>;

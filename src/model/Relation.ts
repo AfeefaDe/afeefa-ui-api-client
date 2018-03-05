@@ -46,26 +46,27 @@ export default class Relation {
     this.type = type
     this.Model = Model
     this.Query = Query
+
     this.associationType = associationType
 
-    this.query = new this.Query(this)
     this.instanceId = ++ID
     this.isClone = false
     this.original = null
 
+    this.query = new this.Query(this)
+
+    // provide query methods on the relation
+    const that = this as any
+    for (const method of this.query.getApi()) {
+      if (that[method]) {
+        console.error('Die Relation', this.name, 'hat bereits eine Methode', method)
+      }
+      that[method] = (...args) => {
+        return this.query[method](...args)
+      }
+    }
+
     this.reset()
-  }
-
-  public getAll (params?: object): Promise<ModelType[]> {
-    return this.query.getAll(params)
-  }
-
-  public save (model: ModelType): Promise<ModelType | null> {
-    return this.query.save(model)
-  }
-
-  public delete (model): Promise<boolean | null> {
-    return this.query.delete(model)
   }
 
   public purgeFromCacheAndMarkInvalid () {

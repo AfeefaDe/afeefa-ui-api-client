@@ -1,4 +1,3 @@
-import Model from '../model/Model'
 import Relation from '../model/Relation'
 import BaseResource from './BaseResource'
 
@@ -10,10 +9,7 @@ export default class RelationResource extends BaseResource {
 
     this.relation = relation
 
-    this.url = `${this.relation.owner.type}/${this.relation.owner.id}/${this.relation.Model.type}{/id}`
-  }
-
-  protected getItemModel (): typeof Model {
-    return this.relation.Model
+    this.url = this.url || `${this.relation.owner.type}/${this.relation.owner.id}/${this.relation.Model.type}{/id}`
+    this.Model = this.relation.Model
   }
 }
