@@ -4,9 +4,9 @@ import IRelationConfig, { IRelationsConfig } from './IRelationConfig'
 import ModelType from './Model'
 
 export class ModelRegistry {
-  private models = {}
+  private models: {[key: string]: typeof ModelType} = {}
 
-  public add (name, Model) {
+  public add (name: string, Model: typeof ModelType) {
     this.models[name] = Model
   }
 
@@ -20,44 +20,27 @@ export class ModelRegistry {
     }
   }
 
-  public getArguments (func) {
-    // https://stackoverflow.com/questions/1007981/how-to-get-function-parameter-names-values-dynamically/31194949#31194949
-    return (func + '')
-      .replace(/[/][/].*$/mg, '') // strip single-line comments
-      .replace(/\s+/g, '') // strip white space
-      .replace(/[/][*][^/*]*[*][/]/g, '') // strip multi-line comments
-      .split('){', 1)[0].replace(/^[^(]*[(]/, '') // extract the parameters
-      .replace(/=[^,]+/g, '') // strip any ES6 defaults
-      .split(',').filter(Boolean) // split & filter [""]
-  }
-
-  public get (name) {
-    if (!this.models[name]) {
-      console.error('error getting unknown model:', name)
-    }
-    return this.models[name]
-  }
-
-  public checkType (Model) {
+  private checkType (Model: typeof ModelType) {
     if (!Model.hasOwnProperty('type')) {
       console.error('Das Model', Model.name, 'hat keinen Typ')
     }
   }
 
-  public initializeQuery (Model) {
-    if (Model.hasOwnProperty('query')) {
-      for (const method of Model.query.getApi()) {
+  private initializeQuery (Model: typeof ModelType) {
+    const query = Model.query
+    if (query) {
+      for (const method of query.getApi()) {
         if (Model[method]) {
           console.error('Das Model', Model.name, 'hat bereits eine Methode', method)
         }
         Model[method] = (...args2) => {
-          return Model.query[method](...args2)
+          return query[method](...args2)
         }
       }
     }
   }
 
-  public initializeAttributes (Model: typeof ModelType) {
+  private initializeAttributes (Model: typeof ModelType) {
     const mixedAttrs: IAttributesMixedConfig = this.setupAttributes(Model)
     const attrs: IAttributesConfig = {}
     // convert simple DataTypes attributes to IAttributeConfig
@@ -81,7 +64,7 @@ export class ModelRegistry {
     Model._attributeRemoteNameMap = attributeRemoteNameMap
   }
 
-  public setupAttributes (Model: typeof ModelType): IAttributesMixedConfig {
+  private setupAttributes (Model: typeof ModelType): IAttributesMixedConfig {
     let attributes: IAttributesMixedConfig = {}
     if (Model !== ModelType) {
       const superAttrs = this.setupAttributes(Object.getPrototypeOf(Model))
@@ -93,7 +76,7 @@ export class ModelRegistry {
     return attributes
   }
 
-  public initializeRelations (Model: typeof ModelType) {
+  private initializeRelations (Model: typeof ModelType) {
     const relations: IRelationsConfig = this.setupRelations(Model)
     const relationRemoteNameMap = {}
     for (const name of Object.keys(relations)) {
@@ -106,7 +89,7 @@ export class ModelRegistry {
     Model._relationRemoteNameMap = relationRemoteNameMap
   }
 
-  public setupRelations (Model: typeof ModelType): IRelationsConfig {
+  private setupRelations (Model: typeof ModelType): IRelationsConfig {
     let relations: IRelationsConfig = {}
     if (Model !== ModelType) {
       const superRelations = this.setupRelations(Object.getPrototypeOf(Model))
