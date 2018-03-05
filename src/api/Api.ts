@@ -25,7 +25,7 @@ export class Api {
 
   public getList (
     {resource, relation, params}:
-    {resource: IResource, relation: Relation | null, params: any}
+    {resource: IResource, relation?: Relation | null, params: any}
   ): Promise<Model[]> {
     // key of list in resource cache
     const listType = resource.getListType()

@@ -1,4 +1,6 @@
+import resourceCache from '../cache/ResourceCache'
 import Model from '../model/Model'
+import Relation from '../model/Relation'
 import IResource from './IResource'
 
 export default class BaseResource implements IResource {
@@ -45,6 +47,30 @@ export default class BaseResource implements IResource {
 
   public itemSaved (_itemOld: Model, _item: Model) {
     // hook into
+  }
+
+  /**
+   * Resource Cache Access
+   */
+
+  public cachePurgeList (key, url) {
+    resourceCache.purgeList(key, url)
+  }
+
+  public cachePurgeRelation (relation: Relation) {
+    relation.purgeFromCacheAndMarkInvalid()
+  }
+
+  public cachePurgeItem (key, id) {
+    resourceCache.purgeItem(key, id)
+  }
+
+  public cacheGetAllLists (key) {
+    return resourceCache.getCache(key).lists
+  }
+
+  public findCachedItem (key, id) {
+    return resourceCache.getItem(key, id)
   }
 
   protected getItemModel (_json: any): typeof Model {

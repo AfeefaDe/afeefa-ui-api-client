@@ -5,29 +5,18 @@ import Resource from './Resource'
 
 export default class Query {
   private relationsToFetch: Relation[] = []
-  private relation: Relation | null = null
-  private resource: Resource | null = null
 
   constructor () {
     this.init()
   }
 
   public getApi (): string[] {
-    return ['with', 'forRelation', 'get', 'getAll', 'save', 'delete', 'updateAttributes']
+    return ['with', 'get', 'getAll', 'save', 'delete', 'updateAttributes']
   }
 
   public with (...relations): Query {
     const clone = this.clone()
     clone.relationsToFetch = relations
-    return clone
-  }
-
-  public forRelation (relation: Relation): Query {
-    if (!relation) {
-      console.error('No relation given for Query.forRelation')
-    }
-    const clone = this.clone()
-    clone.relation = relation
     return clone
   }
 
@@ -46,7 +35,7 @@ export default class Query {
 
   public getAll (params?: object): Promise<Model[]> {
     const resource = this.getResource()
-    return API.getList({resource, relation: this.relation, params}).then(models => {
+    return API.getList({resource, params}).then(models => {
       models.forEach(model => {
         model.fetchRelationsAfterGet()
       })
@@ -75,14 +64,6 @@ export default class Query {
   }
 
   protected getResource (): Resource {
-    if (!this.resource) {
-      this.resource = this.createResource(this.relation)
-    }
-    return this.resource
-  }
-
-  protected createResource (_relation: Relation | null): Resource {
-    console.error('Keine Resource definiert.')
     return {} as Resource
   }
 
@@ -90,7 +71,6 @@ export default class Query {
     const Constructor = this.constructor as typeof Query
     const clone = new Constructor()
     clone.relationsToFetch = this.relationsToFetch
-    clone.relation = this.relation
     return clone
   }
 }

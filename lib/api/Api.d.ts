@@ -15,7 +15,7 @@ export declare class Api {
     onDeleteError: (_apiError: ApiError) => null;
     getList({resource, relation, params}: {
         resource: IResource;
-        relation: Relation | null;
+        relation?: Relation | null;
         params: any;
     }): Promise<Model[]>;
     getItem({resource, id, strategy}: {
