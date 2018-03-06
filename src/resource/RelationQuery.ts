@@ -12,10 +12,6 @@ export default class RelationQuery {
     this.init()
   }
 
-  public getApi (): string[] {
-    return ['get', 'getAll', 'save', 'delete']
-  }
-
   public setRelation (relation: Relation) {
     this.relation = relation
   }
