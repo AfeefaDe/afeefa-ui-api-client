@@ -58,9 +58,10 @@ export default class Model {
       const relationConfig: IRelationConfig = this.class._relations[relationName]
       this[relationName] = relationConfig.type === Relation.HAS_MANY ? [] : null
 
-      relationConfig.Query = relationConfig.Query || RelationQuery
-      const {remoteName, ...relationParams} = relationConfig // splice remoteName
+      const {remoteName, Query: QueryType, ...relationParams} = relationConfig // splice remoteName
       const relation: Relation = new Relation({owner: this, name: relationName, ...relationParams})
+      relation.Query = QueryType ? new QueryType(relation) : new RelationQuery(relation)
+
       this.$rels[relationName] = relation
     }
 
@@ -134,7 +135,7 @@ export default class Model {
       const currentItemState = (this[relationName] && this[relationName]._loadingState) || LoadingState.NOT_LOADED
       // callback will be triggered if relation detects it needs new data
       relation.fetchHasOne(id => {
-        return relation.query.get(id, strategy).then((model: Model | null) => {
+        return relation.Query.get(id, strategy).then((model: Model | null) => {
           if (model && clone && relation.associationType === Relation.ASSOCIATION_COMPOSITION) {
             model = model.clone()
           }
@@ -145,7 +146,7 @@ export default class Model {
     } else {
       // callback will be triggered if relation detects it needs new data
       relation.fetchHasMany(() => {
-        return relation.query.getAll().then(items => {
+        return relation.Query.getAll().then(items => {
           this[relationName] = []
           items.forEach(item => {
             if (item && clone && relation.associationType === Relation.ASSOCIATION_COMPOSITION) {

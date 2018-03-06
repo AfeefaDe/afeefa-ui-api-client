@@ -9,8 +9,6 @@ export default class Relation {
     name: string;
     type: string;
     Model: typeof ModelType;
-    Query: typeof RelationQueryType;
-    query: RelationQueryType;
     associationType: string;
     instanceId: number;
     isClone: boolean;
@@ -20,14 +18,15 @@ export default class Relation {
     invalidated: boolean;
     id: string | null;
     hasIncludedData: boolean;
-    constructor({owner, name, type, Model, Query, associationType}: {
+    private _Query;
+    constructor({owner, name, type, Model, associationType}: {
         owner: ModelType;
         name: string;
         type: string;
         Model: typeof ModelType;
-        Query: typeof RelationQueryType;
         associationType?: string;
     });
+    Query: RelationQueryType;
     purgeFromCacheAndMarkInvalid(): void;
     listParams(): {
         owner_type: string;

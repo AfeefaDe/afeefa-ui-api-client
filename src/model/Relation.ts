@@ -16,8 +16,6 @@ export default class Relation {
   public name: string
   public type: string
   public Model: typeof ModelType
-  public Query: typeof RelationQueryType
-  public query: RelationQueryType
   public associationType: string
   public instanceId: number
   public isClone: boolean
@@ -29,9 +27,11 @@ export default class Relation {
   public id: string | null = null
   public hasIncludedData: boolean = false
 
+  private _Query: RelationQueryType | null = null
+
   constructor (
-    {owner, name, type, Model, Query, associationType}:
-    {owner: ModelType, name: string, type: string, Model: typeof ModelType, Query: typeof RelationQueryType, associationType?: string}
+    {owner, name, type, Model, associationType}:
+    {owner: ModelType, name: string, type: string, Model: typeof ModelType, associationType?: string}
   ) {
     if (!type || !Model) {
       console.error('Relation configuration invalid', ...Array.from(arguments))
@@ -45,7 +45,6 @@ export default class Relation {
     this.name = name
     this.type = type
     this.Model = Model
-    this.Query = Query
 
     this.associationType = associationType
 
@@ -53,20 +52,15 @@ export default class Relation {
     this.isClone = false
     this.original = null
 
-    this.query = new this.Query(this)
-
-    // provide query methods on the relation
-    const that = this as any
-    for (const method of this.query.getApi()) {
-      if (that[method]) {
-        console.error('Die Relation', this.name, 'hat bereits eine Methode', method)
-      }
-      that[method] = (...args) => {
-        return this.query[method](...args)
-      }
-    }
-
     this.reset()
+  }
+
+  public set Query (query: RelationQueryType) {
+    this._Query = query
+  }
+
+  public get Query () {
+    return this._Query as RelationQueryType
   }
 
   public purgeFromCacheAndMarkInvalid () {
@@ -181,7 +175,6 @@ export default class Relation {
       name: this.name,
       type: this.type,
       Model: this.Model,
-      Query: this.Query,
       associationType: this.associationType
     })
 
@@ -189,6 +182,7 @@ export default class Relation {
     clone.hasIncludedData = this.hasIncludedData
     clone.isClone = true
     clone.original = this
+    clone.Query = this.Query
 
     return clone
   }
