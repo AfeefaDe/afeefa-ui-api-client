@@ -31,8 +31,8 @@ export class Api {
     const listType = resource.getListType()
 
     // different caches for different list params
-    let listParams = relation ? relation.listParams() : {}
-    listParams = JSON.stringify({...listParams, ...params})
+    const relationListParams: object = relation ? relation.listParams() : {}
+    const listParams = JSON.stringify({...relationListParams, ...params}) as string
 
     if (resourceCache.hasList(listType, listParams)) {
       // list already loaded

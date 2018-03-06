@@ -89,21 +89,6 @@ export default class Model {
     }
   }
 
-  public init () {
-    // pls override
-  }
-
-  /**
-   * Inspects the given JSON and calculates a richness
-   * value for the given data
-   */
-  public calculateLoadingStateFromJson (json) {
-    if (!json.relationships && !json.attributes) {
-      return LoadingState.NOT_LOADED
-    }
-    return LoadingState.FULLY_LOADED
-  }
-
   /**
    * Relations
    */
@@ -118,7 +103,7 @@ export default class Model {
     }
   }
 
-  public refetchRelation (relationName) {
+  public refetchRelation (relationName: string) {
     const relation: Relation = this.$rels[relationName]
     relation.fetched = false
     this.fetchRelation(relationName, false)
@@ -128,7 +113,7 @@ export default class Model {
    * Serialization
    */
 
-  public deserialize (json) {
+  public deserialize (json: any) {
     if (json._requestId === undefined) {
       console.error('No requestId given in json. Might be an error in normalizeJson()', this.info, json)
     }
@@ -162,40 +147,7 @@ export default class Model {
     this.fetchAllIncludedRelations()
   }
 
-  public deserializeAttributes (attributesJson) {
-    if (!attributesJson) {
-      return
-    }
-    for (const name of Object.keys(attributesJson)) {
-      const localName = this.class._attributeRemoteNameMap[name] || name
-      if (this.hasAttr(localName)) {
-        this[localName] = this.getAttrValue(localName, attributesJson[name])
-      }
-    }
-  }
-
-  public deserializeRelations (relationsJson) {
-    if (!relationsJson) {
-      return
-    }
-    for (const name of Object.keys(relationsJson)) {
-      const localName = this.class._relationRemoteNameMap[name] || name
-      if (this.hasRelation(localName)) {
-        const relation: Relation = this.$rels[localName]
-        relation.deserialize(relationsJson[name])
-      }
-    }
-  }
-
-  public normalizeJson (json) {
-    return json
-  }
-
-  public afterDeserializeAttributes () {
-    // hook into
-  }
-
-  public serialize () {
+  public serialize (): object {
     // default serialization
     const data = {
       id: this.id,
@@ -219,11 +171,57 @@ export default class Model {
     this._lastSnapshot = JSON.stringify(this.serialize())
   }
 
+  public clone (): Model {
+    return this.cloneWith()
+  }
+
+  public cloneWith (...relations): Model {
+    const clone: Model = this._clone(this) as Model
+    clone._isClone = true
+    clone._original = this
+    clone._requestId = this._requestId
+    clone._loadingState = this._loadingState
+    for (const relationName of Object.keys(this.$rels)) {
+      clone.$rels[relationName] = this.$rels[relationName].clone()
+    }
+    clone.fetchAllIncludedRelations(relations)
+    return clone
+  }
+
+  public get info (): string {
+    const isClone = this._isClone ? '(CLONE)' : ''
+    const loadedState = ['not', 'attributes', 'list', 'full'][this._loadingState]
+    return `[${this.class.name}] id="${this.id}" ID="${this._ID}${isClone}" loaded="${loadedState}" request="${this._requestId}"`
+  }
+
+  protected init () {
+    // pls override
+  }
+
+  /**
+   * Inspects the given JSON and calculates a richness
+   * value for the given data
+   */
+  protected calculateLoadingStateFromJson (json) {
+    if (!json.relationships && !json.attributes) {
+      return LoadingState.NOT_LOADED
+    }
+    return LoadingState.FULLY_LOADED
+  }
+
+  protected normalizeJson (json) {
+    return json
+  }
+
+  protected afterDeserializeAttributes () {
+    // hook into
+  }
+
   /**
    * magic clone function :-)
    * clone anything but no model relations
    */
-  public _clone (value) {
+  private _clone (value) {
     if (value instanceof Model) {
       const model = value
       const Constructor = model.class
@@ -280,30 +278,7 @@ export default class Model {
     return value
   }
 
-  public clone () {
-    return this.cloneWith()
-  }
-
-  public cloneWith (...relations) {
-    const clone: Model = this._clone(this) as Model
-    clone._isClone = true
-    clone._original = this
-    clone._requestId = this._requestId
-    clone._loadingState = this._loadingState
-    for (const relationName of Object.keys(this.$rels)) {
-      clone.$rels[relationName] = this.$rels[relationName].clone()
-    }
-    clone.fetchAllIncludedRelations(relations)
-    return clone
-  }
-
-  public get info () {
-    const isClone = this._isClone ? '(CLONE)' : ''
-    const loadedState = ['not', 'attributes', 'list', 'full'][this._loadingState]
-    return `[${this.class.name}] id="${this.id}" ID="${this._ID}${isClone}" loaded="${loadedState}" request="${this._requestId}"`
-  }
-
-  private fetchRelation (relationName, clone, strategy = LoadingStrategy.LOAD_IF_NOT_CACHED) {
+  private fetchRelation (relationName: string, clone: boolean, strategy: number = LoadingStrategy.LOAD_IF_NOT_CACHED) {
     const relation: Relation = this.$rels[relationName]
 
     if (relation.fetched) {
@@ -314,7 +289,7 @@ export default class Model {
       const currentItemState = (this[relationName] && this[relationName]._loadingState) || LoadingState.NOT_LOADED
       // callback will be triggered if relation detects it needs new data
       relation.fetchHasOne(id => {
-        return relation.Query.get(id, strategy).then((model: Model | null) => {
+        return relation.Query.get(id || '', strategy).then((model: Model | null) => {
           if (model && clone) {
             model = model.clone()
           }
@@ -342,21 +317,21 @@ export default class Model {
     return this.constructor as typeof Model
   }
 
-  private hasAttr (name) {
+  private hasAttr (name: string): boolean {
     return !!this.class._attributes[name]
   }
 
-  private getAttrValue (name, value) {
+  private getAttrValue (name: string, value: any): any {
     const attr: IAttributeConfig = this.class._attributes[name]
     // return custom value calclulation or the default calculation of the type
     return attr.value ? attr.value(value) : attr.type.value(value)
   }
 
-  private hasRelation (name) {
+  private hasRelation (name: string): boolean {
     return !!this.class._relations[name]
   }
 
-  private onRelationFetched (relation, data: Model | Model[] | null) {
+  private onRelationFetched (relation: Relation, data: Model | Model[] | null) {
     const fetchHook = 'on' + toCamelCase(relation.name)
     this[fetchHook] && this[fetchHook](data)
   }
@@ -367,6 +342,31 @@ export default class Model {
       if (relation.hasIncludedData) {
         const clone = relationsToClone.includes(relationName)
         this.fetchRelation(relationName, clone)
+      }
+    }
+  }
+
+  private deserializeAttributes (attributesJson: object) {
+    if (!attributesJson) {
+      return
+    }
+    for (const name of Object.keys(attributesJson)) {
+      const localName = this.class._attributeRemoteNameMap[name] || name
+      if (this.hasAttr(localName)) {
+        this[localName] = this.getAttrValue(localName, attributesJson[name])
+      }
+    }
+  }
+
+  private deserializeRelations (relationsJson: object) {
+    if (!relationsJson) {
+      return
+    }
+    for (const name of Object.keys(relationsJson)) {
+      const localName = this.class._relationRemoteNameMap[name] || name
+      if (this.hasRelation(localName)) {
+        const relation: Relation = this.$rels[localName]
+        relation.deserialize(relationsJson[name])
       }
     }
   }

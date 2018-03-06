@@ -75,7 +75,7 @@ export default class Relation {
     }
   }
 
-  public listParams () {
+  public listParams (): object {
     return {
       owner_type: this.owner.type,
       owner_id: this.owner.id,
@@ -83,7 +83,7 @@ export default class Relation {
     }
   }
 
-  public deserialize (json) {
+  public deserialize (json: any) {
     this.reset()
 
     json = json.hasOwnProperty('data') ? json.data : json // jsonapi-spec fallback
@@ -109,7 +109,10 @@ export default class Relation {
     this.hasIncludedData = true
   }
 
-  public fetchHasOne (callback, currentItemState, fetchingStrategy) {
+  public fetchHasOne (
+    callback: (id: string | null) => Promise<any>,
+    currentItemState: number,
+    fetchingStrategy: number) {
     if (this.fetched) {
       // fetch again if we want do fully load but havent yet
       const wantToFetchMore = fetchingStrategy === LoadingStrategy.LOAD_IF_NOT_FULLY_LOADED &&
@@ -136,7 +139,7 @@ export default class Relation {
     })
   }
 
-  public fetchHasMany (callback) {
+  public fetchHasMany (callback: () => Promise<any>) {
     if (this.fetched) {
       return
     }

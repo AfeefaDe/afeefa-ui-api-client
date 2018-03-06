@@ -26,14 +26,10 @@ export default class Relation {
     });
     Query: RelationQueryType;
     purgeFromCacheAndMarkInvalid(): void;
-    listParams(): {
-        owner_type: string;
-        owner_id: string;
-        relation: string;
-    };
+    listParams(): object;
     deserialize(json: any): void;
-    fetchHasOne(callback: any, currentItemState: any, fetchingStrategy: any): void;
-    fetchHasMany(callback: any): void;
+    fetchHasOne(callback: (id: string | null) => Promise<any>, currentItemState: number, fetchingStrategy: number): void;
+    fetchHasMany(callback: () => Promise<any>): void;
     /**
      * A cloned item will also have all relations cloned from it's orginal.
      * The clone item must fetch any relation on its own and hence runs its

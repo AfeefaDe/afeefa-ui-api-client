@@ -25,39 +25,34 @@ export default class Model {
     static initializeAll(): void;
     static relations(): IRelationsConfig;
     static attributes(): IAttributesMixedConfig;
-    init(): void;
-    /**
-     * Inspects the given JSON and calculates a richness
-     * value for the given data
-     */
-    calculateLoadingStateFromJson(json: any): number;
     /**
      * Relations
      */
     fetchRelationsAfterGet(relationsToFullyFetch?: any[]): void;
-    refetchRelation(relationName: any): void;
+    refetchRelation(relationName: string): void;
     /**
      * Serialization
      */
     deserialize(json: any): void;
-    deserializeAttributes(attributesJson: any): void;
-    deserializeRelations(relationsJson: any): void;
-    normalizeJson(json: any): any;
-    afterDeserializeAttributes(): void;
-    serialize(): {
-        id: string;
-        type: string;
-    };
+    serialize(): object;
     hasChanges(): boolean;
     markSaved(): void;
+    clone(): Model;
+    cloneWith(...relations: any[]): Model;
+    readonly info: string;
+    protected init(): void;
+    /**
+     * Inspects the given JSON and calculates a richness
+     * value for the given data
+     */
+    protected calculateLoadingStateFromJson(json: any): number;
+    protected normalizeJson(json: any): any;
+    protected afterDeserializeAttributes(): void;
     /**
      * magic clone function :-)
      * clone anything but no model relations
      */
-    _clone(value: any): any;
-    clone(): Model;
-    cloneWith(...relations: any[]): Model;
-    readonly info: string;
+    private _clone(value);
     private fetchRelation(relationName, clone, strategy?);
     private readonly class;
     private hasAttr(name);
@@ -65,4 +60,6 @@ export default class Model {
     private hasRelation(name);
     private onRelationFetched(relation, data);
     private fetchAllIncludedRelations(relationsToClone?);
+    private deserializeAttributes(attributesJson);
+    private deserializeRelations(relationsJson);
 }
