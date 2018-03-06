@@ -2,6 +2,7 @@ import ModelType from './Model';
 export declare class ModelRegistry {
     private models;
     register(Model: typeof ModelType): typeof ModelType;
+    initializeAll(): void;
     private checkType(Model);
     private initializeAttributes(Model);
     private setupAttributes(Model);

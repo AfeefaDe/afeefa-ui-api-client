@@ -7,12 +7,17 @@ export class ModelRegistry {
   private models: {[key: string]: typeof ModelType} = {}
 
   public register (Model: typeof ModelType) {
-    this.models[name] = Model
-
-    this.checkType(Model)
-    this.initializeAttributes(Model)
-    this.initializeRelations(Model)
+    this.models[Model.name] = Model
     return Model
+  }
+
+  public initializeAll () {
+    for (const name of Object.keys(this.models)) {
+      const Model = this.models[name]
+      this.checkType(Model)
+      this.initializeAttributes(Model)
+      this.initializeRelations(Model)
+    }
   }
 
   private checkType (Model: typeof ModelType) {
