@@ -8,6 +8,7 @@ export default class BaseResource implements IResource {
     getItemType(json?: any): string;
     getItemJson(json: any): any;
     createItem(json: any): Model;
+    transformJsonBeforeSave(json: any): any;
     itemAdded(_item: Model): void;
     itemDeleted(_item: Model): void;
     itemSaved(_itemOld: Model, _item: Model): void;

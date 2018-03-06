@@ -7,7 +7,7 @@ export default abstract class ResourceProvider {
   // update item
   public abstract update ({id}: {id: string}, body: object): Promise<IResponse>
   // add item
-  public abstract save ({id}: {id: string}, body: object): Promise<IResponse>
+  public abstract save ({id}: {id: string | null}, body: object): Promise<IResponse>
   // delete item
   public abstract delete ({id}: {id: string}): Promise<IResponse>
 }

@@ -23,19 +23,13 @@ export declare class Api {
         id: string;
         strategy?: number;
     }): Promise<Model | null>;
-    saveItem({resource, item, options}: {
+    saveItem({resource, item}: {
         resource: IResource;
         item: Model;
-        options: {
-            wrapInDataProperty?: boolean;
-        };
     }): Promise<Model | null>;
-    addItem({resource, item, options}: {
+    addItem({resource, item}: {
         resource: IResource;
         item: Model;
-        options: {
-            wrapInDataProperty?: boolean;
-        };
     }): Promise<Model | null>;
     deleteItem({resource, item}: {
         resource: IResource;

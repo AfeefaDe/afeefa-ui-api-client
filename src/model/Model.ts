@@ -21,8 +21,8 @@ export default class Model {
   public static _attributeRemoteNameMap: object = {}
   public static _relationRemoteNameMap: object = {}
 
-  public id: string = ''
-  public type: string = Model.type
+  public id: string | null = null
+  public type: string | null = null
 
   @enumerable(false)
   public $rels: {[key: string]: Relation} = {}
@@ -289,7 +289,7 @@ export default class Model {
       const currentItemState = (this[relationName] && this[relationName]._loadingState) || LoadingState.NOT_LOADED
       // callback will be triggered if relation detects it needs new data
       relation.fetchHasOne(id => {
-        return relation.Query.get(id || '', strategy).then((model: Model | null) => {
+        return relation.Query.get(id as string, strategy).then((model: Model | null) => {
           if (model && clone) {
             model = model.clone()
           }

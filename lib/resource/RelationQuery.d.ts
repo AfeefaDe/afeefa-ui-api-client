@@ -12,6 +12,5 @@ export default class RelationQuery {
     attach(model: Model): Promise<boolean | true>;
     detach(model: Model): Promise<boolean | true>;
     protected init(): void;
-    protected getSaveOptions(): object;
     protected getResource(): RelationResource;
 }

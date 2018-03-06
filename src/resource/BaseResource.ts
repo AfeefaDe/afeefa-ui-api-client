@@ -25,6 +25,11 @@ export default class BaseResource implements IResource {
     return item
   }
 
+  public transformJsonBeforeSave (json: any) {
+    // hook into
+    return json
+  }
+
   public itemAdded (_item: Model) {
     // hook into
   }

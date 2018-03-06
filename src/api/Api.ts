@@ -94,16 +94,16 @@ export class Api {
     {resource, id, strategy}:
     {resource: IResource, id: string, strategy?: number}
   ): Promise<Model | null> {
+    if (!id) {
+      console.debug(`API: getItem() - keine id gegeben.`)
+      return Promise.resolve(null)
+    }
+
     if (!strategy) {
       strategy = LoadingStrategy.LOAD_IF_NOT_FULLY_LOADED
     }
 
     const itemType = resource.getItemType()
-
-    if (!id) {
-      console.debug(`API: getItem(${itemType}) - keine ID gegeben.`)
-      return Promise.resolve(null)
-    }
 
     // check if item already loaded
     if (resourceCache.hasItem(itemType, id)) {
@@ -152,12 +152,17 @@ export class Api {
   }
 
   public saveItem (
-    {resource, item, options = {}}:
-    {resource: IResource, item: Model, options: {wrapInDataProperty?: boolean}}
+    {resource, item}:
+    {resource: IResource, item: Model}
   ): Promise<Model | null> {
+    if (!item.id) {
+      console.debug(`API: saveItem() - keine item.id gegeben.`)
+      return Promise.resolve(null)
+    }
+
     const itemType = resource.getItemType()
     const itemJson = item.serialize()
-    const body = options.wrapInDataProperty === false ? itemJson : {data: itemJson}
+    const body = resource.transformJsonBeforeSave(itemJson)
 
     // store a deep clone of the old item
     // we do not allow saving items that are not cached beforehand
@@ -189,17 +194,17 @@ export class Api {
   }
 
   public addItem (
-    {resource, item, options = {}}:
-    {resource: IResource, item: Model, options: {wrapInDataProperty?: boolean}}
+    {resource, item}:
+    {resource: IResource, item: Model}
   ): Promise<Model | null> {
     const itemType = resource.getItemType()
 
     const itemJson = item.serialize()
-    const body = options.wrapInDataProperty === false ? itemJson : {data: itemJson}
+    const body = resource.transformJsonBeforeSave(itemJson)
 
     const resourceProvider = this.getResourceProvider(resource)
     return resourceProvider.save(
-      {id: item.id}, body
+      {id: null}, body
     ).then(response => {
       const json = response.body.data || response.body // jsonapi spec || afeefa api spec
       this.setRequestId(json)
@@ -225,6 +230,11 @@ export class Api {
     {resource, item}:
     {resource: IResource, item: Model}
   ): Promise<boolean | null> {
+    if (!item.id) {
+      console.debug(`API: deleteItem() - keine item.id gegeben.`)
+      return Promise.resolve(null)
+    }
+
     const resourceProvider = this.getResourceProvider(resource)
     return resourceProvider.delete({id: item.id}).then(() => {
       // reset all tracked changes in order to force item.hasChanges to return false after save
@@ -243,6 +253,11 @@ export class Api {
     {resource, item, attributes}:
     {resource: IResource, item: Model, attributes: object}
   ): Promise<any | null> {
+    if (!item.id) {
+      console.debug(`API: updateItemAttributes() - keine item.id gegeben.`)
+      return Promise.resolve(null)
+    }
+
     const data = {
       id: item.id,
       type: item.type,
@@ -271,6 +286,11 @@ export class Api {
   public attachItem (
     {resource, item}: {resource: IResource, item: Model}
   ): Promise<boolean | null> {
+    if (!item.id) {
+      console.debug(`API: attachItem() - keine item.id gegeben.`)
+      return Promise.resolve(null)
+    }
+
     const resourceProvider = this.getResourceProvider(resource)
     const promise = resourceProvider.save({id: item.id}, {}).then(() => {
       return true
@@ -285,6 +305,11 @@ export class Api {
   public detachItem (
     {resource, item}: {resource: IResource, item: Model}
   ): Promise<boolean | null> {
+    if (!item.id) {
+      console.debug(`API: detachItem() - keine item.id gegeben.`)
+      return Promise.resolve(null)
+    }
+
     const resourceProvider = this.getResourceProvider(resource)
     const promise = resourceProvider.delete({id: item.id}).then(() => {
       return true

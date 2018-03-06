@@ -36,7 +36,7 @@ export default class RelationQuery {
   public save (model: Model): Promise<Model | null> {
     const resource = this.getResource()
     const action = model.id ? 'saveItem' : 'addItem'
-    return API[action]({resource, item: model, options: this.getSaveOptions()}).then((contact: Model | null) => {
+    return API[action]({resource, item: model}).then((contact: Model | null) => {
       if (contact) {
         this.relation.purgeFromCacheAndMarkInvalid()
       }
@@ -76,10 +76,6 @@ export default class RelationQuery {
 
   protected init () {
     // fill in
-  }
-
-  protected getSaveOptions (): object {
-    return {}
   }
 
   protected getResource (): RelationResource {

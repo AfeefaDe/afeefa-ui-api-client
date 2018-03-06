@@ -11,6 +11,8 @@ export default interface IResource {
 
   createItem (json: any): Model
 
+  transformJsonBeforeSave (json: any): any
+
   itemAdded (item: Model)
 
   itemDeleted (item: Model)

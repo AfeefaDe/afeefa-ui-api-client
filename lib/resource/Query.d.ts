@@ -6,7 +6,7 @@ export default class Query {
     with(...relations: any[]): Query;
     get(id: any, strategy: any): Promise<Model | null>;
     getAll(params?: object): Promise<Model[]>;
-    save(model: Model, options: object): Promise<Model | null>;
+    save(model: Model): Promise<Model | null>;
     updateAttributes(model: Model, attributes: object): Promise<any>;
     delete(model: any): Promise<boolean | null>;
     protected init(): void;

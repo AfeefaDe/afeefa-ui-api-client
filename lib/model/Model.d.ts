@@ -9,8 +9,8 @@ export default class Model {
     static _attributes: IAttributesConfig;
     static _attributeRemoteNameMap: object;
     static _relationRemoteNameMap: object;
-    id: string;
-    type: string;
+    id: string | null;
+    type: string | null;
     $rels: {
         [key: string]: Relation;
     };

@@ -39,10 +39,10 @@ export default class Query {
     })
   }
 
-  public save (model: Model, options: object): Promise<Model | null> {
+  public save (model: Model): Promise<Model | null> {
     const resource = this.getResource()
     const action = model.id ? 'saveItem' : 'addItem'
-    return API[action]({resource, item: model, options})
+    return API[action]({resource, item: model})
   }
 
   public updateAttributes (model: Model, attributes: object): Promise<any> {
