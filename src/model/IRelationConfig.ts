@@ -8,7 +8,6 @@ export interface IRelationsConfig {
 export default interface IRelationConfig {
   type: string,
   Model: typeof Model,
-  associationType?: string,
   remoteName?: string,
   Query: typeof RelationQuery
 }

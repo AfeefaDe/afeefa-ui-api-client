@@ -107,15 +107,6 @@ export default class Model {
   /**
    * Relations
    */
-  public fetchAllIncludedRelations (clone = false) {
-    for (const relationName of Object.keys(this.$rels)) {
-      const relation: Relation = this.$rels[relationName]
-      if (relation.hasIncludedData) {
-        this.fetchRelation(relationName, clone)
-      }
-    }
-  }
-
   public fetchRelationsAfterGet (relationsToFullyFetch: any[] = []) {
     for (const relationName of Object.keys(this.$rels)) {
       const relation: Relation = this.$rels[relationName]
@@ -131,41 +122,6 @@ export default class Model {
     const relation: Relation = this.$rels[relationName]
     relation.fetched = false
     this.fetchRelation(relationName, false)
-  }
-
-  public fetchRelation (relationName, clone, strategy = LoadingStrategy.LOAD_IF_NOT_CACHED) {
-    const relation: Relation = this.$rels[relationName]
-
-    if (relation.fetched) {
-      return
-    }
-
-    if (relation.type === Relation.HAS_ONE) {
-      const currentItemState = (this[relationName] && this[relationName]._loadingState) || LoadingState.NOT_LOADED
-      // callback will be triggered if relation detects it needs new data
-      relation.fetchHasOne(id => {
-        return relation.Query.get(id, strategy).then((model: Model | null) => {
-          if (model && clone && relation.associationType === Relation.ASSOCIATION_COMPOSITION) {
-            model = model.clone()
-          }
-          this[relationName] = model
-          this.onRelationFetched(relation, model)
-        })
-      }, currentItemState, strategy)
-    } else {
-      // callback will be triggered if relation detects it needs new data
-      relation.fetchHasMany(() => {
-        return relation.Query.getAll().then(items => {
-          this[relationName] = []
-          items.forEach(item => {
-            if (item && clone && relation.associationType === Relation.ASSOCIATION_COMPOSITION) {
-              item = item.clone()
-            }
-            this[relationName].push(item)
-          })
-        })
-      })
-    }
   }
 
   /**
@@ -269,6 +225,7 @@ export default class Model {
    */
   public _clone (value) {
     if (value instanceof Model) {
+      console.log('clone', value.info)
       const model = value
       const Constructor = model.class
       const clone = new Constructor()
@@ -325,6 +282,10 @@ export default class Model {
   }
 
   public clone () {
+    return this.cloneWith()
+  }
+
+  public cloneWith (...relations) {
     const clone: Model = this._clone(this) as Model
     clone._isClone = true
     clone._original = this
@@ -333,7 +294,7 @@ export default class Model {
     for (const relationName of Object.keys(this.$rels)) {
       clone.$rels[relationName] = this.$rels[relationName].clone()
     }
-    clone.fetchAllIncludedRelations(true)
+    clone.fetchAllIncludedRelations(relations)
     return clone
   }
 
@@ -341,6 +302,41 @@ export default class Model {
     const isClone = this._isClone ? '(CLONE)' : ''
     const loadedState = ['not', 'attributes', 'list', 'full'][this._loadingState]
     return `[${this.class.name}] id="${this.id}" ID="${this._ID}${isClone}" loaded="${loadedState}" request="${this._requestId}"`
+  }
+
+  private fetchRelation (relationName, clone, strategy = LoadingStrategy.LOAD_IF_NOT_CACHED) {
+    const relation: Relation = this.$rels[relationName]
+
+    if (relation.fetched) {
+      return
+    }
+
+    if (relation.type === Relation.HAS_ONE) {
+      const currentItemState = (this[relationName] && this[relationName]._loadingState) || LoadingState.NOT_LOADED
+      // callback will be triggered if relation detects it needs new data
+      relation.fetchHasOne(id => {
+        return relation.Query.get(id, strategy).then((model: Model | null) => {
+          if (model && clone) {
+            model = model.clone()
+          }
+          this[relationName] = model
+          this.onRelationFetched(relation, model)
+        })
+      }, currentItemState, strategy)
+    } else {
+      // callback will be triggered if relation detects it needs new data
+      relation.fetchHasMany(() => {
+        return relation.Query.getAll().then(items => {
+          this[relationName] = []
+          items.forEach(item => {
+            if (item && clone) {
+              item = item.clone()
+            }
+            this[relationName].push(item)
+          })
+        })
+      })
+    }
   }
 
   private get class (): typeof Model {
@@ -364,5 +360,15 @@ export default class Model {
   private onRelationFetched (relation, data: Model | Model[] | null) {
     const fetchHook = 'on' + toCamelCase(relation.name)
     this[fetchHook] && this[fetchHook](data)
+  }
+
+  private fetchAllIncludedRelations (relationsToClone: string[] = []) {
+    for (const relationName of Object.keys(this.$rels)) {
+      const relation: Relation = this.$rels[relationName]
+      if (relation.hasIncludedData) {
+        const clone = relationsToClone.includes(relationName)
+        this.fetchRelation(relationName, clone)
+      }
+    }
   }
 }

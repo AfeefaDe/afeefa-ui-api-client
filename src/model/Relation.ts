@@ -16,7 +16,6 @@ export default class Relation {
   public name: string
   public type: string
   public Model: typeof ModelType
-  public associationType: string
   public instanceId: number
   public isClone: boolean
   public original: Relation | null
@@ -30,23 +29,17 @@ export default class Relation {
   private _Query: RelationQueryType | null = null
 
   constructor (
-    {owner, name, type, Model, associationType}:
-    {owner: ModelType, name: string, type: string, Model: typeof ModelType, associationType?: string}
+    {owner, name, type, Model}:
+    {owner: ModelType, name: string, type: string, Model: typeof ModelType}
   ) {
     if (!type || !Model) {
       console.error('Relation configuration invalid', ...Array.from(arguments))
-    }
-
-    if (!associationType) {
-      associationType = Relation.ASSOCIATION_LINK
     }
 
     this.owner = owner
     this.name = name
     this.type = type
     this.Model = Model
-
-    this.associationType = associationType
 
     this.instanceId = ++ID
     this.isClone = false
@@ -174,8 +167,7 @@ export default class Relation {
       owner: this.owner,
       name: this.name,
       type: this.type,
-      Model: this.Model,
-      associationType: this.associationType
+      Model: this.Model
     })
 
     clone.id = this.id

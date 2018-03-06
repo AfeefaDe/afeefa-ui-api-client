@@ -34,10 +34,8 @@ export default class Model {
     /**
      * Relations
      */
-    fetchAllIncludedRelations(clone?: boolean): void;
     fetchRelationsAfterGet(relationsToFullyFetch?: any[]): void;
     refetchRelation(relationName: any): void;
-    fetchRelation(relationName: any, clone: any, strategy?: number): void;
     /**
      * Serialization
      */
@@ -58,10 +56,13 @@ export default class Model {
      */
     _clone(value: any): any;
     clone(): Model;
+    cloneWith(...relations: any[]): Model;
     readonly info: string;
+    private fetchRelation(relationName, clone, strategy?);
     private readonly class;
     private hasAttr(name);
     private getAttrValue(name, value);
     private hasRelation(name);
     private onRelationFetched(relation, data);
+    private fetchAllIncludedRelations(relationsToClone?);
 }
