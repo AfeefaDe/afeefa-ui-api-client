@@ -130,24 +130,22 @@ export default class Model {
       return
     }
 
-    const fetchFunction = this.checkFetchFunction(relation)
-    if (!fetchFunction) {
-      return
-    }
-
     if (relation.type === Relation.HAS_ONE) {
       const currentItemState = (this[relationName] && this[relationName]._loadingState) || LoadingState.NOT_LOADED
+      // callback will be triggered if relation detects it needs new data
       relation.fetchHasOne(id => {
-        return this[fetchFunction](id, clone, strategy).then(item => {
-          if (item && clone && relation.associationType === Relation.ASSOCIATION_COMPOSITION) {
-            item = item.clone()
+        return relation.query.get(id, strategy).then((model: Model | null) => {
+          if (model && clone && relation.associationType === Relation.ASSOCIATION_COMPOSITION) {
+            model = model.clone()
           }
-          this[relationName] = item // (item && clone) ? item.clone() : item
+          this[relationName] = model
+          this.onRelationFetched(relation, model)
         })
       }, currentItemState, strategy)
     } else {
+      // callback will be triggered if relation detects it needs new data
       relation.fetchHasMany(() => {
-        return this[fetchFunction](clone, strategy).then(items => {
+        return relation.query.getAll().then(items => {
           this[relationName] = []
           items.forEach(item => {
             if (item && clone && relation.associationType === Relation.ASSOCIATION_COMPOSITION) {
@@ -158,15 +156,6 @@ export default class Model {
         })
       })
     }
-  }
-
-  public checkFetchFunction (relation) {
-    const fetchFunction = 'fetch' + toCamelCase(relation.name)
-    if (!this[fetchFunction]) {
-      console.error('Method to fetch a relation is not defined:', fetchFunction, this.info)
-      return false
-    }
-    return fetchFunction
   }
 
   /**
@@ -360,5 +349,10 @@ export default class Model {
 
   private hasRelation (name) {
     return !!this.class._relations[name]
+  }
+
+  private onRelationFetched (relation, data: Model | Model[] | null) {
+    const fetchHook = 'on' + toCamelCase(relation.name)
+    this[fetchHook] && this[fetchHook](data)
   }
 }

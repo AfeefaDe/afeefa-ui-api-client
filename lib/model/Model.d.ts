@@ -36,7 +36,6 @@ export default class Model {
     fetchRelationsAfterGet(relationsToFullyFetch?: any[]): void;
     refetchRelation(relationName: any): void;
     fetchRelation(relationName: any, clone: any, strategy?: number): void;
-    checkFetchFunction(relation: any): string | false;
     /**
      * Serialization
      */
@@ -62,4 +61,5 @@ export default class Model {
     private hasAttr(name);
     private getAttrValue(name, value);
     private hasRelation(name);
+    private onRelationFetched(relation, data);
 }
