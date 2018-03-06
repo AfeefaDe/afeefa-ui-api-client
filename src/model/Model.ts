@@ -73,6 +73,10 @@ export default class Model {
     return ModelRegistry.register(ModelType)
   }
 
+  public static initializeAll () {
+    return ModelRegistry.initializeAll()
+  }
+
   public static relations (): IRelationsConfig {
     return {}
   }
