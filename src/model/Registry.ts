@@ -14,7 +14,6 @@ export class ModelRegistry {
     for (const name of Object.keys(this.models)) {
       const Model = this.models[name]
       this.checkType(Model)
-      this.initializeQuery(Model)
       this.initializeAttributes(Model)
       this.initializeRelations(Model)
     }
@@ -23,20 +22,6 @@ export class ModelRegistry {
   private checkType (Model: typeof ModelType) {
     if (!Model.hasOwnProperty('type')) {
       console.error('Das Model', Model.name, 'hat keinen Typ')
-    }
-  }
-
-  private initializeQuery (Model: typeof ModelType) {
-    const query = Model.query
-    if (query) {
-      for (const method of query.getApi()) {
-        if (Model[method]) {
-          console.error('Das Model', Model.name, 'hat bereits eine Methode', method)
-        }
-        Model[method] = (...args2) => {
-          return query[method](...args2)
-        }
-      }
     }
   }
 

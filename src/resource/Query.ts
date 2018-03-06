@@ -10,10 +10,6 @@ export default class Query {
     this.init()
   }
 
-  public getApi (): string[] {
-    return ['with', 'get', 'getAll', 'save', 'delete', 'updateAttributes']
-  }
-
   public with (...relations): Query {
     const clone = this.clone()
     clone.relationsToFetch = relations

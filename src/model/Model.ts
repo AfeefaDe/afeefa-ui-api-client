@@ -13,7 +13,7 @@ let ID = 0
 
 export default class Model {
   public static type: string = ''
-  public static query: Query | null = null
+  public static Query: Query | null = null
 
   public static _relations: IRelationsConfig = {}
   public static _attributes: IAttributesConfig = {}

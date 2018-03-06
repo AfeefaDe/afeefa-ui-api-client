@@ -3,7 +3,6 @@ import Resource from './Resource';
 export default class Query {
     private relationsToFetch;
     constructor();
-    getApi(): string[];
     with(...relations: any[]): Query;
     get(id: any, strategy: any): Promise<Model | null>;
     getAll(params?: object): Promise<Model[]>;
