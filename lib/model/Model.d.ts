@@ -21,6 +21,7 @@ export default class Model {
     private _original;
     private _lastSnapshot;
     constructor();
+    static register(ModelType: typeof Model): typeof Model;
     static relations(): IRelationsConfig;
     static attributes(): IAttributesMixedConfig;
     init(): void;

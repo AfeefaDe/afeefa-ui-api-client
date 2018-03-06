@@ -7,6 +7,7 @@ import RelationQuery from '../resource/RelationQuery'
 import DataTypes from './DataTypes'
 import IAttributeConfig, { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig'
 import IRelationConfig, { IRelationsConfig } from './IRelationConfig'
+import ModelRegistry from './Registry'
 import Relation from './Relation'
 
 let ID = 0
@@ -66,6 +67,10 @@ export default class Model {
     }
 
     this.init()
+  }
+
+  public static register (ModelType: typeof Model) {
+    return ModelRegistry.register(ModelType)
   }
 
   public static relations (): IRelationsConfig {
