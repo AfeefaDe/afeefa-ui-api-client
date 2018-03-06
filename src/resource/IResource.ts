@@ -11,8 +11,6 @@ export default interface IResource {
 
   createItem (json: any): Model
 
-  transformList (items: Model[])
-
   itemAdded (item: Model)
 
   itemDeleted (item: Model)

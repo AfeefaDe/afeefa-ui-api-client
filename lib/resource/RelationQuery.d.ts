@@ -10,6 +10,8 @@ export default class RelationQuery {
     getAll(params?: object): Promise<Model[]>;
     save(model: Model): Promise<Model | null>;
     delete(model: any): Promise<boolean | null>;
+    attach(model: Model): Promise<boolean | true>;
+    detach(model: Model): Promise<boolean | true>;
     protected init(): void;
     protected getSaveOptions(): object;
     protected getResource(): RelationResource;

@@ -75,8 +75,6 @@ export class Api {
         items.push(item)
       }
 
-      // apply custom map to items, e.g. to create a category tree from a flat list
-      resource.transformList(items)
       // cache list, adds all items to the cache if not yet added
       resourceCache.addList(listType, listParams, items)
 
@@ -268,6 +266,34 @@ export class Api {
       this.onSaveError(new ApiError(response))
       return null
     })
+  }
+
+  public attachItem (
+    {resource, item}: {resource: IResource, item: Model}
+  ): Promise<boolean | null> {
+    const resourceProvider = this.getResourceProvider(resource)
+    const promise = resourceProvider.save({id: item.id}, {}).then(() => {
+      return true
+    }).catch(response => {
+      console.log('error attaching item', response)
+      this.onSaveError(new ApiError(response))
+      return null
+    })
+    return promise
+  }
+
+  public detachItem (
+    {resource, item}: {resource: IResource, item: Model}
+  ): Promise<boolean | null> {
+    const resourceProvider = this.getResourceProvider(resource)
+    const promise = resourceProvider.delete({id: item.id}).then(() => {
+      return true
+    }).catch(response => {
+      console.log('error detaching item', response)
+      this.onSaveError(new ApiError(response))
+      return null
+    })
+    return promise
   }
 
   private getResourceProvider (resource: IResource): ResourceProvider {

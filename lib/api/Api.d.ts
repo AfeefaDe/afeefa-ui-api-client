@@ -46,6 +46,14 @@ export declare class Api {
         item: Model;
         attributes: object;
     }): Promise<any | null>;
+    attachItem({resource, item}: {
+        resource: IResource;
+        item: Model;
+    }): Promise<boolean | null>;
+    detachItem({resource, item}: {
+        resource: IResource;
+        item: Model;
+    }): Promise<boolean | null>;
     private getResourceProvider(resource);
     private setRequestId(json, requestId?);
 }

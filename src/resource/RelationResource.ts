@@ -9,7 +9,9 @@ export default class RelationResource extends BaseResource {
 
     this.relation = relation
 
-    this.url = this.url || `${this.relation.owner.type}/${this.relation.owner.id}/${this.relation.Model.type}{/id}`
+    this.url = `${this.relation.owner.type}/${this.relation.owner.id}/${this.relation.Model.type}{/id}`
     this.Model = this.relation.Model
+
+    this.init()
   }
 }

@@ -42,7 +42,7 @@ export default class RelationQuery {
     const action = model.id ? 'saveItem' : 'addItem'
     return API[action]({resource, item: model, options: this.getSaveOptions()}).then((contact: Model | null) => {
       if (contact) {
-        (this.relation as Relation).purgeFromCacheAndMarkInvalid()
+        this.relation.purgeFromCacheAndMarkInvalid()
       }
       return contact
     })
@@ -52,9 +52,29 @@ export default class RelationQuery {
     const resource = this.getResource()
     return API.deleteItem({resource, item: model}).then((result: boolean | null) => {
       if (result) {
-        (this.relation as Relation).purgeFromCacheAndMarkInvalid()
+        this.relation.purgeFromCacheAndMarkInvalid()
       }
       return result
+    })
+  }
+
+  public attach (model: Model): Promise<boolean | true> {
+    const resource = this.getResource()
+    return API.attachItem({resource, item: model}).then(result => {
+      if (result) {
+        this.relation.purgeFromCacheAndMarkInvalid()
+      }
+      return true
+    })
+  }
+
+  public detach (model: Model): Promise<boolean | true> {
+    const resource = this.getResource()
+    return API.detachItem({resource, item: model}).then(result => {
+      if (result) {
+        this.relation.purgeFromCacheAndMarkInvalid()
+      }
+      return true
     })
   }
 

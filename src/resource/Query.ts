@@ -37,7 +37,7 @@ export default class Query {
     const resource = this.getResource()
     return API.getList({resource, params}).then(models => {
       models.forEach(model => {
-        model.fetchRelationsAfterGet()
+        model.fetchRelationsAfterGet(this.relationsToFetch)
       })
       return models
     })

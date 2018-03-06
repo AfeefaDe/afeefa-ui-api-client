@@ -7,14 +7,6 @@ export default class BaseResource implements IResource {
   public url: string = ''
   protected Model: typeof Model | null = null
 
-  constructor (...params) {
-    this.init(...params)
-  }
-
-  public init (_params?: object) {
-    // hook into
-  }
-
   public getListType (): string {
     return this.getItemType()
   }
@@ -31,10 +23,6 @@ export default class BaseResource implements IResource {
     const item: Model = new (this.getItemModel(json))()
     item.id = json.id
     return item
-  }
-
-  public transformList (_items: Model[]) {
-    // hook into
   }
 
   public itemAdded (_item: Model) {
@@ -71,6 +59,10 @@ export default class BaseResource implements IResource {
 
   public findCachedItem (key, id) {
     return resourceCache.getItem(key, id)
+  }
+
+  protected init () {
+    // hook into
   }
 
   protected getItemModel (_json: any): typeof Model {
