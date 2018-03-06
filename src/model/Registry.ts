@@ -1,3 +1,4 @@
+import Query from '../resource/Query'
 import IAttributeConfig, { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig'
 import IDataType from './IDataType'
 import IRelationConfig, { IRelationsConfig } from './IRelationConfig'
@@ -15,6 +16,7 @@ export class ModelRegistry {
     for (const name of Object.keys(this.models)) {
       const Model = this.models[name]
       this.checkType(Model)
+      this.initializeQuery(Model)
       this.initializeAttributes(Model)
       this.initializeRelations(Model)
     }
@@ -23,6 +25,14 @@ export class ModelRegistry {
   private checkType (Model: typeof ModelType) {
     if (!Model.hasOwnProperty('type')) {
       console.error('Das Model', Model.name, 'hat keinen Typ')
+    }
+  }
+
+  private initializeQuery (Model: typeof ModelType) {
+    if (!Model.Query) {
+      if (Model.Resource) {
+        Model.Query = new Query(Model.Resource)
+      }
     }
   }
 

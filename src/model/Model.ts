@@ -2,6 +2,7 @@ import LoadingState from '../api/LoadingState'
 import LoadingStrategy from '../api/LoadingStrategy'
 import { enumerable } from '../decorator/enumerable'
 import toCamelCase from '../filter/camel-case'
+import IResource from '../resource/IResource'
 import Query from '../resource/Query'
 import RelationQuery from '../resource/RelationQuery'
 import DataTypes from './DataTypes'
@@ -15,6 +16,7 @@ let ID = 0
 export default class Model {
   public static type: string = ''
   public static Query: Query | null = null
+  public static Resource: IResource | null = null
 
   public static _relations: IRelationsConfig = {}
   public static _attributes: IAttributesConfig = {}

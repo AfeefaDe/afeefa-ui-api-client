@@ -1,8 +1,9 @@
 import Model from '../model/Model';
-import Resource from './Resource';
+import IResource from './IResource';
 export default class Query {
+    private resource;
     private relationsToFetch;
-    constructor();
+    constructor(resource?: IResource);
     with(...relations: any[]): Query;
     get(id: any, strategy: any): Promise<Model | null>;
     getAll(params?: object): Promise<Model[]>;
@@ -10,6 +11,6 @@ export default class Query {
     updateAttributes(model: Model, attributes: object): Promise<any>;
     delete(model: any): Promise<boolean | null>;
     protected init(): void;
-    protected getResource(): Resource;
+    protected getResource(): IResource;
     private clone();
 }

@@ -4,6 +4,7 @@ export declare class ModelRegistry {
     register(Model: typeof ModelType): typeof ModelType;
     initializeAll(): void;
     private checkType(Model);
+    private initializeQuery(Model);
     private initializeAttributes(Model);
     private setupAttributes(Model);
     private initializeRelations(Model);

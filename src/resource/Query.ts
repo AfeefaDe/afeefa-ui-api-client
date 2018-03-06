@@ -1,12 +1,17 @@
 import API from '../api/Api'
 import Model from '../model/Model'
 import Relation from '../model/Relation'
-import Resource from './Resource'
+import IResource from './IResource'
 
 export default class Query {
+  private resource: IResource | null = null
   private relationsToFetch: Relation[] = []
 
-  constructor () {
+  constructor (resource?: IResource) {
+    if (resource) {
+      this.resource = resource
+    }
+
     this.init()
   }
 
@@ -59,14 +64,14 @@ export default class Query {
     // fill in
   }
 
-  protected getResource (): Resource {
-    return {} as Resource
+  protected getResource (): IResource {
+    return this.resource || {} as IResource
   }
 
   private clone (): Query {
     const Constructor = this.constructor as typeof Query
     const clone = new Constructor()
-    clone.relationsToFetch = this.relationsToFetch
+    clone.resource = this.resource
     return clone
   }
 }
