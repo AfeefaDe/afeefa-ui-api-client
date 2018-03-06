@@ -225,7 +225,6 @@ export default class Model {
    */
   public _clone (value) {
     if (value instanceof Model) {
-      console.log('clone', value.info)
       const model = value
       const Constructor = model.class
       const clone = new Constructor()
