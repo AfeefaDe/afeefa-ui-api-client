@@ -17,8 +17,8 @@ export default class Model {
     $rels: {
         [key: string]: Relation;
     };
+    _loadingState: number;
     private _ID;
-    private _loadingState;
     private _requestId;
     private _isClone;
     private _original;

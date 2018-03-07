@@ -8,13 +8,13 @@ describe('Model - Model', () => {
     const model = new Model()
     expect(model).to.be.instanceof(Model)
 
-    expect(model[`id`]).to.equal('')
-    expect(model[`type`]).to.equal('')
+    expect(model[`id`]).to.equal(null)
+    expect(model[`type`]).to.equal('models')
     expect(model[`$rels`]).to.deep.equal({})
 
     expect(model[`_ID`]).to.be.an('number')
     expect(model[`_requestId`]).to.equal(0)
-    expect(model[`_loadingState`]).to.equal(LoadingState.NOT_LOADED)
+    expect(model._loadingState).to.equal(LoadingState.NOT_LOADED)
     expect(model[`_isClone`]).to.be.false()
     expect(model[`_original`]).to.be.null()
     expect(model[`_lastSnapshot`]).to.equal('')

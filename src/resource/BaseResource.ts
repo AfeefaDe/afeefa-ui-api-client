@@ -80,7 +80,7 @@ export default class BaseResource implements IResource, IQuery {
     return clone
   }
 
-  public get (id: string, strategy?: number): Promise<Model | null> {
+  public get (id: string | null, strategy?: number): Promise<Model | null> {
     if (!id) {
       return Promise.resolve(null)
     }
@@ -122,24 +122,24 @@ export default class BaseResource implements IResource, IQuery {
    * Convenient Resource Cache Access
    */
 
-  public cachePurgeList (key, url?) {
-    resourceCache.purgeList(key, url)
+  public cachePurgeList (type, key?) {
+    resourceCache.purgeList(type, key)
   }
 
   public cachePurgeRelation (relation: Relation) {
     relation.purgeFromCacheAndMarkInvalid()
   }
 
-  public cachePurgeItem (key, id) {
-    resourceCache.purgeItem(key, id)
+  public cachePurgeItem (type, id) {
+    resourceCache.purgeItem(type, id)
   }
 
-  public cacheGetAllLists (key) {
-    return resourceCache.getCache(key).lists
+  public cacheGetAllLists (type) {
+    return resourceCache.getCache(type).lists
   }
 
-  public findCachedItem (key, id) {
-    return resourceCache.getItem(key, id)
+  public findCachedItem (type, id) {
+    return resourceCache.getItem(type, id)
   }
 
   protected getItemModel (_json: any): typeof Model {

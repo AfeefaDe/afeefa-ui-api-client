@@ -14,7 +14,7 @@ import Relation from './Relation'
 let ID = 0
 
 export default class Model {
-  public static type: string = ''
+  public static type: string = 'models'
   public static Query: IQuery | null = null
   public static Resource: typeof Resource | null = null
   public static ResourceUrl: string | null = null
@@ -31,10 +31,10 @@ export default class Model {
   public $rels: {[key: string]: Relation} = {}
 
   @enumerable(false)
-  private _ID: number = ++ID
+  public _loadingState: number = LoadingState.NOT_LOADED
 
   @enumerable(false)
-  private _loadingState: number = LoadingState.NOT_LOADED
+  private _ID: number = ++ID
 
   @enumerable(false)
   private _requestId: number = 0
@@ -113,6 +113,7 @@ export default class Model {
       if (relationsToFullyFetch.includes(relationName)) {
         this.fetchRelation(relationName, false, LoadingStrategy.LOAD_IF_NOT_FULLY_LOADED)
       } else if (relation.invalidated) {
+        console.log('fetchRelationsAfterGet', this.info, relationName, this.$rels[relationName].info)
         this.fetchRelation(relationName, false)
       }
     }
@@ -270,11 +271,6 @@ export default class Model {
       return new Date(value.getTime())
     }
 
-    if (value && typeof value.clone === 'function') {
-      console.log('has clone function', value)
-      return value.clone()
-    }
-
     if (value !== null && typeof value === 'object') {
       const obj = value
       const clone = {}
@@ -304,7 +300,7 @@ export default class Model {
       const currentItemState = (this[relationName] && this[relationName]._loadingState) || LoadingState.NOT_LOADED
       // callback will be triggered if relation detects it needs new data
       relation.fetchHasOne(id => {
-        return relation.Query.get(id as string, strategy).then((model: Model | null) => {
+        return relation.Query.get(id, strategy).then((model: Model | null) => {
           if (model && clone) {
             model = model.clone()
           }

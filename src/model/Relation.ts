@@ -102,8 +102,8 @@ export default class Relation {
         const item = this.findOrCreateItem(itemJson)
         items.push(item)
       })
-      const listParams = JSON.stringify(this.listParams())
-      resourceCache.addList(this.Model.type, listParams, items)
+      const listKey = JSON.stringify(this.listParams())
+      resourceCache.addList(this.Model.type, listKey, '{}', items)
     }
 
     this.hasIncludedData = true
@@ -190,7 +190,7 @@ export default class Relation {
   }
 
   private findOrCreateItem (json) {
-    let item = resourceCache.getItem(this.Model.type, json.id)
+    let item = resourceCache.getItem(this.Model.type, json.id) as ModelType
     if (!item) {
       item = new this.Model()
       item.id = json.id

@@ -1,63 +1,98 @@
+import Model from '../model/Model'
+
 export class ResourceCache {
-  private cache = {}
+  private cache: object = {}
 
   public purge () {
     this.cache = {}
   }
 
-  public getCache (key) {
-    if (!this.cache[key]) {
-      this.cache[key] = {
+  public getCache (type: string) {
+    if (!this.cache[type]) {
+      this.cache[type] = {
         lists: {},
         items: {}
       }
     }
-    return this.cache[key]
+    return this.cache[type]
   }
 
-  public addList (key, url, list) {
-    const listCache = this.getCache(key).lists
-    listCache[url] = list
+  public addList (type: string, key: string, params: string, list: Model[]) {
+    const listCache = this.getCache(type).lists
+
+    if (!listCache[key]) {
+      listCache[key] = {}
+    }
+
+    listCache[key][params] = list
     for (const item of list) {
-      const cachedItem = this.getItem(item.type, item.id)
-      if (cachedItem) {
-        continue
+      if (item.type) {
+        const cachedItem = this.getItem(item.type, item.id)
+        if (cachedItem) {
+          continue
+        }
+        this.addItem(item.type, item)
       }
-      this.addItem(item.type, item)
     }
   }
 
-  public hasList (key, url) {
-    return this.getCache(key).lists[url] !== undefined
+  public hasList (type: string, key: string, params: string): boolean {
+    const cache = this.getCache(type).lists
+
+    if (cache[key] === undefined) {
+      return false
+    }
+
+    return cache[key][params] !== undefined
   }
 
-  public getList (key, url) {
-    return this.getCache(key).lists[url]
+  public getList (type: string, key: string, params: string): Model[] | undefined {
+    const cache = this.getCache(type).lists
+
+    if (cache[key] === undefined) {
+      return undefined
+    }
+
+    return cache[key][params]
   }
 
-  public purgeList (key, url?) {
-    if (url) {
-      delete this.getCache(key).lists[url]
+  public purgeList (type: string, key?: string, params?: string) {
+    const cache = this.getCache(type)
+    const lists = cache.lists
+
+    if (params && key) {
+      if (lists[key]) {
+        delete lists[key][params]
+      }
+    } else if (key) {
+      delete lists[key]
     } else {
-      this.getCache(key).lists = {}
+      cache.lists = {}
     }
   }
 
-  public addItem (key, item) {
-    const itemCache = this.getCache(key).items
+  public addItem (type, item: Model) {
+    if (!item.id) {
+      console.error('ResourceCache: Cannot add Item without id:', item.info)
+      return
+    }
+    const itemCache = this.getCache(type).items
     itemCache[item.id] = item
   }
 
-  public hasItem (key, id?) {
-    return this.getCache(key).items[id] !== undefined
+  public hasItem (type: string, id: string): boolean {
+    return this.getCache(type).items[id] !== undefined
   }
 
-  public getItem (key, id) {
-    return this.getCache(key).items[id]
+  public getItem (type: string, id: string | null): Model | undefined {
+    if (!id) {
+      return undefined
+    }
+    return this.getCache(type).items[id]
   }
 
-  public purgeItem (key, id) {
-    delete this.getCache(key).items[id]
+  public purgeItem (type: string, id: string) {
+    delete this.getCache(type).items[id]
   }
 }
 

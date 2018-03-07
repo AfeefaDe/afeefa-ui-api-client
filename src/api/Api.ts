@@ -30,12 +30,12 @@ export class Api {
     const listType = resource.getListType()
 
     // different caches for different list params
-    const relationListParams: object = resource.getListParams()
-    const listParams = JSON.stringify({...relationListParams, ...params}) as string
+    const listKey = JSON.stringify(resource.getListParams())
+    const listParams = JSON.stringify(params || {})
 
-    if (resourceCache.hasList(listType, listParams)) {
+    if (resourceCache.hasList(listType, listKey, listParams)) {
       // list already loaded
-      return Promise.resolve(resourceCache.getList(listType, listParams))
+      return Promise.resolve(resourceCache.getList(listType, listKey, listParams) as Model[])
     }
 
     if (!resource.getUrl()) {
@@ -65,7 +65,7 @@ export class Api {
         if (resourceCache.hasItem(itemType, itemId)) {
           item = resourceCache.getItem(itemType, itemId)
         } else {
-          item = resource.createItem(json)
+          item = resource.createItem(itemJson)
           resourceCache.addItem(itemType, item)
         }
         item.deserialize(itemJson)
@@ -75,7 +75,7 @@ export class Api {
       }
 
       // cache list, adds all items to the cache if not yet added
-      resourceCache.addList(listType, listParams, items)
+      resourceCache.addList(listType, listKey, listParams, items)
 
       return items
     }).catch(response => {
@@ -106,12 +106,12 @@ export class Api {
 
     // check if item already loaded
     if (resourceCache.hasItem(itemType, id)) {
-      const item = resourceCache.getItem(itemType, id)
+      const item = resourceCache.getItem(itemType, id) as Model
       if (item._loadingState === LoadingState.FULLY_LOADED && strategy === LoadingStrategy.LOAD_IF_NOT_FULLY_LOADED) {
-        return Promise.resolve(resourceCache.getItem(itemType, id))
+        return Promise.resolve(resourceCache.getItem(itemType, id) as Model)
       }
       if (strategy === LoadingStrategy.LOAD_IF_NOT_CACHED) {
-        return Promise.resolve(resourceCache.getItem(itemType, id))
+        return Promise.resolve(resourceCache.getItem(itemType, id) as Model)
       }
     }
 
@@ -124,19 +124,19 @@ export class Api {
     const requestItemId = parseInt(id, 10) ? id : undefined
     const resourceProvider = this.getResourceProvider(resource)
     const promise = resourceProvider.get({id: requestItemId}).then(response => {
-      const json = response.body.data || response.body // jsonapi spec || afeefa api spec
+      let json = response.body.data || response.body // jsonapi spec || afeefa api spec
+      json = resource.getItemJson(json)
       this.setRequestId(json)
 
       let item
       // update existing cached items but not replace them in order to keep references alive
       if (resourceCache.hasItem(itemType, id)) {
         item = resourceCache.getItem(itemType, id)
-        item.deserialize(resource.getItemJson(json))
       } else {
         item = resource.createItem(json)
         resourceCache.addItem(itemType, item)
-        item.deserialize(resource.getItemJson(json))
       }
+      item.deserialize(json)
 
       return item
     }).catch(response => {
@@ -165,7 +165,7 @@ export class Api {
 
     // store a deep clone of the old item
     // we do not allow saving items that are not cached beforehand
-    const oldItem = resourceCache.getItem(itemType, item.id).clone()
+    const oldItem = (resourceCache.getItem(itemType, item.id) as Model).clone()
 
     const resourceProvider = this.getResourceProvider(resource)
     const promise = resourceProvider.update(
@@ -174,12 +174,12 @@ export class Api {
       // reset all tracked changes in order to force item.hasChanges to return false after save
       item.markSaved()
       // get the original item for the case the given item is a clone
-      item = resourceCache.getItem(itemType, item.id)
-      const json = response.body.data || response.body // jsonapi spec || afeefa api spec
+      item = resourceCache.getItem(itemType, item.id) as Model
+      let json = response.body.data || response.body // jsonapi spec || afeefa api spec
+      json = resource.getItemJson(json)
       this.setRequestId(json)
 
-      item.deserialize(resource.getItemJson(json))
-
+      item.deserialize(json)
       resource.itemSaved(oldItem, item)
       this.onSave(oldItem, item)
       return item
@@ -205,14 +205,15 @@ export class Api {
     return resourceProvider.save(
       {id: null}, body
     ).then(response => {
-      const json = response.body.data || response.body // jsonapi spec || afeefa api spec
+      let json = response.body.data || response.body // jsonapi spec || afeefa api spec
+      json = resource.getItemJson(json)
       this.setRequestId(json)
 
       // reset all tracked changes in order to force item.hasChanges to return false after save
       item.markSaved()
       item = resource.createItem(json)
       resourceCache.addItem(itemType, item)
-      item.deserialize(resource.getItemJson(json))
+      item.deserialize(json)
 
       resource.itemAdded(item)
       this.onAdd(item)
@@ -269,11 +270,14 @@ export class Api {
 
       const itemType = resource.getItemType()
 
-      const json = response.body.data || response.body // jsonapi spec || afeefa api spec
+      let json = response.body.data || response.body // jsonapi spec || afeefa api spec
+      json = resource.getItemJson(json)
       this.setRequestId(json)
 
       const cachedItem = resourceCache.getItem(itemType, item.id)
-      cachedItem.deserialize(resource.getItemJson(json))
+      if (cachedItem) {
+        cachedItem.deserialize(json)
+      }
       return attributes
     }).catch(response => {
       console.log('error updating item attribtes', response)
