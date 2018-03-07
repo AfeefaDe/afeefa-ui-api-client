@@ -64,12 +64,10 @@ export default class Model {
       const {remoteName, Resource: ResourceType, ...relationParams} = relationConfig // splice remoteName
       const relation: Relation = new Relation({owner: this, name: relationName, ...relationParams})
       if (ResourceType) {
-        const Ctor: any = ResourceType
-        const CtorTest: any = RelationResource
-        if (Ctor.__proto__ === CtorTest) { // relation resource TODO
-          relation.Query = new Ctor(relation)
+        if (ResourceType.prototype instanceof RelationResource) { // relation resource
+          relation.Query = new (ResourceType as any)(relation)
         } else { // model resource
-          relation.Query = new Ctor(relation.Model)
+          relation.Query = new (ResourceType as any)(relation.Model)
         }
       } else {
         relation.Query = new RelationResource(relation)
