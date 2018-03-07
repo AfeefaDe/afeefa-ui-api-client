@@ -5,9 +5,9 @@ import IRelationConfig, { IRelationsConfig } from './IRelationConfig'
 import ModelType from './Model'
 
 export class ModelRegistry {
-  private models: {[key: string]: typeof ModelType} = {}
+  public models: {[key: string]: typeof ModelType} = {}
 
-  public register (Model: typeof ModelType) {
+  public add (Model: typeof ModelType) {
     this.models[Model.name] = Model
     return Model
   }

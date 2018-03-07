@@ -8,7 +8,6 @@ import Resource from '../resource/Resource'
 import DataTypes from './DataTypes'
 import IAttributeConfig, { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig'
 import IRelationConfig, { IRelationsConfig } from './IRelationConfig'
-import ModelRegistry from './Registry'
 import Relation from './Relation'
 
 let ID = 0
@@ -56,7 +55,6 @@ export default class Model {
     }
     this.type = this.class.type
 
-
     // init relations
     for (const relationName of Object.keys(this.class._relations)) {
       const relationConfig: IRelationConfig = this.class._relations[relationName]
@@ -82,14 +80,6 @@ export default class Model {
     }
 
     this.init()
-  }
-
-  public static register (ModelType: typeof Model) {
-    return ModelRegistry.register(ModelType)
-  }
-
-  public static initializeAll () {
-    return ModelRegistry.initializeAll()
   }
 
   public static relations (): IRelationsConfig {

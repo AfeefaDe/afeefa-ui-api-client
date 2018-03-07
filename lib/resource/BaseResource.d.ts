@@ -34,7 +34,7 @@ export default class BaseResource implements IResource, IQuery {
     /**
      * Convenient Resource Cache Access
      */
-    cachePurgeList(type: any, url?: any): void;
+    cachePurgeList(type: any, key?: any): void;
     cachePurgeRelation(relation: Relation): void;
     cachePurgeItem(type: any, id: any): void;
     cacheGetAllLists(type: any): any;
