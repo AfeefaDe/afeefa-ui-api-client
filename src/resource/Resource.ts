@@ -6,7 +6,5 @@ export default class Resource extends BaseResource {
     super()
 
     this.Model = Model
-
-    this.init()
   }
 }

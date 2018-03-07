@@ -11,11 +11,10 @@ export default class RelationResource extends BaseResource {
     this.relation = relation
 
     this.Model = this.relation.Model
-
-    this.init()
   }
 
   public getUrl (): string {
+    // need to construct url here since owner.id is not present at construction time
     return `${this.relation.owner.type}/${this.relation.owner.id}/${this.relation.Model.type}{/id}`
   }
 
@@ -41,11 +40,11 @@ export default class RelationResource extends BaseResource {
     this.relation.purgeFromCacheAndMarkInvalid()
   }
 
-  public itemAttached(_model: Model) {
+  public itemAttached (_model: Model) {
     this.relation.purgeFromCacheAndMarkInvalid()
   }
 
-  public itemDetached(_model: Model) {
+  public itemDetached (_model: Model) {
     this.relation.purgeFromCacheAndMarkInvalid()
   }
 

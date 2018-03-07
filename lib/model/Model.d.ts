@@ -7,6 +7,7 @@ export default class Model {
     static type: string;
     static Query: IQuery | null;
     static Resource: typeof Resource | null;
+    static ResourceUrl: string | null;
     static _relations: IRelationsConfig;
     static _attributes: IAttributesConfig;
     static _attributeRemoteNameMap: object;

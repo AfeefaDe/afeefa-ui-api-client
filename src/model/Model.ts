@@ -17,6 +17,7 @@ export default class Model {
   public static type: string = ''
   public static Query: IQuery | null = null
   public static Resource: typeof Resource | null = null
+  public static ResourceUrl: string | null = null
 
   public static _relations: IRelationsConfig = {}
   public static _attributes: IAttributesConfig = {}
@@ -70,7 +71,11 @@ export default class Model {
           relation.Query = new (ResourceType as any)(relation.Model)
         }
       } else {
-        relation.Query = new RelationResource(relation)
+        if (relation.type === Relation.HAS_ONE) {
+          relation.Query = relation.Model.Query as IQuery
+        } else {
+          relation.Query = new RelationResource(relation)
+        }
       }
 
       this.$rels[relationName] = relation

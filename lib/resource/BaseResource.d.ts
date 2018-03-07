@@ -3,7 +3,7 @@ import Relation from '../model/Relation';
 import IQuery from './IQuery';
 import IResource from './IResource';
 export default class BaseResource implements IResource, IQuery {
-    protected url: string;
+    url: string;
     protected Model: typeof Model | null;
     private relationsToFetch;
     /**
@@ -39,7 +39,6 @@ export default class BaseResource implements IResource, IQuery {
     cachePurgeItem(key: any, id: any): void;
     cacheGetAllLists(key: any): any;
     findCachedItem(key: any, id: any): any;
-    protected init(): void;
     protected getItemModel(_json: any): typeof Model;
     protected clone(): BaseResource;
 }

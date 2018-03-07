@@ -6,7 +6,7 @@ import IQuery from './IQuery'
 import IResource from './IResource'
 
 export default class BaseResource implements IResource, IQuery {
-  protected url: string = ''
+  public url: string = ''
   protected Model: typeof Model | null = null
 
   private relationsToFetch: Relation[] = []
@@ -62,11 +62,11 @@ export default class BaseResource implements IResource, IQuery {
     // hook into
   }
 
-  public itemAttached(_model: Model) {
+  public itemAttached (_model: Model) {
     // hook into
   }
 
-  public itemDetached(_model: Model) {
+  public itemDetached (_model: Model) {
     // hook into
   }
 
@@ -140,10 +140,6 @@ export default class BaseResource implements IResource, IQuery {
 
   public findCachedItem (key, id) {
     return resourceCache.getItem(key, id)
-  }
-
-  protected init () {
-    // hook into
   }
 
   protected getItemModel (_json: any): typeof Model {
