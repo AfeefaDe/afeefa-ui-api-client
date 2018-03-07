@@ -1,12 +1,12 @@
-import IResource from '../resource/IResource';
-import Query from '../resource/Query';
+import IQuery from '../resource/IQuery';
+import Resource from '../resource/Resource';
 import { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig';
 import { IRelationsConfig } from './IRelationConfig';
 import Relation from './Relation';
 export default class Model {
     static type: string;
-    static Query: Query | null;
-    static Resource: IResource | null;
+    static Query: IQuery | null;
+    static Resource: typeof Resource | null;
     static _relations: IRelationsConfig;
     static _attributes: IAttributesConfig;
     static _attributeRemoteNameMap: object;

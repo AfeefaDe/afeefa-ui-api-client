@@ -1,7 +1,6 @@
 import requestCache from '../cache/RequestCache'
 import resourceCache from '../cache/ResourceCache'
 import Model from '../model/Model'
-import Relation from '../model/Relation'
 import IResource from '../resource/IResource'
 import ResourceProvider from '../resource/ResourceProvider'
 import ApiError from './ApiError'
@@ -24,14 +23,14 @@ export class Api {
   public onDeleteError = (_apiError: ApiError) => null
 
   public getList (
-    {resource, relation, params}:
-    {resource: IResource, relation?: Relation | null, params: any}
+    {resource, params}:
+    {resource: IResource, params: any}
   ): Promise<Model[]> {
     // key of list in resource cache
     const listType = resource.getListType()
 
     // different caches for different list params
-    const relationListParams: object = relation ? relation.listParams() : {}
+    const relationListParams: object = resource.getListParams()
     const listParams = JSON.stringify({...relationListParams, ...params}) as string
 
     if (resourceCache.hasList(listType, listParams)) {
@@ -39,12 +38,12 @@ export class Api {
       return Promise.resolve(resourceCache.getList(listType, listParams))
     }
 
-    if (!resource.url) {
+    if (!resource.getUrl()) {
       console.error('Keine resource.url konfiguriert', listType, listParams)
     }
 
     // list currently loading
-    const requestKey = resource.url + (params ? JSON.stringify(params) : '')
+    const requestKey = resource.getUrl() + (params ? JSON.stringify(params) : '')
     if (requestCache.hasItem(requestKey)) {
       return requestCache.getItem(requestKey)
     }
@@ -293,6 +292,7 @@ export class Api {
 
     const resourceProvider = this.getResourceProvider(resource)
     const promise = resourceProvider.save({id: item.id}, {}).then(() => {
+      resource.itemAttached(item)
       return true
     }).catch(response => {
       console.log('error attaching item', response)
@@ -312,6 +312,7 @@ export class Api {
 
     const resourceProvider = this.getResourceProvider(resource)
     const promise = resourceProvider.delete({id: item.id}).then(() => {
+      resource.itemDetached(item)
       return true
     }).catch(response => {
       console.log('error detaching item', response)
@@ -322,7 +323,7 @@ export class Api {
   }
 
   private getResourceProvider (resource: IResource): ResourceProvider {
-    const url = resource.url
+    const url = resource.getUrl()
     return this.resourceProviderFactory(url)
   }
 

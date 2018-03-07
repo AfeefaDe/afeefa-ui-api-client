@@ -2,9 +2,9 @@ import LoadingState from '../api/LoadingState'
 import LoadingStrategy from '../api/LoadingStrategy'
 import { enumerable } from '../decorator/enumerable'
 import toCamelCase from '../filter/camel-case'
-import IResource from '../resource/IResource'
-import Query from '../resource/Query'
-import RelationQuery from '../resource/RelationQuery'
+import IQuery from '../resource/IQuery'
+import RelationResource from '../resource/RelationResource'
+import Resource from '../resource/Resource'
 import DataTypes from './DataTypes'
 import IAttributeConfig, { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig'
 import IRelationConfig, { IRelationsConfig } from './IRelationConfig'
@@ -15,8 +15,8 @@ let ID = 0
 
 export default class Model {
   public static type: string = ''
-  public static Query: Query | null = null
-  public static Resource: IResource | null = null
+  public static Query: IQuery | null = null
+  public static Resource: typeof Resource | null = null
 
   public static _relations: IRelationsConfig = {}
   public static _attributes: IAttributesConfig = {}
@@ -61,9 +61,19 @@ export default class Model {
       const relationConfig: IRelationConfig = this.class._relations[relationName]
       this[relationName] = relationConfig.type === Relation.HAS_MANY ? [] : null
 
-      const {remoteName, Query: QueryType, ...relationParams} = relationConfig // splice remoteName
+      const {remoteName, Resource: ResourceType, ...relationParams} = relationConfig // splice remoteName
       const relation: Relation = new Relation({owner: this, name: relationName, ...relationParams})
-      relation.Query = QueryType ? new QueryType(relation) : new RelationQuery(relation)
+      if (ResourceType) {
+        const Ctor: any = ResourceType
+        const CtorTest: any = RelationResource
+        if (Ctor.__proto__ === CtorTest) { // relation resource TODO
+          relation.Query = new Ctor(relation)
+        } else { // model resource
+          relation.Query = new Ctor(relation.Model)
+        }
+      } else {
+        relation.Query = new RelationResource(relation)
+      }
 
       this.$rels[relationName] = relation
     }

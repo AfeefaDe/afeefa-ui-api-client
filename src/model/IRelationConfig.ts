@@ -1,4 +1,4 @@
-import RelationQuery from '../resource/RelationQuery'
+import BaseResource from '../resource/BaseResource'
 import Model from './Model'
 
 export interface IRelationsConfig {
@@ -9,5 +9,5 @@ export default interface IRelationConfig {
   type: string,
   Model: typeof Model,
   remoteName?: string,
-  Query: typeof RelationQuery
+  Resource: typeof BaseResource
 }

@@ -1,5 +1,4 @@
 import Model from '../model/Model';
-import Relation from '../model/Relation';
 import IResource from '../resource/IResource';
 import ResourceProvider from '../resource/ResourceProvider';
 import ApiError from './ApiError';
@@ -13,9 +12,8 @@ export declare class Api {
     onSaveError: (_apiError: ApiError) => null;
     onDelete: (_model: Model) => null;
     onDeleteError: (_apiError: ApiError) => null;
-    getList({resource, relation, params}: {
+    getList({resource, params}: {
         resource: IResource;
-        relation?: Relation | null;
         params: any;
     }): Promise<Model[]>;
     getItem({resource, id, strategy}: {

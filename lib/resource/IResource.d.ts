@@ -1,7 +1,8 @@
 import Model from '../model/Model';
 export default interface IResource {
-    url: string;
+    getUrl(): string;
     getListType(): string;
+    getListParams(): object;
     getItemType(json?: any): string;
     getItemJson(json: any): any;
     createItem(json: any): Model;
@@ -9,4 +10,6 @@ export default interface IResource {
     itemAdded(item: Model): any;
     itemDeleted(item: Model): any;
     itemSaved(itemOld: Model, item: Model): any;
+    itemAttached(item: Model): any;
+    itemDetached(item: Model): any;
 }

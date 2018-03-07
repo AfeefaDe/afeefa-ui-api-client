@@ -1,4 +1,4 @@
-import RelationQueryType from '../resource/RelationQuery';
+import IQuery from '../resource/IQuery';
 import ModelType from './Model';
 export default class Relation {
     static HAS_ONE: string;
@@ -24,7 +24,7 @@ export default class Relation {
         type: string;
         Model: typeof ModelType;
     });
-    Query: RelationQueryType;
+    Query: IQuery;
     purgeFromCacheAndMarkInvalid(): void;
     listParams(): object;
     deserialize(json: any): void;

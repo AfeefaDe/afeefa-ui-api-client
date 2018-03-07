@@ -1,4 +1,3 @@
-import Query from '../resource/Query'
 import IAttributeConfig, { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig'
 import IDataType from './IDataType'
 import IRelationConfig, { IRelationsConfig } from './IRelationConfig'
@@ -29,10 +28,8 @@ export class ModelRegistry {
   }
 
   private initializeQuery (Model: typeof ModelType) {
-    if (!Model.Query) {
-      if (Model.Resource) {
-        Model.Query = new Query(Model.Resource)
-      }
+    if (Model.Resource) {
+      Model.Query = new Model.Resource(Model)
     }
   }
 

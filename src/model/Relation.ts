@@ -1,7 +1,7 @@
 import LoadingState from '../api/LoadingState'
 import LoadingStrategy from '../api/LoadingStrategy'
 import resourceCache from '../cache/ResourceCache'
-import RelationQueryType from '../resource/RelationQuery'
+import IQuery from '../resource/IQuery'
 import ModelType from './Model'
 
 let ID = 0
@@ -26,7 +26,7 @@ export default class Relation {
   public id: string | null = null
   public hasIncludedData: boolean = false
 
-  private _Query: RelationQueryType | null = null
+  private _Query: IQuery | null = null
 
   constructor (
     {owner, name, type, Model}:
@@ -48,12 +48,12 @@ export default class Relation {
     this.reset()
   }
 
-  public set Query (query: RelationQueryType) {
+  public set Query (query: IQuery) {
     this._Query = query
   }
 
   public get Query () {
-    return this._Query as RelationQueryType
+    return this._Query as IQuery
   }
 
   public purgeFromCacheAndMarkInvalid () {
