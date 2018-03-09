@@ -3,14 +3,11 @@ import Relation from '../model/Relation'
 import BaseResource from './BaseResource'
 
 export default class RelationResource extends BaseResource {
-  private relation: Relation
-
   constructor (relation: Relation) {
     super()
 
-    this.relation = relation
-
-    this.Model = this.relation.Model
+    this._relation = relation
+    this.Model = this._relation.Model
   }
 
   public getUrl (): string {
@@ -18,39 +15,11 @@ export default class RelationResource extends BaseResource {
     return `${this.relation.owner.type}/${this.relation.owner.id}/${this.relation.Model.type}{/id}`
   }
 
-  /**
-   * IResource
-   */
-
-  public getListParams (): object {
-    return this.relation.listParams()
+  public getListKey (): object {
+    return this.relation.listKey()
   }
 
-  // Api Hooks
-
-  public itemAdded (_model: Model) {
-    this.relation.purgeFromCacheAndMarkInvalid()
-  }
-
-  public itemDeleted (_model: Model) {
-    this.relation.purgeFromCacheAndMarkInvalid()
-  }
-
-  public itemSaved (_modelOld: Model, _model: Model) {
-    this.relation.purgeFromCacheAndMarkInvalid()
-  }
-
-  public itemAttached (_model: Model) {
-    this.relation.purgeFromCacheAndMarkInvalid()
-  }
-
-  public itemDetached (_model: Model) {
-    this.relation.purgeFromCacheAndMarkInvalid()
-  }
-
-  protected clone (): BaseResource {
-    const clone = super.clone() as RelationResource
-    clone.relation = this.relation
-    return clone
+  public find (): Model | null {
+    return super.find(this.relation.id)
   }
 }

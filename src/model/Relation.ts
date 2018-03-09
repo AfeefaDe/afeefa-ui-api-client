@@ -1,7 +1,8 @@
+import API from '../api/Api'
 import LoadingState from '../api/LoadingState'
 import LoadingStrategy from '../api/LoadingStrategy'
-import resourceCache from '../cache/ResourceCache'
 import IQuery from '../resource/IQuery'
+import IResource from '../resource/IResource'
 import ModelType from './Model'
 
 let ID = 0
@@ -58,12 +59,9 @@ export default class Relation {
 
   public purgeFromCacheAndMarkInvalid () {
     if (this.type === Relation.HAS_ONE) {
-      if (this.id) {
-        resourceCache.purgeItem(this.Model.type, this.id)
-      }
+      API.purgeItem(this.resource, this.id)
     } else {
-      const listParams = JSON.stringify(this.listParams())
-      resourceCache.purgeList(this.Model.type, listParams)
+      API.purgeList(this.resource)
     }
 
     this.isFetching = false
@@ -75,7 +73,21 @@ export default class Relation {
     }
   }
 
-  public listParams (): object {
+  public unregisterModels () {
+    if (this.type === Relation.HAS_ONE) {
+      const model: ModelType = this.owner[this.name]
+      if (model) {
+        model.unregisterParentRelation(this)
+      }
+    } else {
+      const models: ModelType[] = this.owner[this.name]
+      models.forEach(model => {
+        model.unregisterParentRelation(this)
+      })
+    }
+  }
+
+  public listKey (): object {
     return {
       owner_type: this.owner.type,
       owner_id: this.owner.id,
@@ -86,24 +98,20 @@ export default class Relation {
   public deserialize (json: any) {
     this.reset()
 
+    // { data: null } is valid
     json = json.hasOwnProperty('data') ? json.data : json // jsonapi-spec fallback
 
     // cache item
     if (this.type === Relation.HAS_ONE) {
       // if no json given -> related object === null
       if (json) {
-        this.id = json.id
-        this.findOrCreateItem(json)
+        const item = API.pushItem({resource: this.resource, json})
+        // store the id
+        this.id = item.id
       }
     // cache list
     } else {
-      const items: any[] = []
-      json.forEach(itemJson => {
-        const item = this.findOrCreateItem(itemJson)
-        items.push(item)
-      })
-      const listKey = JSON.stringify(this.listParams())
-      resourceCache.addList(this.Model.type, listKey, '{}', items)
+      API.pushList({resource: this.resource, json, params: {}})
     }
 
     this.hasIncludedData = true
@@ -189,15 +197,8 @@ export default class Relation {
       `${itemId}hasIncludedData="${this.hasIncludedData}" fetched="${this.fetched}" invalidated="${this.invalidated}"`
   }
 
-  private findOrCreateItem (json) {
-    let item = resourceCache.getItem(this.Model.type, json.id) as ModelType
-    if (!item) {
-      item = new this.Model()
-      item.id = json.id
-      resourceCache.addItem(this.Model.type, item)
-    }
-    item.deserialize(json)
-    return item
+  protected get resource (): IResource {
+    return (this._Query as any) as IResource
   }
 
   private reset () {

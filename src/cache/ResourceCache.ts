@@ -46,14 +46,14 @@ export class ResourceCache {
     return cache[key][params] !== undefined
   }
 
-  public getList (type: string, key: string, params: string): Model[] | undefined {
+  public getList (type: string, key: string, params: string): Model[] {
     const cache = this.getCache(type).lists
 
     if (cache[key] === undefined) {
-      return undefined
+      return []
     }
 
-    return cache[key][params]
+    return cache[key][params] || []
   }
 
   public purgeList (type: string, key?: string, params?: string) {
@@ -84,11 +84,11 @@ export class ResourceCache {
     return this.getCache(type).items[id] !== undefined
   }
 
-  public getItem (type: string, id: string | null): Model | undefined {
+  public getItem (type: string, id: string | null): Model | null {
     if (!id) {
-      return undefined
+      return null
     }
-    return this.getCache(type).items[id]
+    return this.getCache(type).items[id] || null
   }
 
   public purgeItem (type: string, id: string) {

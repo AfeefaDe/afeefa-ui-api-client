@@ -5,11 +5,11 @@ export declare class ResourceCache {
     getCache(type: string): any;
     addList(type: string, key: string, params: string, list: Model[]): void;
     hasList(type: string, key: string, params: string): boolean;
-    getList(type: string, key: string, params: string): Model[] | undefined;
+    getList(type: string, key: string, params: string): Model[];
     purgeList(type: string, key?: string, params?: string): void;
     addItem(type: any, item: Model): void;
     hasItem(type: string, id: string): boolean;
-    getItem(type: string, id: string | null): Model | undefined;
+    getItem(type: string, id: string | null): Model | null;
     purgeItem(type: string, id: string): void;
 }
 declare const _default: ResourceCache;

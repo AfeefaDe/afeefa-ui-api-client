@@ -3,8 +3,8 @@ import LoadingStrategy from '../api/LoadingStrategy'
 import { enumerable } from '../decorator/enumerable'
 import toCamelCase from '../filter/camel-case'
 import IQuery from '../resource/IQuery'
+import ModelResource from '../resource/ModelResource'
 import RelationResource from '../resource/RelationResource'
-import Resource from '../resource/Resource'
 import DataTypes from './DataTypes'
 import IAttributeConfig, { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig'
 import IRelationConfig, { IRelationsConfig } from './IRelationConfig'
@@ -15,7 +15,7 @@ let ID = 0
 export default class Model {
   public static type: string = 'models'
   public static Query: IQuery | null = null
-  public static Resource: typeof Resource | null = null
+  public static Resource: typeof ModelResource | null = null
   public static ResourceUrl: string | null = null
 
   public static _relations: IRelationsConfig = {}
@@ -47,6 +47,9 @@ export default class Model {
   @enumerable(false)
   private _lastSnapshot: string = ''
 
+  @enumerable(false)
+  private _parentRelations: Set<Relation> = new Set()
+
   constructor () {
     // init attributes
     for (const name of Object.keys(this.class._attributes)) {
@@ -62,13 +65,9 @@ export default class Model {
 
       const {remoteName, Resource: ResourceType, ...relationParams} = relationConfig // splice remoteName
       const relation: Relation = new Relation({owner: this, name: relationName, ...relationParams})
-      if (ResourceType) {
-        if (ResourceType.prototype instanceof RelationResource) { // relation resource
-          relation.Query = new (ResourceType as any)(relation)
-        } else { // model resource
-          relation.Query = new (ResourceType as any)(relation.Model)
-        }
-      } else {
+      if (ResourceType) { // create resource from config
+        relation.Query = new (ResourceType as any)(relation)
+      } else { // create default resource
         if (relation.type === Relation.HAS_ONE) {
           relation.Query = relation.Model.Query as IQuery
         } else {
@@ -103,7 +102,6 @@ export default class Model {
       if (relationsToFullyFetch.includes(relationName)) {
         this.fetchRelation(relationName, false, LoadingStrategy.LOAD_IF_NOT_FULLY_LOADED)
       } else if (relation.invalidated) {
-        console.log('fetchRelationsAfterGet', this.info, relationName, this.$rels[relationName].info)
         this.fetchRelation(relationName, false)
       }
     }
@@ -113,6 +111,20 @@ export default class Model {
     const relation: Relation = this.$rels[relationName]
     relation.fetched = false
     this.fetchRelation(relationName, false)
+  }
+
+  public registerParentRelation (relation: Relation) {
+    // console.log('register parent', this._ID, this.type, this.id, relation.info)
+    this._parentRelations.add(relation)
+  }
+
+  public getParentRelations (): Set<Relation> {
+    return this._parentRelations
+  }
+
+  public unregisterParentRelation (relation: Relation) {
+    // console.log('unregister parent', this._ID, this.type, this.id, relation.info)
+    this._parentRelations.delete(relation)
   }
 
   /**

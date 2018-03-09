@@ -14,7 +14,7 @@ export declare class Api {
     onDeleteError: (_apiError: ApiError) => null;
     getList({resource, params}: {
         resource: IResource;
-        params: any;
+        params?: object;
     }): Promise<Model[]>;
     getItem({resource, id, strategy}: {
         resource: IResource;
@@ -46,6 +46,25 @@ export declare class Api {
         resource: IResource;
         item: Model;
     }): Promise<boolean | null>;
+    find({resource, id}: {
+        resource: IResource;
+        id?: string | null;
+    }): Model | null;
+    findAll({resource, params}: {
+        resource: IResource;
+        params?: object;
+    }): Model[];
+    pushList({resource, json, params}: {
+        resource: IResource;
+        json: any;
+        params?: object;
+    }): Model[];
+    pushItem({resource, json}: {
+        resource: IResource;
+        json: any;
+    }): Model;
+    purgeItem(resource: IResource, id: string | null): void;
+    purgeList(resource: IResource): void;
     private getResourceProvider(resource);
     private setRequestId(json, requestId?);
 }

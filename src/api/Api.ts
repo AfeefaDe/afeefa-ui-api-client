@@ -24,13 +24,12 @@ export class Api {
 
   public getList (
     {resource, params}:
-    {resource: IResource, params: any}
+    {resource: IResource, params?: object}
   ): Promise<Model[]> {
     // key of list in resource cache
     const listType = resource.getListType()
-
     // different caches for different list params
-    const listKey = JSON.stringify(resource.getListParams())
+    const listKey = JSON.stringify(resource.getListKey())
     const listParams = JSON.stringify(params || {})
 
     if (resourceCache.hasList(listType, listKey, listParams)) {
@@ -51,33 +50,10 @@ export class Api {
     // load list
     const resourceProvider = this.getResourceProvider(resource)
     const promise = resourceProvider.query(params).then(response => {
-      const items: any[] = []
-
       const data = response.body.data || response.body // jsonapi spec || afeefa api spec
       this.setRequestId(data)
 
-      for (const json of data) {
-        let item
-        // update existing cached items but not replace them!
-        const itemType = resource.getItemType(json)
-        const itemJson = resource.getItemJson(json)
-        const itemId = itemJson.id
-        if (resourceCache.hasItem(itemType, itemId)) {
-          item = resourceCache.getItem(itemType, itemId)
-        } else {
-          item = resource.createItem(itemJson)
-          resourceCache.addItem(itemType, item)
-        }
-        item.deserialize(itemJson)
-
-        // add model to list
-        items.push(item)
-      }
-
-      // cache list, adds all items to the cache if not yet added
-      resourceCache.addList(listType, listKey, listParams, items)
-
-      return items
+      return this.pushList({resource, json: data, params})
     }).catch(response => {
       console.log('error loading list', response)
       this.onGetError(new ApiError(response))
@@ -124,21 +100,9 @@ export class Api {
     const requestItemId = parseInt(id, 10) ? id : undefined
     const resourceProvider = this.getResourceProvider(resource)
     const promise = resourceProvider.get({id: requestItemId}).then(response => {
-      let json = response.body.data || response.body // jsonapi spec || afeefa api spec
-      json = resource.getItemJson(json)
+      const json = response.body.data || response.body // jsonapi spec || afeefa api spec
       this.setRequestId(json)
-
-      let item
-      // update existing cached items but not replace them in order to keep references alive
-      if (resourceCache.hasItem(itemType, id)) {
-        item = resourceCache.getItem(itemType, id)
-      } else {
-        item = resource.createItem(json)
-        resourceCache.addItem(itemType, item)
-      }
-      item.deserialize(json)
-
-      return item
+      return this.pushItem({resource, json})
     }).catch(response => {
       console.log('error loading item', response)
       this.onGetError(new ApiError(response))
@@ -217,7 +181,6 @@ export class Api {
 
       resource.itemAdded(item)
       this.onAdd(item)
-
       return item
     }).catch(response => {
       console.log('error adding item', response)
@@ -239,6 +202,7 @@ export class Api {
     return resourceProvider.delete({id: item.id}).then(() => {
       // reset all tracked changes in order to force item.hasChanges to return false after save
       item.markSaved()
+
       resource.itemDeleted(item)
       this.onDelete(item)
       return true
@@ -324,6 +288,75 @@ export class Api {
       return null
     })
     return promise
+  }
+
+  public find ({resource, id}: {resource: IResource, id?: string | null}): Model | null {
+    if (!id) {
+      return null
+    }
+
+    const itemType = resource.getItemType()
+    return resourceCache.getItem(itemType, id)
+  }
+
+  public findAll ({resource, params}: {resource: IResource, params?: object}): Model[] {
+    const listType = resource.getListType()
+    const listKey = JSON.stringify(resource.getListKey())
+    const listParams = JSON.stringify(params || {})
+    return resourceCache.getList(listType, listKey, listParams)
+  }
+
+  public pushList ({resource, json, params}: {resource: IResource, json: any, params?: object}): Model[] {
+    // cache list, adds all items to the cache if not yet added
+    const listType = resource.getListType()
+    const listKey = JSON.stringify(resource.getListKey())
+    const listParams = JSON.stringify(params || {})
+
+    const items: Model[] = []
+    for (const itemJson of json) {
+      // update existing cached items but not replace them!
+      const item = this.pushItem({resource, json: itemJson})
+      // add model to list
+      items.push(item)
+    }
+
+    resourceCache.addList(listType, listKey, listParams, items)
+    resource.itemsLoaded(items)
+    return items
+  }
+
+  public pushItem ({resource, json}: {resource: IResource, json: any}): Model {
+    json = resource.getItemJson(json)
+    const itemType = resource.getItemType(json)
+    const itemId = json.id
+
+    let item: Model
+    // update existing cached items but not replace them in order to keep references alive
+    if (resourceCache.hasItem(itemType, itemId)) {
+      item = resourceCache.getItem(itemType, itemId) as Model
+    } else {
+      item = resource.createItem(json)
+      resourceCache.addItem(itemType, item)
+    }
+    item.deserialize(json)
+
+    resource.itemLoaded(item)
+    return item
+  }
+
+  public purgeItem (resource: IResource, id: string | null) {
+    if (id) {
+      const itemType = resource.getItemType()
+      console.log('purge relation item', itemType, id, resource)
+      resourceCache.purgeItem(itemType, id)
+    }
+  }
+
+  public purgeList (resource: IResource) {
+    const listType = resource.getListType()
+    const listKey = JSON.stringify(resource.getListKey())
+    console.log('purge list', listType, listKey, resource)
+    resourceCache.purgeList(listType, listKey)
   }
 
   private getResourceProvider (resource: IResource): ResourceProvider {

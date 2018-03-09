@@ -1,4 +1,5 @@
 import IQuery from '../resource/IQuery';
+import IResource from '../resource/IResource';
 import ModelType from './Model';
 export default class Relation {
     static HAS_ONE: string;
@@ -26,7 +27,8 @@ export default class Relation {
     });
     Query: IQuery;
     purgeFromCacheAndMarkInvalid(): void;
-    listParams(): object;
+    unregisterModels(): void;
+    listKey(): object;
     deserialize(json: any): void;
     fetchHasOne(callback: (id: string | null) => Promise<any>, currentItemState: number, fetchingStrategy: number): void;
     fetchHasMany(callback: () => Promise<any>): void;
@@ -41,6 +43,6 @@ export default class Relation {
      */
     clone(): Relation;
     readonly info: string;
-    private findOrCreateItem(json);
+    protected readonly resource: IResource;
     private reset();
 }

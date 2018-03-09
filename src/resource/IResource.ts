@@ -5,7 +5,7 @@ export default interface IResource {
 
   getListType (): string
 
-  getListParams (): object
+  getListKey (): object
 
   getItemType (json?: any): string
 
@@ -14,6 +14,10 @@ export default interface IResource {
   createItem (json: any): Model
 
   transformJsonBeforeSave (json: any): any
+
+  itemsLoaded (items: Model[])
+
+  itemLoaded (item: Model)
 
   itemAdded (item: Model)
 

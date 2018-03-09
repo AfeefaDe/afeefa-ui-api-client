@@ -1,12 +1,12 @@
 import IQuery from '../resource/IQuery';
-import Resource from '../resource/Resource';
+import ModelResource from '../resource/ModelResource';
 import { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig';
 import { IRelationsConfig } from './IRelationConfig';
 import Relation from './Relation';
 export default class Model {
     static type: string;
     static Query: IQuery | null;
-    static Resource: typeof Resource | null;
+    static Resource: typeof ModelResource | null;
     static ResourceUrl: string | null;
     static _relations: IRelationsConfig;
     static _attributes: IAttributesConfig;
@@ -23,6 +23,7 @@ export default class Model {
     private _isClone;
     private _original;
     private _lastSnapshot;
+    private _parentRelations;
     constructor();
     static relations(): IRelationsConfig;
     static attributes(): IAttributesMixedConfig;
@@ -31,6 +32,9 @@ export default class Model {
      */
     fetchRelationsAfterGet(relationsToFullyFetch?: any[]): void;
     refetchRelation(relationName: string): void;
+    registerParentRelation(relation: Relation): void;
+    getParentRelations(): Set<Relation>;
+    unregisterParentRelation(relation: Relation): void;
     /**
      * Serialization
      */

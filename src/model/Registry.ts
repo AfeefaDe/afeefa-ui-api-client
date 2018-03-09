@@ -1,11 +1,12 @@
-import Resource from '../resource/Resource'
+import ModelResource from '../resource/ModelResource'
+import { Instance as App } from './App'
 import IAttributeConfig, { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig'
 import IDataType from './IDataType'
 import IRelationConfig, { IRelationsConfig } from './IRelationConfig'
 import ModelType from './Model'
 
 export class ModelRegistry {
-  public models: {[key: string]: typeof ModelType} = {}
+  private models: {[key: string]: typeof ModelType} = {}
 
   public add (Model: typeof ModelType) {
     this.models[Model.name] = Model
@@ -16,7 +17,7 @@ export class ModelRegistry {
     for (const name of Object.keys(this.models)) {
       const Model = this.models[name]
       this.checkType(Model)
-      this.initializeQuery(Model)
+      this.initializeResource(Model)
     }
     // make sure all model are initialized when
     // setting up relations
@@ -33,12 +34,16 @@ export class ModelRegistry {
     }
   }
 
-  private initializeQuery (Model: typeof ModelType) {
+  private initializeResource (Model: typeof ModelType) {
+    const relation = App.getRelationByModel(Model)
+    let resource: ModelResource | null = null
     if (Model.Resource) {
-      Model.Query = new Model.Resource(Model)
+      resource = new Model.Resource(relation)
     } else if (Model.ResourceUrl) {
-      const resource = new Resource(Model)
+      resource = new ModelResource(relation)
       resource.url = Model.ResourceUrl
+    }
+    if (resource) {
       Model.Query = resource
     }
   }
