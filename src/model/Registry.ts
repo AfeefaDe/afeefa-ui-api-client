@@ -30,7 +30,7 @@ export class ModelRegistry {
 
   private checkType (Model: typeof ModelType) {
     if (!Model.hasOwnProperty('type')) {
-      console.error('Das Model', Model.name, 'hat keinen Typ')
+      throw new Error(`Das Model ${Model.name} hat keinen type`)
     }
   }
 
@@ -38,13 +38,18 @@ export class ModelRegistry {
     const relation = App.getRelationByModel(Model)
     let resource: ModelResource | null = null
     if (Model.Resource) {
+      // custom resource is configured for Model
       resource = new Model.Resource(relation)
     } else if (Model.ResourceUrl) {
+      // create a default resource by using the specified url
       resource = new ModelResource(relation)
       resource.url = Model.ResourceUrl
+    } else {
+      // Model is not allowed to be queried using Model.Query.get...()
     }
     if (resource) {
       Model.Query = resource
+      relation.Query = resource
     }
   }
 

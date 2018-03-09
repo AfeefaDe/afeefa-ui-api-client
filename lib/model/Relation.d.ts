@@ -9,7 +9,7 @@ export default class Relation {
     owner: ModelType;
     name: string;
     type: string;
-    Model: typeof ModelType;
+    Model: typeof ModelType | null;
     instanceId: number;
     isClone: boolean;
     original: Relation | null;
@@ -18,12 +18,12 @@ export default class Relation {
     invalidated: boolean;
     id: string | null;
     hasIncludedData: boolean;
-    private _Query;
+    _Query: IQuery | null;
     constructor({owner, name, type, Model}: {
         owner: ModelType;
         name: string;
         type: string;
-        Model: typeof ModelType;
+        Model?: typeof ModelType;
     });
     Query: IQuery;
     purgeFromCacheAndMarkInvalid(): void;

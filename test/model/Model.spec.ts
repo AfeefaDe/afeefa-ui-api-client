@@ -41,6 +41,7 @@ describe('Model - Model', () => {
       '_loadingState',
       '_isClone',
       '_original',
+      '_parentRelations',
       '_lastSnapshot'
     ].sort())
   })

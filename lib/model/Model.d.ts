@@ -5,7 +5,7 @@ import { IRelationsConfig } from './IRelationConfig';
 import Relation from './Relation';
 export default class Model {
     static type: string;
-    static Query: IQuery | null;
+    static Query: IQuery;
     static Resource: typeof ModelResource | null;
     static ResourceUrl: string | null;
     static _relations: IRelationsConfig;

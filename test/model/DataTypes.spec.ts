@@ -21,6 +21,8 @@ describe('Model - DataTypes', () => {
     expect(DataTypes.String.value(null)).to.be.equal('')
     expect(DataTypes.String.value('')).to.be.equal('')
     expect(DataTypes.String.value(true)).to.be.equal('')
+    expect(DataTypes.String.value(8)).to.be.equal('8')
+    expect(DataTypes.String.value(1.8)).to.be.equal('1.8')
   })
 
   it('returns array value', () => {

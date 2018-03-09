@@ -347,7 +347,7 @@ export class Api {
   public purgeItem (resource: IResource, id: string | null) {
     if (id) {
       const itemType = resource.getItemType()
-      console.log('purge relation item', itemType, id, resource)
+      // console.log('purge item', itemType, id, resource)
       resourceCache.purgeItem(itemType, id)
     }
   }
@@ -355,7 +355,7 @@ export class Api {
   public purgeList (resource: IResource) {
     const listType = resource.getListType()
     const listKey = JSON.stringify(resource.getListKey())
-    console.log('purge list', listType, listKey, resource)
+    // console.log('purge list', listType, listKey, resource)
     resourceCache.purgeList(listType, listKey)
   }
 

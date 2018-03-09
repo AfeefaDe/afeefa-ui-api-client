@@ -154,16 +154,30 @@ export default class BaseResource implements IResource, IQuery {
   }
 
   public itemDetached (model: Model) {
-    const relation: Relation = this.relation
     // unregister this relation with the just detached model
-    model.unregisterParentRelation(relation)
+    model.unregisterParentRelation(this.relation)
     // purge list that have been detached from
-    relation.purgeFromCacheAndMarkInvalid()
+    this.relation.purgeFromCacheAndMarkInvalid()
   }
 
   /**
    * Convenient Resource Cache Access
    */
+
+  public findCachedItemsBy (type: string, params: object): Model[] {
+    const items = resourceCache.getCache(type).items
+    const result: Model[] = []
+    for (const id of Object.keys(items)) {
+      const model: Model = items[id]
+      for (const key of Object.keys(params)) {
+        if (model[key] !== params[key]) {
+          break
+        }
+        result.push(model)
+      }
+    }
+    return result
+  }
 
   public cachePurgeList (type, key?) {
     resourceCache.purgeList(type, key)
@@ -187,12 +201,10 @@ export default class BaseResource implements IResource, IQuery {
   }
 
   protected clone (): BaseResource {
-    console.log('clone', this.url, this.Model)
     const Constructor = this.constructor as any
     const clone = new Constructor(this._relation)
     clone.url = this.url
     clone.relationsToFetch = this.relationsToFetch
-    console.log('clone', clone.url, clone.Model)
     return clone
   }
 }

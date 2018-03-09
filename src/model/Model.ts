@@ -14,7 +14,7 @@ let ID = 0
 
 export default class Model {
   public static type: string = 'models'
-  public static Query: IQuery | null = null
+  public static Query: IQuery
   public static Resource: typeof ModelResource | null = null
   public static ResourceUrl: string | null = null
 
@@ -63,13 +63,25 @@ export default class Model {
       const relationConfig: IRelationConfig = this.class._relations[relationName]
       this[relationName] = relationConfig.type === Relation.HAS_MANY ? [] : null
 
-      const {remoteName, Resource: ResourceType, ...relationParams} = relationConfig // splice remoteName
+      const {remoteName, Resource: ResourceType, ...relationParams} = relationConfig // splice remoteName and Resource
       const relation: Relation = new Relation({owner: this, name: relationName, ...relationParams})
-      if (ResourceType) { // create resource from config
+
+      if (!relation.Model) {
+        throw new Error('You need to specify a Model for a Relation')
+      }
+
+      // create resource from config (resource or relation resourse)
+      if (ResourceType) {
         relation.Query = new (ResourceType as any)(relation)
-      } else { // create default resource
+      // create a default resource
+      } else {
+        // reuse existing model resource for has one relations
         if (relation.type === Relation.HAS_ONE) {
-          relation.Query = relation.Model.Query as IQuery
+          if (!relation.Model.Query) {
+            throw new Error('Using a Model in a Relation requires a Resource to be defined for that Model')
+          }
+          relation.Query = relation.Model.Query
+        // create a default relation resource
         } else {
           relation.Query = new RelationResource(relation)
         }

@@ -9,7 +9,13 @@ export default class DataTypes {
 
   public static String: IDataType<string> = {
     value (value): string {
-      return typeof value === 'string' ? value : ''
+      if (typeof value === 'string') {
+        return value
+      }
+      if (typeof value === 'number') {
+        return value + ''
+      }
+      return ''
     }
   }
 

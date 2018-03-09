@@ -39,6 +39,7 @@ export default class BaseResource implements IResource, IQuery {
     /**
      * Convenient Resource Cache Access
      */
+    findCachedItemsBy(type: string, params: object): Model[];
     cachePurgeList(type: any, key?: any): void;
     cacheGetAllLists(type: any): any;
     findCachedItem(type: any, id: any): Model | null;

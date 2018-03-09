@@ -16,7 +16,7 @@ export default class Relation {
   public owner: ModelType
   public name: string
   public type: string
-  public Model: typeof ModelType
+  public Model: typeof ModelType | null = null
   public instanceId: number
   public isClone: boolean
   public original: Relation | null
@@ -27,20 +27,20 @@ export default class Relation {
   public id: string | null = null
   public hasIncludedData: boolean = false
 
-  private _Query: IQuery | null = null
+  public _Query: IQuery | null = null
 
   constructor (
     {owner, name, type, Model}:
-    {owner: ModelType, name: string, type: string, Model: typeof ModelType}
+    {owner: ModelType, name: string, type: string, Model?: typeof ModelType}
   ) {
-    if (!type || !Model) {
+    if (!type) {
       console.error('Relation configuration invalid', ...Array.from(arguments))
     }
 
     this.owner = owner
     this.name = name
     this.type = type
-    this.Model = Model
+    this.Model = Model || null
 
     this.instanceId = ++ID
     this.isClone = false
@@ -74,6 +74,7 @@ export default class Relation {
   }
 
   public unregisterModels () {
+    // console.log('unregister Models for', this.owner.info, this.name, this.owner[this.name])
     if (this.type === Relation.HAS_ONE) {
       const model: ModelType = this.owner[this.name]
       if (model) {
@@ -178,7 +179,7 @@ export default class Relation {
       owner: this.owner,
       name: this.name,
       type: this.type,
-      Model: this.Model
+      Model: this.Model || undefined
     })
 
     clone.id = this.id
