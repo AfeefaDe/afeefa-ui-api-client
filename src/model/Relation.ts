@@ -53,7 +53,12 @@ export default class Relation {
     return this._Query as IQuery
   }
 
-  public purgeFromCacheAndMarkInvalid () {
+  public reloadOnNextGet () {
+    if (this.original) {
+      this.original.reloadOnNextGet()
+      return
+    }
+
     if (this.type === Relation.HAS_ONE) {
       API.purgeItem(this.resource, this.id)
     } else {
@@ -62,25 +67,18 @@ export default class Relation {
 
     this.fetched = false
     this.invalidated = true
-
-    if (this.original) {
-      this.original.purgeFromCacheAndMarkInvalid()
-    }
   }
 
-  public unregisterModels () {
-    // console.log('unregister Models for', this.owner.info, this.name, this.owner[this.name])
+  public getRelatedModels (): ModelType[] {
     if (this.type === Relation.HAS_ONE) {
       const model: ModelType = this.owner[this.name]
       if (model) {
-        model.unregisterParentRelation(this)
+        return [model]
       }
     } else {
-      const models: ModelType[] = this.owner[this.name]
-      models.forEach(model => {
-        model.unregisterParentRelation(this)
-      })
+      return this.owner[this.name]
     }
+    return []
   }
 
   public listKey (): object {
@@ -111,23 +109,21 @@ export default class Relation {
     }
   }
 
-  public fetch (clone: boolean, forceLoading: boolean) {
+  public fetch (clone: boolean, forceLoading: boolean): Promise<any> {
     if (this.fetched) {
-      return
+      return Promise.resolve(true)
     }
 
     let promise: Promise<any>
     if (this.type === Relation.HAS_ONE) {
-      promise = forceLoading ? this.getHasOne() : this.findHasOne()
-      promise.then((model: ModelType | null) => {
+      promise = (forceLoading ? this.getHasOne() : this.findHasOne()).then((model: ModelType | null) => {
         if (model && clone) {
           model = model.clone()
         }
         return model
       })
     } else {
-      promise = forceLoading ? this.getHasMany() : this.findHasMany()
-      promise.then((items: ModelType[]) => {
+      promise = (forceLoading ? this.getHasMany() : this.findHasMany()).then((items: ModelType[]) => {
         const models: ModelType[] = []
         items.forEach(item => {
           if (item && clone) {
@@ -139,7 +135,7 @@ export default class Relation {
       })
     }
 
-    promise.then(result => {
+    return promise.then(result => {
       this.fetched = true
       this.invalidated = false
       this.owner.onRelationFetched(this, result)

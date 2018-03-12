@@ -135,10 +135,11 @@ export class Api {
       json = resource.getItemJson(json)
       this.setRequestId(json)
 
-      item.deserialize(json)
-      resource.itemSaved(oldItem, item)
-      this.onSave(oldItem, item)
-      return item
+      return item.deserialize(json).then(() => {
+        resource.itemSaved(oldItem, item)
+        this.onSave(oldItem, item)
+        return item
+      })
     }).catch(response => {
       console.log('error saving item', response)
       this.onSaveError(new ApiError(response))
@@ -167,13 +168,16 @@ export class Api {
 
       // reset all tracked changes in order to force item.hasChanges to return false after save
       item.markSaved()
+
       item = resource.createItem(json)
       resourceCache.addItem(itemType, item)
-      item.deserialize(json)
 
-      resource.itemAdded(item)
-      this.onAdd(item)
-      return item
+      return item.deserialize(json).then(() => {
+        resource.registerRelation(item)
+        resource.itemAdded(item)
+        this.onAdd(item)
+        return item
+      })
     }).catch(response => {
       console.log('error adding item', response)
       this.onAddError(new ApiError(response))
@@ -197,6 +201,7 @@ export class Api {
 
       resource.itemDeleted(item)
       this.onDelete(item)
+      resource.unregisterRelation(item)
       return true
     }).catch(response => {
       console.log('error deleting item', response)
@@ -252,6 +257,7 @@ export class Api {
 
     const resourceProvider = this.getResourceProvider(resource)
     const promise = resourceProvider.save({id: item.id}, {}).then(() => {
+      resource.registerRelation(item)
       resource.itemAttached(item)
       return true
     }).catch(response => {
@@ -273,6 +279,7 @@ export class Api {
     const resourceProvider = this.getResourceProvider(resource)
     const promise = resourceProvider.delete({id: item.id}).then(() => {
       resource.itemDetached(item)
+      resource.unregisterRelation(item)
       return true
     }).catch(response => {
       console.log('error detaching item', response)
@@ -308,12 +315,13 @@ export class Api {
     for (const itemJson of json) {
       // update existing cached items but not replace them!
       const item = this.pushItem({resource, json: itemJson})
+      // register relation to this item
+      resource.registerRelation(item)
       // add model to list
       items.push(item)
     }
 
     resourceCache.addList(listType, listKey, listParams, items)
-    resource.itemsLoaded(items)
     return items
   }
 
@@ -332,7 +340,7 @@ export class Api {
     }
     item.deserialize(json)
 
-    resource.itemLoaded(item)
+    resource.registerRelation(item)
     return item
   }
 

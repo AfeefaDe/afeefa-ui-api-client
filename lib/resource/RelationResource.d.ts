@@ -4,5 +4,5 @@ export default class RelationResource extends BaseResource {
     constructor(relation: Relation);
     getUrl(): string;
     getListKey(): object;
-    refetch(): void;
+    refetch(): Promise<any>;
 }

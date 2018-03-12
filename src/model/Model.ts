@@ -108,6 +108,7 @@ export default class Model {
   /**
    * Relations
    */
+
   public fetchRelationsAfterGet (relationsToFullyFetch: any[] = []) {
     for (const relationName of Object.keys(this.$rels)) {
       const relation: Relation = this.$rels[relationName]
@@ -138,7 +139,7 @@ export default class Model {
    * Serialization
    */
 
-  public deserialize (json: any) {
+  public deserialize (json: any): Promise<any> {
     if (json._requestId === undefined) {
       console.error('No requestId given in json. Might be an error in normalizeJson()', this.info, json)
     }
@@ -146,7 +147,7 @@ export default class Model {
     // do not deserialize if we do not have any attribute or relation data
     const jsonLoadingState = this.calculateLoadingStateFromJson(json)
     if (!jsonLoadingState) {
-      return
+      return Promise.resolve(true)
     }
 
     // we do not want to deserialize our model multiple times in the same request
@@ -154,7 +155,7 @@ export default class Model {
     const isSameRequest = json._requestId === this._requestId
     const wantToDeserializeMore = jsonLoadingState > this._loadingState
     if (isSameRequest && !wantToDeserializeMore) {
-      return
+      return Promise.resolve(true)
     }
 
     this.id = json.id
@@ -168,6 +169,8 @@ export default class Model {
     this.afterDeserializeAttributes()
 
     this.deserializeRelations(json.relationships)
+
+    return this.fetchAllIncludedRelations()
   }
 
   public serialize (): object {
@@ -325,12 +328,14 @@ export default class Model {
     return !!this.class._relations[name]
   }
 
-  private fetchAllIncludedRelations (relationsToClone: string[] = []) {
+  private fetchAllIncludedRelations (relationsToClone: string[] = []): Promise<any> {
+    const promises: Array<Promise<any>> = []
     for (const relationName of Object.keys(this.$rels)) {
       const relation = this.$rels[relationName]
       const clone = relationsToClone.includes(relationName)
-      relation.fetch(clone, false)
+      promises.push(relation.fetch(clone, false))
     }
+    return Promise.all(promises)
   }
 
   private deserializeAttributes (attributesJson: object) {
@@ -356,6 +361,5 @@ export default class Model {
         relation.deserialize(relationsJson[name])
       }
     }
-    this.fetchAllIncludedRelations()
   }
 }

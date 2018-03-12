@@ -24,11 +24,11 @@ export default class Relation {
         Model?: typeof ModelType;
     });
     Query: IQuery;
-    purgeFromCacheAndMarkInvalid(): void;
-    unregisterModels(): void;
+    reloadOnNextGet(): void;
+    getRelatedModels(): ModelType[];
     listKey(): object;
     deserialize(json: any): void;
-    fetch(clone: boolean, forceLoading: boolean): void;
+    fetch(clone: boolean, forceLoading: boolean): Promise<any>;
     /**
      * A cloned item will also have all relations cloned from it's orginal.
      * The clone item must fetch any relation on its own and hence runs its

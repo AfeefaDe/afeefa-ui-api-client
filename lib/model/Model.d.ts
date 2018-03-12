@@ -37,7 +37,7 @@ export default class Model {
     /**
      * Serialization
      */
-    deserialize(json: any): void;
+    deserialize(json: any): Promise<any>;
     serialize(): object;
     hasChanges(): boolean;
     markSaved(): void;

@@ -2,7 +2,7 @@ import API from '../api/Api'
 import Relation from './Relation'
 
 export default class AppRelation extends Relation {
-  public purgeFromCacheAndMarkInvalid () {
+  public reloadOnNextGet () {
     API.purgeList(this.resource)
   }
 

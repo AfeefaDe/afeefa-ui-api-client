@@ -29,13 +29,13 @@ export default class BaseResource implements IResource, IQuery {
     detach(model: Model): Promise<boolean | null>;
     find(id?: string | null): Model | null;
     findAll(params?: object): Model[];
-    itemsLoaded(models: Model[]): void;
-    itemLoaded(model: Model): void;
+    registerRelation(model: Model): void;
+    unregisterRelation(model: Model): void;
     itemAdded(model: Model): void;
     itemDeleted(model: Model): void;
     itemSaved(_modelOld: Model, _model: Model): void;
-    itemAttached(model: Model): void;
-    itemDetached(model: Model): void;
+    itemAttached(_model: Model): void;
+    itemDetached(_model: Model): void;
     /**
      * Convenient Resource Cache Access
      */

@@ -7,8 +7,8 @@ export default interface IResource {
     getItemJson(json: any): any;
     createItem(json: any): Model;
     transformJsonBeforeSave(json: any): any;
-    itemsLoaded(items: Model[]): any;
-    itemLoaded(item: Model): any;
+    registerRelation(model: Model): any;
+    unregisterRelation(model: Model): any;
     itemAdded(item: Model): any;
     itemDeleted(item: Model): any;
     itemSaved(itemOld: Model, item: Model): any;

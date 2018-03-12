@@ -15,9 +15,9 @@ export default interface IResource {
 
   transformJsonBeforeSave (json: any): any
 
-  itemsLoaded (items: Model[])
+  registerRelation (model: Model)
 
-  itemLoaded (item: Model)
+  unregisterRelation (model: Model)
 
   itemAdded (item: Model)
 

@@ -108,59 +108,52 @@ export default class BaseResource implements IResource, IQuery {
 
   // Api Hooks
 
-  public itemsLoaded (models: Model[]) {
-    // register parent relations after items have been added to cache
-    models.map(model => {
-      model.registerParentRelation(this.relation)
-    })
-  }
-
-  public itemLoaded (model: Model) {
+  public registerRelation (model: Model) {
     // register parent relations after item has been added to cache
     model.registerParentRelation(this.relation)
+  }
+
+  public unregisterRelation (model: Model) {
+    // register parent relations after item has been added to cache
+    model.unregisterParentRelation(this.relation)
   }
 
   public itemAdded (model: Model) {
-    // register parent relations after item has been added to cache
-    model.registerParentRelation(this.relation)
-    // purge parent relation after item has been added to remote
-    // POST /events -> invalidate App.events
-    this.relation.purgeFromCacheAndMarkInvalid()
+    // reload all relations to this model
+    model.getParentRelations().forEach(relation => {
+      relation.reloadOnNextGet()
+    })
   }
 
   public itemDeleted (model: Model) {
-    // remove the deleted item from item cache
-    // DELETE /events/123 -> purge events.123
+    // remove model from item cache
     API.purgeItem(this, model.id)
-    // remove the deleted item from all including lists
-    // DELETE /events/123 -> invalidate App.events, Orga.123/events
+    // reload all relations to this model
     model.getParentRelations().forEach(relation => {
-      relation.purgeFromCacheAndMarkInvalid()
+      relation.reloadOnNextGet()
     })
     // unregister all relations that link to this model
     for (const name of Object.keys(model.$rels)) {
       const relation: Relation = model.$rels[name]
-      relation.unregisterModels()
+      const relatedModels = relation.getRelatedModels()
+      relatedModels.forEach(related => {
+        related.unregisterParentRelation(relation)
+      })
     }
   }
 
   public itemSaved (_modelOld: Model, _model: Model) {
-    // hook into
-    // there is no generic handling of saved items
+    // handle reload relations specific to model
   }
 
-  public itemAttached (model: Model) {
-    // register this relation with the just attached model
-    model.registerParentRelation(this.relation)
-    // purge list that have been attached to
-    this.relation.purgeFromCacheAndMarkInvalid()
+  public itemAttached (_model: Model) {
+    // reload relation the model is attached to
+    this.relation.reloadOnNextGet()
   }
 
-  public itemDetached (model: Model) {
-    // unregister this relation with the just detached model
-    model.unregisterParentRelation(this.relation)
-    // purge list that have been detached from
-    this.relation.purgeFromCacheAndMarkInvalid()
+  public itemDetached (_model: Model) {
+    // reload relation the model is detached from
+    this.relation.reloadOnNextGet()
   }
 
   /**
