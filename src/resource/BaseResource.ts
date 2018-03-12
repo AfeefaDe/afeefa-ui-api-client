@@ -57,11 +57,11 @@ export default class BaseResource implements IResource, IQuery {
     return clone
   }
 
-  public get (id?: string | null, strategy?: number): Promise<Model | null> {
+  public get (id?: string | null): Promise<Model | null> {
     if (!id) {
       return Promise.resolve(null)
     }
-    return API.getItem({resource: this, id, strategy}).then(model => {
+    return API.getItem({resource: this, id}).then(model => {
       if (model) {
         model.fetchRelationsAfterGet(this.relationsToFetch)
       }
@@ -96,6 +96,9 @@ export default class BaseResource implements IResource, IQuery {
   }
 
   public find (id?: string | null): Model | null {
+    if (!id && this.relation.type === Relation.HAS_ONE) {
+      id = this.relation.id
+    }
     return API.find({resource: this, id})
   }
 
@@ -191,6 +194,14 @@ export default class BaseResource implements IResource, IQuery {
     return resourceCache.getItem(type, id)
   }
 
+  public clone (relation?: Relation): BaseResource {
+    const Constructor = this.constructor as any
+    const clone = new Constructor(relation || this._relation)
+    clone.url = this.url
+    clone.relationsToFetch = this.relationsToFetch
+    return clone
+  }
+
   protected get relation (): Relation {
     return this._relation as Relation
   }
@@ -198,13 +209,5 @@ export default class BaseResource implements IResource, IQuery {
   protected getItemModel (_json: any): typeof Model {
     // hook into
     return this.Model as typeof Model
-  }
-
-  protected clone (): BaseResource {
-    const Constructor = this.constructor as any
-    const clone = new Constructor(this._relation)
-    clone.url = this.url
-    clone.relationsToFetch = this.relationsToFetch
-    return clone
   }
 }

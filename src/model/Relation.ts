@@ -1,6 +1,4 @@
 import API from '../api/Api'
-import LoadingState from '../api/LoadingState'
-import LoadingStrategy from '../api/LoadingStrategy'
 import IQuery from '../resource/IQuery'
 import IResource from '../resource/IResource'
 import ModelType from './Model'
@@ -17,10 +15,10 @@ export default class Relation {
   public name: string
   public type: string
   public Model: typeof ModelType | null = null
+
   public instanceId: number
   public isClone: boolean
   public original: Relation | null
-  public isFetching: boolean | number = false
   public fetched: boolean = false
   public invalidated: boolean = false
 
@@ -64,7 +62,6 @@ export default class Relation {
       API.purgeList(this.resource)
     }
 
-    this.isFetching = false
     this.fetched = false
     this.invalidated = true
 
@@ -118,50 +115,40 @@ export default class Relation {
     this.hasIncludedData = true
   }
 
-  public fetchHasOne (
-    callback: (id: string | null) => Promise<any>,
-    currentItemState: number,
-    fetchingStrategy: number) {
+  public fetch (clone: boolean, forceLoading: boolean): Promise<ModelType | null | ModelType[]> {
     if (this.fetched) {
-      // fetch again if we want do fully load but havent yet
-      const wantToFetchMore = fetchingStrategy === LoadingStrategy.LOAD_IF_NOT_FULLY_LOADED &&
-        currentItemState < LoadingState.FULLY_LOADED
-      if (!wantToFetchMore) {
-        return
-      }
+      return Promise.reject(null)
     }
 
-    if (this.isFetching) {
-      // fetch additionally if we want to fetch more detailed data
-      const wantToFetchMore = fetchingStrategy === LoadingStrategy.LOAD_IF_NOT_FULLY_LOADED &&
-        this.isFetching !== fetchingStrategy
-      if (!wantToFetchMore) {
-        return
-      }
+    let promise: Promise<ModelType | null | ModelType[]>
+    if (this.type === Relation.HAS_ONE) {
+      const p = forceLoading ? this.getHasOne() : this.findHasOne()
+      p.then((model: ModelType | null) => {
+        if (model && clone) {
+          model = model.clone()
+        }
+        return model
+      })
+      promise = p
+    } else {
+      const p = forceLoading ? this.getHasMany() : this.findHasMany()
+      p.then(items => {
+        const models: ModelType[] = []
+        items.forEach(item => {
+          if (item && clone) {
+            item = item.clone()
+          }
+          models.push(item)
+        })
+        return models
+      })
+      promise = p
     }
 
-    this.isFetching = fetchingStrategy
-    callback(this.id).then(() => {
-      this.isFetching = false
+    return promise.then(result => {
       this.fetched = true
       this.invalidated = false
-    })
-  }
-
-  public fetchHasMany (callback: () => Promise<any>) {
-    if (this.fetched) {
-      return
-    }
-
-    if (this.isFetching) {
-      return
-    }
-
-    this.isFetching = true
-    callback().then(() => {
-      this.isFetching = false
-      this.fetched = true
-      this.invalidated = false
+      return result
     })
   }
 
@@ -186,7 +173,8 @@ export default class Relation {
     clone.hasIncludedData = this.hasIncludedData
     clone.isClone = true
     clone.original = this
-    clone.Query = this.Query
+    // clone resource with our cloned relation
+    clone.Query = this.Query.clone(clone)
 
     return clone
   }
@@ -202,6 +190,22 @@ export default class Relation {
     return (this._Query as any) as IResource
   }
 
+  private getHasOne () {
+    return this.Query.get(this.id)
+  }
+
+  private findHasOne () {
+    return Promise.resolve(this.Query.find())
+  }
+
+  private findHasMany (): Promise<ModelType[]> {
+    return Promise.resolve(this.Query.findAll())
+  }
+
+  private getHasMany (): Promise<ModelType[]> {
+    return this.Query.getAll()
+  }
+
   private reset () {
     // id of a has_one relation, may be accompanied by json data but does not need to
     this.id = null
@@ -210,7 +214,6 @@ export default class Relation {
     // there is no need to cache its data again,
     // even if we clone the item that holds the relation
     this.hasIncludedData = false
-    this.isFetching = false
     this.fetched = false
     this.invalidated = false
   }

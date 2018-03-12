@@ -13,7 +13,6 @@ export default class Relation {
     instanceId: number;
     isClone: boolean;
     original: Relation | null;
-    isFetching: boolean | number;
     fetched: boolean;
     invalidated: boolean;
     id: string | null;
@@ -30,8 +29,7 @@ export default class Relation {
     unregisterModels(): void;
     listKey(): object;
     deserialize(json: any): void;
-    fetchHasOne(callback: (id: string | null) => Promise<any>, currentItemState: number, fetchingStrategy: number): void;
-    fetchHasMany(callback: () => Promise<any>): void;
+    fetch(clone: boolean, forceLoading: boolean): Promise<ModelType | null | ModelType[]>;
     /**
      * A cloned item will also have all relations cloned from it's orginal.
      * The clone item must fetch any relation on its own and hence runs its
@@ -44,5 +42,9 @@ export default class Relation {
     clone(): Relation;
     readonly info: string;
     protected readonly resource: IResource;
+    private getHasOne();
+    private findHasOne();
+    private findHasMany();
+    private getHasMany();
     private reset();
 }

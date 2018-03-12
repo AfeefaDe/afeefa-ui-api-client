@@ -16,10 +16,9 @@ export declare class Api {
         resource: IResource;
         params?: object;
     }): Promise<Model[]>;
-    getItem({resource, id, strategy}: {
+    getItem({resource, id}: {
         resource: IResource;
         id: string;
-        strategy?: number;
     }): Promise<Model | null>;
     saveItem({resource, item}: {
         resource: IResource;

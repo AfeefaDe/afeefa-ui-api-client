@@ -45,6 +45,7 @@ export default class Model {
     clone(): Model;
     cloneWith(...relations: any[]): Model;
     readonly info: string;
+    onRelationFetched(relation: Relation, data: Model | Model[] | null): void;
     protected init(): void;
     /**
      * Inspects the given JSON and calculates a richness
@@ -58,12 +59,11 @@ export default class Model {
      * clone anything but no model relations
      */
     private _clone(value);
-    private fetchRelation(relationName, clone, strategy?);
+    private fetchRelation(relationName, clone, forceLoading);
     private readonly class;
     private hasAttr(name);
     private getAttrValue(name, value);
     private hasRelation(name);
-    private onRelationFetched(relation, data);
     private fetchAllIncludedRelations(relationsToClone?);
     private deserializeAttributes(attributesJson);
     private deserializeRelations(relationsJson);

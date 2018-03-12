@@ -21,7 +21,7 @@ export default class BaseResource implements IResource, IQuery {
      * IQuery
      */
     with(...relations: any[]): IQuery;
-    get(id?: string | null, strategy?: number): Promise<Model | null>;
+    get(id?: string | null): Promise<Model | null>;
     getAll(params?: object): Promise<Model[]>;
     save(model: Model): Promise<Model | null>;
     delete(model: any): Promise<boolean | null>;
@@ -43,7 +43,7 @@ export default class BaseResource implements IResource, IQuery {
     cachePurgeList(type: any, key?: any): void;
     cacheGetAllLists(type: any): any;
     findCachedItem(type: any, id: any): Model | null;
+    clone(relation?: Relation): BaseResource;
     protected readonly relation: Relation;
     protected getItemModel(_json: any): typeof Model;
-    protected clone(): BaseResource;
 }

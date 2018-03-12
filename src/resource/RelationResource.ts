@@ -20,8 +20,4 @@ export default class RelationResource extends BaseResource {
   public getListKey (): object {
     return this.relation.listKey()
   }
-
-  public find (): ModelType | null {
-    return super.find(this.relation.id)
-  }
 }

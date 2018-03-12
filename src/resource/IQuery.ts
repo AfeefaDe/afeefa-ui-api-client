@@ -1,4 +1,5 @@
 import Model from '../model/Model'
+import Relation from '../model/Relation'
 
 export default interface IQuery {
   with (...relations: string[]): IQuery
@@ -18,4 +19,6 @@ export default interface IQuery {
   find (id?: string | null): Model | null
 
   findAll (params?: object): Model[]
+
+  clone (relation?: Relation): IQuery
 }

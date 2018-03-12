@@ -5,7 +5,6 @@ import IResource from '../resource/IResource'
 import ResourceProvider from '../resource/ResourceProvider'
 import ApiError from './ApiError'
 import LoadingState from './LoadingState'
-import LoadingStrategy from './LoadingStrategy'
 
 export class Api {
   private requestId: number = 0
@@ -66,16 +65,12 @@ export class Api {
   }
 
   public getItem (
-    {resource, id, strategy}:
-    {resource: IResource, id: string, strategy?: number}
+    {resource, id}:
+    {resource: IResource, id: string}
   ): Promise<Model | null> {
     if (!id) {
       console.debug(`API: getItem() - keine id gegeben.`)
       return Promise.resolve(null)
-    }
-
-    if (!strategy) {
-      strategy = LoadingStrategy.LOAD_IF_NOT_FULLY_LOADED
     }
 
     const itemType = resource.getItemType()
@@ -83,10 +78,7 @@ export class Api {
     // check if item already loaded
     if (resourceCache.hasItem(itemType, id)) {
       const item = resourceCache.getItem(itemType, id) as Model
-      if (item._loadingState === LoadingState.FULLY_LOADED && strategy === LoadingStrategy.LOAD_IF_NOT_FULLY_LOADED) {
-        return Promise.resolve(resourceCache.getItem(itemType, id) as Model)
-      }
-      if (strategy === LoadingStrategy.LOAD_IF_NOT_CACHED) {
+      if (item._loadingState === LoadingState.FULLY_LOADED) {
         return Promise.resolve(resourceCache.getItem(itemType, id) as Model)
       }
     }
