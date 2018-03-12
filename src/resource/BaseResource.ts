@@ -160,31 +160,8 @@ export default class BaseResource implements IResource, IQuery {
    * Convenient Resource Cache Access
    */
 
-  public findCachedItemsBy (type: string, params: object): Model[] {
-    const items = resourceCache.getCache(type).items
-    const result: Model[] = []
-    for (const id of Object.keys(items)) {
-      const model: Model = items[id]
-      for (const key of Object.keys(params)) {
-        if (model[key] !== params[key]) {
-          break
-        }
-        result.push(model)
-      }
-    }
-    return result
-  }
-
   public cachePurgeList (type, key?) {
     resourceCache.purgeList(type, key)
-  }
-
-  public cacheGetAllLists (type) {
-    return resourceCache.getCache(type).lists
-  }
-
-  public findCachedItem (type, id) {
-    return resourceCache.getItem(type, id)
   }
 
   public clone (relation?: Relation): BaseResource {
