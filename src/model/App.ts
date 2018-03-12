@@ -2,49 +2,44 @@ import AppRelation from './AppRelation'
 import ModelType from './Model'
 import Relation from './Relation'
 
-export default class App extends ModelType {
-  private static _instance: App
+export class App {
+  private _model: ModelType | null = null
 
-  public static get instance () {
-    if (!App._instance) {
-      App._instance = new App()
+  private get model () {
+    if (!this._model) {
+      this._model = new ModelType()
+      this._model.id = '1'
+      this._model.type = 'app'
     }
-    return App._instance
-  }
-
-  constructor () {
-    super()
-
-    this.id = '1'
-    this.type = 'app'
+    return this._model
   }
 
   public getRelationByType (type: string): Relation {
-    let relation: Relation = this.$rels[type]
+    let relation: Relation = this.model.$rels[type]
     if (!relation) {
       relation = new AppRelation({
-        owner: this,
+        owner: this.model,
         name: type,
         type: Relation.HAS_MANY
       })
-      this.$rels[type] = relation
+      this.model.$rels[type] = relation
     }
     return relation
   }
 
   public getRelationByModel (Model: typeof ModelType): Relation {
-    let relation: Relation = this.$rels[Model.type]
+    let relation: Relation = this.model.$rels[Model.type]
     if (!relation) {
       relation = new AppRelation({
-        owner: this,
+        owner: this.model,
         name: Model.type,
         type: Relation.HAS_MANY,
         Model
       })
-      this.$rels[Model.type] = relation
+      this.model.$rels[Model.type] = relation
     }
     return relation
   }
 }
 
-export const Instance = App.instance
+export default new App()

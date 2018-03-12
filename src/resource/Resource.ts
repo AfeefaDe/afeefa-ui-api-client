@@ -1,6 +1,6 @@
 import API from '../api/Api'
 import resourceCache from '../cache/ResourceCache'
-import { Instance as App } from '../model/App'
+import App from '../model/App'
 import Model from '../model/Model'
 import Relation from '../model/Relation'
 import IQuery from './IQuery'
@@ -55,11 +55,11 @@ export default class Resource implements IResource, IQuery {
     return {}
   }
 
-  public getItemType (_json?: any): string {
+  public getItemType (json?: any): string {
     if (this.relation.Model) {
       return this.relation.Model.type
     }
-    throw new Error('The resource needs to implement the getItemType() method')
+    return this.getItemModel(json).type
   }
 
   public getItemJson (json: any): any {

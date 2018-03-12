@@ -17,7 +17,7 @@ export default class Resource implements IResource, IQuery {
     getUrl(): string;
     getListType(): string;
     getListKey(): object;
-    getItemType(_json?: any): string;
+    getItemType(json?: any): string;
     getItemJson(json: any): any;
     createItem(json: any): Model;
     transformJsonBeforeSave(json: any): any;

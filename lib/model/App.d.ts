@@ -1,10 +1,10 @@
 import ModelType from './Model';
 import Relation from './Relation';
-export default class App extends ModelType {
-    private static _instance;
-    static readonly instance: App;
-    constructor();
+export declare class App {
+    private _model;
+    private readonly model;
     getRelationByType(type: string): Relation;
     getRelationByModel(Model: typeof ModelType): Relation;
 }
-export declare const Instance: App;
+declare const _default: App;
+export default _default;

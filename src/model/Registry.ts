@@ -1,5 +1,5 @@
 import Resource from '../resource/Resource'
-import { Instance as App } from './App'
+import App from './App'
 import IAttributeConfig, { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig'
 import IDataType from './IDataType'
 import IRelationConfig, { IRelationsConfig } from './IRelationConfig'
