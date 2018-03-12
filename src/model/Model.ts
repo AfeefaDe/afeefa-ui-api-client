@@ -2,8 +2,7 @@ import LoadingState from '../api/LoadingState'
 import { enumerable } from '../decorator/enumerable'
 import toCamelCase from '../filter/camel-case'
 import IQuery from '../resource/IQuery'
-import ModelResource from '../resource/ModelResource'
-import RelationResource from '../resource/RelationResource'
+import Resource from '../resource/Resource'
 import DataTypes from './DataTypes'
 import IAttributeConfig, { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig'
 import IRelationConfig, { IRelationsConfig } from './IRelationConfig'
@@ -14,7 +13,7 @@ let ID = 0
 export default class Model {
   public static type: string = 'models'
   public static Query: IQuery
-  public static Resource: typeof ModelResource | null = null
+  public static Resource: typeof Resource | null = null
   public static ResourceUrl: string | null = null
 
   public static _relations: IRelationsConfig = {}
@@ -71,7 +70,7 @@ export default class Model {
 
       // create resource from config (resource or relation resourse)
       if (ResourceType) {
-        relation.Query = new (ResourceType as any)(relation)
+        relation.Query = new ResourceType(Resource.TYPE_RELATION, relation)
       // create a default resource
       } else {
         // reuse existing model resource for has one relations
@@ -83,7 +82,7 @@ export default class Model {
           relation.Query = relation.Model.Query.clone(relation)
         // create a default relation resource
         } else {
-          relation.Query = new RelationResource(relation)
+          relation.Query = new Resource(Resource.TYPE_RELATION, relation)
         }
       }
 

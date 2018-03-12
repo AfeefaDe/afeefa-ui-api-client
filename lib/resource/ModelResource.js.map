@@ -1,1 +1,0 @@
-{"version":3,"file":"ModelResource.js","sourceRoot":"","sources":["../../src/resource/ModelResource.ts"],"names":[],"mappings":"AACA,OAAO,YAAY,MAAM,gBAAgB,CAAA;AAEzC,MAAM,CAAC,OAAO,oBAAqB,SAAQ,YAAY;IACrD,YAAa,QAAkB;QAC7B,KAAK,EAAE,CAAA;QAEP,IAAI,CAAC,SAAS,GAAG,QAAQ,CAAA;QACzB,IAAI,CAAC,KAAK,GAAG,QAAQ,CAAC,KAAK,CAAA;IAC7B,CAAC;CACF"}

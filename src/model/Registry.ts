@@ -1,4 +1,4 @@
-import ModelResource from '../resource/ModelResource'
+import Resource from '../resource/Resource'
 import { Instance as App } from './App'
 import IAttributeConfig, { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig'
 import IDataType from './IDataType'
@@ -36,16 +36,16 @@ export class ModelRegistry {
 
   private initializeResource (Model: typeof ModelType) {
     const relation = App.getRelationByModel(Model)
-    let resource: ModelResource | null = null
+    let resource: Resource | null = null
     if (Model.Resource) {
       // custom resource is configured for Model
-      resource = new Model.Resource(relation)
+      resource = new Model.Resource(Resource.TYPE_MODEL, relation)
     } else if (Model.ResourceUrl) {
       // create a default resource by using the specified url
-      resource = new ModelResource(relation)
+      resource = new Resource(Resource.TYPE_MODEL, relation)
       resource.url = Model.ResourceUrl
     } else {
-      // Model is not allowed to be queried using Model.Query.get...()
+      // Model is by config not allowed to be queried using Model.Query.get...()
     }
     if (resource) {
       Model.Query = resource

@@ -89,8 +89,8 @@ export class Api {
     }
 
     // do not set id in request if it's a mocked id such as 'app'
-    const requestItemId = parseInt(id, 10) ? id : undefined
     const resourceProvider = this.getResourceProvider(resource)
+    const requestItemId = parseInt(id, 10) ? id : undefined
     const promise = resourceProvider.get({id: requestItemId}).then(response => {
       const json = response.body.data || response.body // jsonapi spec || afeefa api spec
       this.setRequestId(json)

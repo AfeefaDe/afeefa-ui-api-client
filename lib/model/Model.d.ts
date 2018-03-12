@@ -1,12 +1,12 @@
 import IQuery from '../resource/IQuery';
-import ModelResource from '../resource/ModelResource';
+import Resource from '../resource/Resource';
 import { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig';
 import { IRelationsConfig } from './IRelationConfig';
 import Relation from './Relation';
 export default class Model {
     static type: string;
     static Query: IQuery;
-    static Resource: typeof ModelResource | null;
+    static Resource: typeof Resource | null;
     static ResourceUrl: string | null;
     static _relations: IRelationsConfig;
     static _attributes: IAttributesConfig;
