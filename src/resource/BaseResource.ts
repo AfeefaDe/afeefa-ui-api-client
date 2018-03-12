@@ -134,7 +134,7 @@ export default class BaseResource implements IResource, IQuery {
     model.getParentRelations().forEach(relation => {
       relation.purgeFromCacheAndMarkInvalid()
     })
-    // unregister all relations of this model
+    // unregister all relations that link to this model
     for (const name of Object.keys(model.$rels)) {
       const relation: Relation = model.$rels[name]
       relation.unregisterModels()
