@@ -31,7 +31,6 @@ export default class Model {
      * Relations
      */
     fetchRelationsAfterGet(relationsToFullyFetch?: any[]): void;
-    refetchRelation(relationName: string): void;
     registerParentRelation(relation: Relation): void;
     getParentRelations(): Set<Relation>;
     unregisterParentRelation(relation: Relation): void;
@@ -59,7 +58,6 @@ export default class Model {
      * clone anything but no model relations
      */
     private _clone(value);
-    private fetchRelation(relationName, clone, forceLoading);
     private readonly class;
     private hasAttr(name);
     private getAttrValue(name, value);

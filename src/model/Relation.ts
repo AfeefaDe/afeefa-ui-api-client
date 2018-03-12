@@ -23,8 +23,6 @@ export default class Relation {
   public invalidated: boolean = false
 
   public id: string | null = null
-  public hasIncludedData: boolean = false
-
   public _Query: IQuery | null = null
 
   constructor (
@@ -111,28 +109,25 @@ export default class Relation {
     } else {
       API.pushList({resource: this.resource, json, params: {}})
     }
-
-    this.hasIncludedData = true
   }
 
-  public fetch (clone: boolean, forceLoading: boolean): Promise<ModelType | null | ModelType[]> {
+  public fetch (clone: boolean, forceLoading: boolean) {
     if (this.fetched) {
-      return Promise.reject(null)
+      return
     }
 
-    let promise: Promise<ModelType | null | ModelType[]>
+    let promise: Promise<any>
     if (this.type === Relation.HAS_ONE) {
-      const p = forceLoading ? this.getHasOne() : this.findHasOne()
-      p.then((model: ModelType | null) => {
+      promise = forceLoading ? this.getHasOne() : this.findHasOne()
+      promise.then((model: ModelType | null) => {
         if (model && clone) {
           model = model.clone()
         }
         return model
       })
-      promise = p
     } else {
-      const p = forceLoading ? this.getHasMany() : this.findHasMany()
-      p.then(items => {
+      promise = forceLoading ? this.getHasMany() : this.findHasMany()
+      promise.then((items: ModelType[]) => {
         const models: ModelType[] = []
         items.forEach(item => {
           if (item && clone) {
@@ -142,13 +137,12 @@ export default class Relation {
         })
         return models
       })
-      promise = p
     }
 
-    return promise.then(result => {
+    promise.then(result => {
       this.fetched = true
       this.invalidated = false
-      return result
+      this.owner.onRelationFetched(this, result)
     })
   }
 
@@ -161,16 +155,15 @@ export default class Relation {
    * copy initial data json/id as well as (for performance reasons) the
    * hint, if the relation data has already been synced to the resource cache.
    */
-  public clone () {
+  public clone (owner: ModelType) {
     const clone = new Relation({
-      owner: this.owner,
+      owner,
       name: this.name,
       type: this.type,
       Model: this.Model || undefined
     })
 
     clone.id = this.id
-    clone.hasIncludedData = this.hasIncludedData
     clone.isClone = true
     clone.original = this
     // clone resource with our cloned relation
@@ -183,18 +176,18 @@ export default class Relation {
     const isClone = this.isClone ? '(CLONE)' : ''
     const itemId = this.type === Relation.HAS_ONE ? `itemId="${this.id}" ` : ''
     return `[Relation] id="${this.instanceId}${isClone}" owner="${this.owner.type}(${this.owner.id})" type="${this.type}" name="${this.name}" ` +
-      `${itemId}hasIncludedData="${this.hasIncludedData}" fetched="${this.fetched}" invalidated="${this.invalidated}"`
+      `${itemId}fetched="${this.fetched}" invalidated="${this.invalidated}"`
   }
 
   protected get resource (): IResource {
     return (this._Query as any) as IResource
   }
 
-  private getHasOne () {
+  private getHasOne (): Promise<ModelType | null> {
     return this.Query.get(this.id)
   }
 
-  private findHasOne () {
+  private findHasOne (): Promise<ModelType | null> {
     return Promise.resolve(this.Query.find())
   }
 
@@ -210,10 +203,6 @@ export default class Relation {
     // id of a has_one relation, may be accompanied by json data but does not need to
     this.id = null
 
-    // avoid recursions, if a relation has been cached,
-    // there is no need to cache its data again,
-    // even if we clone the item that holds the relation
-    this.hasIncludedData = false
     this.fetched = false
     this.invalidated = false
   }

@@ -113,17 +113,11 @@ export default class Model {
       const relation: Relation = this.$rels[relationName]
       if (relationsToFullyFetch.includes(relationName)) {
         relation.fetched = false
-        this.fetchRelation(relationName, false, true)
+        relation.fetch(false, true)
       } else if (relation.invalidated) {
-        this.fetchRelation(relationName, false, true)
+        relation.fetch(false, true)
       }
     }
-  }
-
-  public refetchRelation (relationName: string) {
-    const relation: Relation = this.$rels[relationName]
-    relation.fetched = false
-    this.fetchRelation(relationName, false, true)
   }
 
   public registerParentRelation (relation: Relation) {
@@ -214,7 +208,7 @@ export default class Model {
     clone._parentRelations = this._parentRelations
 
     for (const relationName of Object.keys(this.$rels)) {
-      clone.$rels[relationName] = this.$rels[relationName].clone()
+      clone.$rels[relationName] = this.$rels[relationName].clone(clone)
     }
     clone.fetchAllIncludedRelations(relations)
 
@@ -228,6 +222,8 @@ export default class Model {
   }
 
   public onRelationFetched (relation: Relation, data: Model | Model[] | null) {
+    this[relation.name] = data
+
     const fetchHook = 'on' + toCamelCase(relation.name)
     this[fetchHook] && this[fetchHook](data)
   }
@@ -311,17 +307,6 @@ export default class Model {
     return value
   }
 
-  private fetchRelation (relationName: string, clone: boolean, forceLoading: boolean) {
-    const relation: Relation = this.$rels[relationName]
-
-    relation.fetch(clone, forceLoading).then(result => {
-      this[relationName] = result
-      this.onRelationFetched(relation, result)
-    }).catch(() => {
-      // already fetched
-    })
-  }
-
   private get class (): typeof Model {
     return this.constructor as typeof Model
   }
@@ -342,8 +327,9 @@ export default class Model {
 
   private fetchAllIncludedRelations (relationsToClone: string[] = []) {
     for (const relationName of Object.keys(this.$rels)) {
+      const relation = this.$rels[relationName]
       const clone = relationsToClone.includes(relationName)
-      this.fetchRelation(relationName, clone, false)
+      relation.fetch(clone, false)
     }
   }
 

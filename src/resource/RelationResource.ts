@@ -20,4 +20,8 @@ export default class RelationResource extends BaseResource {
   public getListKey (): object {
     return this.relation.listKey()
   }
+
+  public refetch () {
+    return this.relation.fetch(false, true)
+  }
 }

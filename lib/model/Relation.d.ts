@@ -16,7 +16,6 @@ export default class Relation {
     fetched: boolean;
     invalidated: boolean;
     id: string | null;
-    hasIncludedData: boolean;
     _Query: IQuery | null;
     constructor({owner, name, type, Model}: {
         owner: ModelType;
@@ -29,7 +28,7 @@ export default class Relation {
     unregisterModels(): void;
     listKey(): object;
     deserialize(json: any): void;
-    fetch(clone: boolean, forceLoading: boolean): Promise<ModelType | null | ModelType[]>;
+    fetch(clone: boolean, forceLoading: boolean): void;
     /**
      * A cloned item will also have all relations cloned from it's orginal.
      * The clone item must fetch any relation on its own and hence runs its
@@ -39,7 +38,7 @@ export default class Relation {
      * copy initial data json/id as well as (for performance reasons) the
      * hint, if the relation data has already been synced to the resource cache.
      */
-    clone(): Relation;
+    clone(owner: ModelType): Relation;
     readonly info: string;
     protected readonly resource: IResource;
     private getHasOne();
