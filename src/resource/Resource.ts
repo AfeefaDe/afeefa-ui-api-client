@@ -12,25 +12,17 @@ export default class Resource implements IResource, IQuery {
   public static TYPE_APP: string = 'app'
 
   public url: string = ''
-  protected Model: typeof Model | null = null
-  protected _relation: Relation | null = null
-
+  protected relation: Relation
   private relationsToFetch: Relation[] = []
+  private resourceType: string = ''
 
-  private type: string = ''
-
-  constructor (type?: string, relation?: Relation) {
-    this.type = type || Resource.TYPE_APP
+  constructor (resourceType?: string, relation?: Relation) {
+    this.resourceType = resourceType || Resource.TYPE_APP
 
     if (relation) {
-      this._relation = relation
-      this.Model = relation.Model
+      this.relation = relation
     } else {
-      const listType = this.getListType()
-      if (!listType) {
-        throw new Error('The resource needs to define a list type')
-      }
-      this._relation = App.getRelationByType(listType)
+      this.relation = App.getRelationByType(this.getListType())
     }
   }
 
@@ -39,28 +31,35 @@ export default class Resource implements IResource, IQuery {
    */
 
   public getUrl (): string {
-    if (this.type === Resource.TYPE_RELATION) {
+    if (this.resourceType === Resource.TYPE_RELATION) {
       // need to construct url here since owner.id is not present at construction time
       // since we are a relation resource, we can be sure that this.Model is set
-      const ModelClass = this.Model as typeof Model
-      return `${this.relation.owner.type}/${this.relation.owner.id}/${ModelClass.type}{/id}`
+      // if you want a different url for your resource you need to override this method
+      const relationType = (this.relation.Model as typeof Model).type
+      return `${this.relation.owner.type}/${this.relation.owner.id}/${relationType}{/id}`
     }
     return this.url
   }
 
   public getListType (): string {
-    return this.getItemType()
+    if (this.relation.Model) {
+      return this.relation.Model.type
+    }
+    throw new Error('The resource needs to implement the getListType() method')
   }
 
   public getListKey (): object {
-    if (this.type === Resource.TYPE_RELATION) {
+    if (this.resourceType === Resource.TYPE_RELATION) {
       return this.relation.listKey()
     }
     return {}
   }
 
-  public getItemType (json?: any): string {
-    return this.getItemModel(json).type
+  public getItemType (_json?: any): string {
+    if (this.relation.Model) {
+      return this.relation.Model.type
+    }
+    throw new Error('The resource needs to implement the getItemType() method')
   }
 
   public getItemJson (json: any): any {
@@ -68,7 +67,13 @@ export default class Resource implements IResource, IQuery {
   }
 
   public createItem (json: any): Model {
-    const item: Model = new (this.getItemModel(json))()
+    let ModelType: typeof Model
+    if (this.relation.Model) {
+      ModelType = this.relation.Model
+    } else {
+      ModelType = this.getItemModel(json)
+    }
+    const item: Model = new ModelType()
     item.id = json.id
     return item
   }
@@ -197,18 +202,13 @@ export default class Resource implements IResource, IQuery {
 
   public clone (relation?: Relation): Resource {
     const Constructor = this.constructor as any
-    const clone = new Constructor(this.type, relation || this._relation)
+    const clone = new Constructor(this.resourceType, relation || this.relation)
     clone.url = this.url
     clone.relationsToFetch = this.relationsToFetch
     return clone
   }
 
-  protected get relation (): Relation {
-    return this._relation as Relation
-  }
-
   protected getItemModel (_json: any): typeof Model {
-    // hook into
-    return this.Model as typeof Model
+    throw new Error('The resource needs to implement the getItemModel() method')
   }
 }

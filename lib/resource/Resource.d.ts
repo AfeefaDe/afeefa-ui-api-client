@@ -7,18 +7,17 @@ export default class Resource implements IResource, IQuery {
     static TYPE_MODEL: string;
     static TYPE_APP: string;
     url: string;
-    protected Model: typeof Model | null;
-    protected _relation: Relation | null;
+    protected relation: Relation;
     private relationsToFetch;
-    private type;
-    constructor(type?: string, relation?: Relation);
+    private resourceType;
+    constructor(resourceType?: string, relation?: Relation);
     /**
      * IResource
      */
     getUrl(): string;
     getListType(): string;
     getListKey(): object;
-    getItemType(json?: any): string;
+    getItemType(_json?: any): string;
     getItemJson(json: any): any;
     createItem(json: any): Model;
     transformJsonBeforeSave(json: any): any;
@@ -46,6 +45,5 @@ export default class Resource implements IResource, IQuery {
      */
     cachePurgeList(type: any, key?: any): void;
     clone(relation?: Relation): Resource;
-    protected readonly relation: Relation;
     protected getItemModel(_json: any): typeof Model;
 }

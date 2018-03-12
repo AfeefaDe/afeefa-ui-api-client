@@ -59,6 +59,7 @@ export default class Model {
     // init relations
     for (const relationName of Object.keys(this.class._relations)) {
       const relationConfig: IRelationConfig = this.class._relations[relationName]
+
       this[relationName] = relationConfig.type === Relation.HAS_MANY ? [] : null
 
       const {remoteName, Resource: ResourceType, ...relationParams} = relationConfig // splice remoteName and Resource
