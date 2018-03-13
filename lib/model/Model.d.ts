@@ -24,6 +24,7 @@ export default class Model {
     private _original;
     private _lastSnapshot;
     private _parentRelations;
+    private _numDeserializedAttributes;
     constructor();
     static relations(): IRelationsConfig;
     static attributes(): IAttributesMixedConfig;
@@ -37,7 +38,8 @@ export default class Model {
     /**
      * Serialization
      */
-    deserialize(json: any): Promise<any>;
+    deserialize(json: any, requestId: number): Promise<any>;
+    toJson(): object;
     serialize(): object;
     hasChanges(): boolean;
     markSaved(): void;
@@ -46,13 +48,9 @@ export default class Model {
     readonly info: string;
     onRelationFetched(relation: Relation, data: Model | Model[] | null): void;
     protected init(): void;
-    /**
-     * Inspects the given JSON and calculates a richness
-     * value for the given data
-     */
-    protected calculateLoadingStateFromJson(json: any): number;
-    protected normalizeJson(json: any): any;
+    protected beforeDeserialize(json: any): any;
     protected afterDeserializeAttributes(): void;
+    private countJsonKeys(json, level?);
     /**
      * magic clone function :-)
      * clone anything but no model relations

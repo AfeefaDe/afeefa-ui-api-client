@@ -14,7 +14,7 @@ describe('Model - Model', () => {
 
     expect(model[`_ID`]).to.be.an('number')
     expect(model[`_requestId`]).to.equal(0)
-    expect(model._loadingState).to.equal(LoadingState.NOT_LOADED)
+    expect(model._loadingState).to.equal(LoadingState.NOT_FULLY_LOADED)
     expect(model[`_isClone`]).to.be.false()
     expect(model[`_original`]).to.be.null()
     expect(model[`_lastSnapshot`]).to.equal('')
@@ -39,6 +39,7 @@ describe('Model - Model', () => {
       '_ID',
       '_requestId',
       '_loadingState',
+      '_numDeserializedAttributes',
       '_isClone',
       '_original',
       '_parentRelations',

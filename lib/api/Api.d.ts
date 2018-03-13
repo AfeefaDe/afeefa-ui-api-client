@@ -65,7 +65,7 @@ export declare class Api {
     purgeItem(resource: IResource, id: string | null): void;
     purgeList(resource: IResource): void;
     private getResourceProvider(resource);
-    private setRequestId(json, requestId?);
+    private setRequestId();
 }
 declare const _default: Api;
 export default _default;

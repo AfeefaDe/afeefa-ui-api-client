@@ -78,11 +78,6 @@ export default class Resource implements IResource, IQuery {
     return item
   }
 
-  public transformJsonBeforeSave (json: any) {
-    // hook into
-    return json
-  }
-
   /**
    * IQuery
    */

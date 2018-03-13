@@ -13,8 +13,6 @@ export default interface IResource {
 
   createItem (json: any): Model
 
-  transformJsonBeforeSave (json: any): any
-
   registerRelation (model: Model)
 
   unregisterRelation (model: Model)

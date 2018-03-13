@@ -28,7 +28,7 @@ export default class Model {
   public $rels: {[key: string]: Relation} = {}
 
   @enumerable(false)
-  public _loadingState: number = LoadingState.NOT_LOADED
+  public _loadingState: number = LoadingState.NOT_FULLY_LOADED
 
   @enumerable(false)
   private _ID: number = ++ID
@@ -47,6 +47,9 @@ export default class Model {
 
   @enumerable(false)
   private _parentRelations: Set<Relation> = new Set()
+
+  @enumerable(false)
+  private _numDeserializedAttributes: number = 0
 
   constructor () {
     // init attributes
@@ -139,38 +142,30 @@ export default class Model {
    * Serialization
    */
 
-  public deserialize (json: any): Promise<any> {
-    if (json._requestId === undefined) {
-      console.error('No requestId given in json. Might be an error in normalizeJson()', this.info, json)
-    }
-
-    // do not deserialize if we do not have any attribute or relation data
-    const jsonLoadingState = this.calculateLoadingStateFromJson(json)
-    if (!jsonLoadingState) {
+  public deserialize (json: any, requestId: number): Promise<any> {
+    const numDeserializedAttributes = this.countJsonKeys(json)
+    const isSameRequest = requestId === this._requestId
+    if (isSameRequest && numDeserializedAttributes <= this._numDeserializedAttributes) {
       return Promise.resolve(true)
     }
 
-    // we do not want to deserialize our model multiple times in the same request
-    // unless we really have more data (e.g. first loaded as attributes, later got list data)
-    const isSameRequest = json._requestId === this._requestId
-    const wantToDeserializeMore = jsonLoadingState > this._loadingState
-    if (isSameRequest && !wantToDeserializeMore) {
-      return Promise.resolve(true)
-    }
+    this._requestId = requestId
+    this._numDeserializedAttributes = numDeserializedAttributes
 
     this.id = json.id
 
-    this._requestId = json._requestId
-    this._loadingState = Math.max(this._loadingState, this.calculateLoadingStateFromJson(json))
+    json = this.beforeDeserialize(json)
 
-    json = this.normalizeJson(json)
-
-    this.deserializeAttributes(json.attributes)
+    this.deserializeAttributes(json.attributes || json)
     this.afterDeserializeAttributes()
 
-    this.deserializeRelations(json.relationships)
+    this.deserializeRelations(json.relationships || json)
 
     return this.fetchAllIncludedRelations()
+  }
+
+  public toJson (): object {
+    return this.serialize()
   }
 
   public serialize (): object {
@@ -220,8 +215,7 @@ export default class Model {
 
   public get info (): string {
     const isClone = this._isClone ? '(CLONE)' : ''
-    const loadedState = ['not', 'attributes', 'list', 'full'][this._loadingState]
-    return `[${this.class.name}] id="${this.id}" ID="${this._ID}${isClone}" loaded="${loadedState}" request="${this._requestId}"`
+    return `[${this.class.name}] id="${this.id}" ID="${this._ID}${isClone}" request="${this._requestId}"`
   }
 
   public onRelationFetched (relation: Relation, data: Model | Model[] | null) {
@@ -235,23 +229,22 @@ export default class Model {
     // pls override
   }
 
-  /**
-   * Inspects the given JSON and calculates a richness
-   * value for the given data
-   */
-  protected calculateLoadingStateFromJson (json) {
-    if (!json.relationships && !json.attributes) {
-      return LoadingState.NOT_LOADED
-    }
-    return LoadingState.FULLY_LOADED
-  }
-
-  protected normalizeJson (json) {
+  protected beforeDeserialize (json) {
     return json
   }
 
   protected afterDeserializeAttributes () {
     // hook into
+  }
+
+  private countJsonKeys (json: object, level: number = 0): number {
+    let numKeys = 0
+    if (level < 3 && json && typeof json === 'object') {
+      for (const key of Object.keys(json)) {
+        numKeys = numKeys + 1 + this.countJsonKeys(json[key], level + 1)
+      }
+    }
+    return numKeys
   }
 
   /**
