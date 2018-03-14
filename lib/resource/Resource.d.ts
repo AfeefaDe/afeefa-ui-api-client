@@ -30,7 +30,9 @@ export default class Resource implements IResource, IQuery {
     delete(model: any): Promise<boolean | null>;
     attach(model: Model): Promise<boolean | null>;
     detach(model: Model): Promise<boolean | null>;
+    hasItem(id?: string | null): boolean;
     find(id?: string | null): Model | null;
+    hasList(params?: object): boolean;
     findAll(params?: object): Model[];
     registerRelation(model: Model): void;
     unregisterRelation(model: Model): void;

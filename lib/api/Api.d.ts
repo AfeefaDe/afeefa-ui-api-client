@@ -45,10 +45,18 @@ export declare class Api {
         resource: IResource;
         item: Model;
     }): Promise<boolean | null>;
+    hasItem({resource, id}: {
+        resource: IResource;
+        id?: string | null;
+    }): boolean;
     find({resource, id}: {
         resource: IResource;
         id?: string | null;
     }): Model | null;
+    hasList({resource, params}: {
+        resource: IResource;
+        params?: object;
+    }): boolean;
     findAll({resource, params}: {
         resource: IResource;
         params?: object;
@@ -64,6 +72,7 @@ export declare class Api {
     }): Model;
     purgeItem(resource: IResource, id: string | null): void;
     purgeList(resource: IResource): void;
+    private getListMeta(resource, params?);
     private getResourceProvider(resource);
     private setRequestId();
 }

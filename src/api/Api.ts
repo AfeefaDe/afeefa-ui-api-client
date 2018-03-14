@@ -25,11 +25,7 @@ export class Api {
     {resource, params}:
     {resource: IResource, params?: object}
   ): Promise<Model[]> {
-    // key of list in resource cache
-    const listType = resource.getListType()
-    // different caches for different list params
-    const listKey = JSON.stringify(resource.getListKey())
-    const listParams = JSON.stringify(params || {})
+    const {listType, listKey, listParams} = this.getListMeta(resource, params)
 
     if (resourceCache.hasList(listType, listKey, listParams)) {
       // list already loaded
@@ -288,6 +284,14 @@ export class Api {
     return promise
   }
 
+  public hasItem ({resource, id}: {resource: IResource, id?: string | null}): boolean {
+    if (!id) {
+      return false
+    }
+    const itemType = resource.getItemType()
+    return resourceCache.hasItem(itemType, id)
+  }
+
   public find ({resource, id}: {resource: IResource, id?: string | null}): Model | null {
     if (!id) {
       return null
@@ -297,18 +301,18 @@ export class Api {
     return resourceCache.getItem(itemType, id)
   }
 
+  public hasList ({resource, params}: {resource: IResource, params?: object}): boolean {
+    const {listType, listKey, listParams} = this.getListMeta(resource, params)
+    return resourceCache.hasList(listType, listKey, listParams)
+  }
+
   public findAll ({resource, params}: {resource: IResource, params?: object}): Model[] {
-    const listType = resource.getListType()
-    const listKey = JSON.stringify(resource.getListKey())
-    const listParams = JSON.stringify(params || {})
+    const {listType, listKey, listParams} = this.getListMeta(resource, params)
     return resourceCache.getList(listType, listKey, listParams)
   }
 
   public pushList ({resource, json, params}: {resource: IResource, json: any, params?: object}): Model[] {
-    // cache list, adds all items to the cache if not yet added
-    const listType = resource.getListType()
-    const listKey = JSON.stringify(resource.getListKey())
-    const listParams = JSON.stringify(params || {})
+    const {listType, listKey, listParams} = this.getListMeta(resource, params)
 
     const items: Model[] = []
     for (const itemJson of json) {
@@ -352,10 +356,16 @@ export class Api {
   }
 
   public purgeList (resource: IResource) {
-    const listType = resource.getListType()
-    const listKey = JSON.stringify(resource.getListKey())
+    const {listType, listKey} = this.getListMeta(resource)
     // console.log('purge list', listType, listKey, resource)
     resourceCache.purgeList(listType, listKey)
+  }
+
+  private getListMeta (resource: IResource, params?: object): any {
+    const listType = resource.getListType()
+    const listKey = JSON.stringify(resource.getListKey())
+    const listParams = JSON.stringify(params || {})
+    return {listType, listKey, listParams}
   }
 
   private getResourceProvider (resource: IResource): ResourceProvider {

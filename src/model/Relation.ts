@@ -116,6 +116,9 @@ export default class Relation {
 
     let promise: Promise<any>
     if (this.type === Relation.HAS_ONE) {
+      if (!forceLoading && !this.Query.hasItem()) {
+        return Promise.resolve(true)
+      }
       promise = (forceLoading ? this.getHasOne() : this.findHasOne()).then((model: ModelType | null) => {
         if (model && clone) {
           model = model.clone()
@@ -123,6 +126,9 @@ export default class Relation {
         return model
       })
     } else {
+      if (!forceLoading && !this.Query.hasList()) {
+        return Promise.resolve(true)
+      }
       promise = (forceLoading ? this.getHasMany() : this.findHasMany()).then((items: ModelType[]) => {
         const models: ModelType[] = []
         items.forEach(item => {
@@ -179,12 +185,12 @@ export default class Relation {
     return (this._Query as any) as IResource
   }
 
-  private getHasOne (): Promise<ModelType | null> {
-    return this.Query.get(this.id)
-  }
-
   private findHasOne (): Promise<ModelType | null> {
     return Promise.resolve(this.Query.find())
+  }
+
+  private getHasOne (): Promise<ModelType | null> {
+    return this.Query.get(this.id)
   }
 
   private findHasMany (): Promise<ModelType[]> {

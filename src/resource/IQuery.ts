@@ -16,7 +16,11 @@ export default interface IQuery {
 
   detach (model: Model): Promise<boolean | null>
 
+  hasItem (id?: string | null): boolean
+
   find (id?: string | null): Model | null
+
+  hasList (params?: object): boolean
 
   findAll (params?: object): Model[]
 

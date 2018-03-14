@@ -322,6 +322,8 @@ export default class Model {
   }
 
   private fetchAllIncludedRelations (relationsToClone: string[] = []): Promise<any> {
+    // fetch all included relations before return from Model.deserialize
+    // that's why we put all fetch request into the promise bag
     const promises: Array<Promise<any>> = []
     for (const relationName of Object.keys(this.$rels)) {
       const relation = this.$rels[relationName]

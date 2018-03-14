@@ -41,8 +41,8 @@ export default class Relation {
     clone(owner: ModelType): Relation;
     readonly info: string;
     protected readonly resource: IResource;
-    private getHasOne();
     private findHasOne();
+    private getHasOne();
     private findHasMany();
     private getHasMany();
     private reset();
