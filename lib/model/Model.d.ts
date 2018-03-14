@@ -44,7 +44,7 @@ export default class Model {
     hasChanges(): boolean;
     markSaved(): void;
     clone(): Model;
-    cloneWith(...relations: any[]): Model;
+    cloneWith(...relationsToClone: any[]): Model;
     readonly info: string;
     onRelationFetched(relation: Relation, data: Model | Model[] | null): void;
     protected init(): void;
@@ -60,7 +60,8 @@ export default class Model {
     private hasAttr(name);
     private getAttrValue(name, value);
     private hasRelation(name);
-    private fetchAllIncludedRelations(relationsToClone?);
+    private fetchAllRelations(relationsToClone?);
+    private fetchRelations(relationsToFetch);
     private deserializeAttributes(attributesJson);
     private deserializeRelations(relationsJson);
 }

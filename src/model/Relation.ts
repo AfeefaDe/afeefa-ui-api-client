@@ -102,6 +102,9 @@ export default class Relation {
         const item = API.pushItem({resource: this.resource, json})
         // store the id
         this.id = item.id
+      } else {
+        // reset id to null
+        this.id = null
       }
     // cache list
     } else {
@@ -116,9 +119,6 @@ export default class Relation {
 
     let promise: Promise<any>
     if (this.type === Relation.HAS_ONE) {
-      if (!forceLoading && !this.Query.hasItem()) {
-        return Promise.resolve(true)
-      }
       promise = (forceLoading ? this.getHasOne() : this.findHasOne()).then((model: ModelType | null) => {
         if (model && clone) {
           model = model.clone()
@@ -126,9 +126,6 @@ export default class Relation {
         return model
       })
     } else {
-      if (!forceLoading && !this.Query.hasList()) {
-        return Promise.resolve(true)
-      }
       promise = (forceLoading ? this.getHasMany() : this.findHasMany()).then((items: ModelType[]) => {
         const models: ModelType[] = []
         items.forEach(item => {

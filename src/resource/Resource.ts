@@ -126,22 +126,11 @@ export default class Resource implements IResource, IQuery {
     return API.detachItem({resource: this, item: model})
   }
 
-  public hasItem (id?: string | null): boolean {
-    if (!id && this.relation.type === Relation.HAS_ONE) {
-      id = this.relation.id
-    }
-    return API.hasItem({resource: this, id})
-  }
-
   public find (id?: string | null): Model | null {
     if (!id && this.relation.type === Relation.HAS_ONE) {
       id = this.relation.id
     }
     return API.find({resource: this, id})
-  }
-
-  public hasList (params?: object): boolean {
-    return API.hasList({resource: this, params})
   }
 
   public findAll (params?: object): Model[] {

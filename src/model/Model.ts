@@ -159,9 +159,9 @@ export default class Model {
     this.deserializeAttributes(json.attributes || json)
     this.afterDeserializeAttributes()
 
-    this.deserializeRelations(json.relationships || json)
+    const deserializedRelations = this.deserializeRelations(json.relationships || json)
 
-    return this.fetchAllIncludedRelations()
+    return this.fetchRelations(deserializedRelations)
   }
 
   public toJson (): object {
@@ -196,7 +196,7 @@ export default class Model {
     return this.cloneWith()
   }
 
-  public cloneWith (...relations): Model {
+  public cloneWith (...relationsToClone): Model {
     const clone: Model = this._clone(this) as Model
     clone._isClone = true
     clone._original = this
@@ -208,7 +208,7 @@ export default class Model {
     for (const relationName of Object.keys(this.$rels)) {
       clone.$rels[relationName] = this.$rels[relationName].clone(clone)
     }
-    clone.fetchAllIncludedRelations(relations)
+    clone.fetchAllRelations(relationsToClone)
 
     return clone
   }
@@ -321,14 +321,23 @@ export default class Model {
     return !!this.class._relations[name]
   }
 
-  private fetchAllIncludedRelations (relationsToClone: string[] = []): Promise<any> {
+  private fetchAllRelations (relationsToClone: string[] = []) {
+    for (const relationName of Object.keys(this.$rels)) {
+      const relation = this.$rels[relationName]
+      const clone = relationsToClone.includes(relationName)
+      relation.fetch(clone, false)
+    }
+  }
+
+  private fetchRelations (relationsToFetch: string[]): Promise<any> {
     // fetch all included relations before return from Model.deserialize
     // that's why we put all fetch request into the promise bag
     const promises: Array<Promise<any>> = []
     for (const relationName of Object.keys(this.$rels)) {
-      const relation = this.$rels[relationName]
-      const clone = relationsToClone.includes(relationName)
-      promises.push(relation.fetch(clone, false))
+      if (relationsToFetch.includes(relationName)) {
+        const relation = this.$rels[relationName]
+        promises.push(relation.fetch(false, false))
+      }
     }
     return Promise.all(promises)
   }
@@ -345,16 +354,18 @@ export default class Model {
     }
   }
 
-  private deserializeRelations (relationsJson: object) {
-    if (!relationsJson) {
-      return
-    }
-    for (const name of Object.keys(relationsJson)) {
-      const localName = this.class._relationRemoteNameMap[name] || name
-      if (this.hasRelation(localName)) {
-        const relation: Relation = this.$rels[localName]
-        relation.deserialize(relationsJson[name])
+  private deserializeRelations (relationsJson: object): string[] {
+    const deserializedRelations: string[] = []
+    if (relationsJson) {
+      for (const name of Object.keys(relationsJson)) {
+        const localName = this.class._relationRemoteNameMap[name] || name
+        if (this.hasRelation(localName)) {
+          const relation: Relation = this.$rels[localName]
+          relation.deserialize(relationsJson[name])
+          deserializedRelations.push(localName)
+        }
       }
     }
+    return deserializedRelations
   }
 }

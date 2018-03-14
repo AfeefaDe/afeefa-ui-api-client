@@ -284,14 +284,6 @@ export class Api {
     return promise
   }
 
-  public hasItem ({resource, id}: {resource: IResource, id?: string | null}): boolean {
-    if (!id) {
-      return false
-    }
-    const itemType = resource.getItemType()
-    return resourceCache.hasItem(itemType, id)
-  }
-
   public find ({resource, id}: {resource: IResource, id?: string | null}): Model | null {
     if (!id) {
       return null
@@ -299,11 +291,6 @@ export class Api {
 
     const itemType = resource.getItemType()
     return resourceCache.getItem(itemType, id)
-  }
-
-  public hasList ({resource, params}: {resource: IResource, params?: object}): boolean {
-    const {listType, listKey, listParams} = this.getListMeta(resource, params)
-    return resourceCache.hasList(listType, listKey, listParams)
   }
 
   public findAll ({resource, params}: {resource: IResource, params?: object}): Model[] {
