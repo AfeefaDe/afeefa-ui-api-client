@@ -154,6 +154,8 @@ export default class Resource implements IResource, IQuery {
     model.getParentRelations().forEach(relation => {
       relation.reloadOnNextGet()
     })
+    // reload relation the model is attached to
+    this.relation.reloadOnNextGet()
   }
 
   public itemDeleted (model: Model) {
@@ -171,6 +173,8 @@ export default class Resource implements IResource, IQuery {
         related.unregisterParentRelation(relation)
       })
     }
+    // reload relation the model was attached to
+    this.relation.reloadOnNextGet()
   }
 
   public itemSaved (_modelOld: Model, _model: Model) {
