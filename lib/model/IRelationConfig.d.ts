@@ -5,7 +5,7 @@ export interface IRelationsConfig {
 }
 export default interface IRelationConfig {
     type: string;
-    Model: typeof Model;
+    Model?: typeof Model;
     remoteName?: string;
     Resource?: typeof Resource;
 }
