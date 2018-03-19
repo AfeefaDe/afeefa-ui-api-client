@@ -68,17 +68,13 @@ export default class Model {
       const {remoteName, Resource: ResourceType, ...relationParams} = relationConfig // splice remoteName and Resource
       const relation: Relation = new Relation({owner: this, name: relationName, ...relationParams})
 
-      if (!relation.Model) {
-        throw new Error('You need to specify a Model for a Relation')
-      }
-
       // create resource from config (resource or relation resourse)
       if (ResourceType) {
         relation.Query = new ResourceType(Resource.TYPE_RELATION, relation)
       // create a default resource
       } else {
         // reuse existing model resource for has one relations
-        if (relation.type === Relation.HAS_ONE && relation.Model.Query) {
+        if (relation.type === Relation.HAS_ONE && relation.Model && relation.Model.Query) {
           // clone model resource with our relation
           relation.Query = relation.Model.Query.clone(relation)
         // create a default relation resource
