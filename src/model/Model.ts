@@ -78,10 +78,7 @@ export default class Model {
       // create a default resource
       } else {
         // reuse existing model resource for has one relations
-        if (relation.type === Relation.HAS_ONE) {
-          if (!relation.Model.Query) {
-            throw new Error('Using a Model in a Relation requires a Resource to be defined for that Model')
-          }
+        if (relation.type === Relation.HAS_ONE && relation.Model.Query) {
           // clone model resource with our relation
           relation.Query = relation.Model.Query.clone(relation)
         // create a default relation resource
@@ -159,9 +156,13 @@ export default class Model {
     this.deserializeAttributes(json.attributes || json)
     this.afterDeserializeAttributes()
 
+    this.guessHasOneRelationKeys(json.attributes || json, json.relationships || json)
+
     const deserializedRelations = this.deserializeRelations(json.relationships || json)
 
-    return this.fetchRelations(deserializedRelations)
+    return this.fetchRelations(deserializedRelations).then(() => {
+      this.afterDeserialize()
+    })
   }
 
   public toJson (): object {
@@ -235,6 +236,24 @@ export default class Model {
 
   protected afterDeserializeAttributes () {
     // hook into
+  }
+
+  protected afterDeserialize () {
+    // hook into
+  }
+
+  private guessHasOneRelationKeys (attibutesJson, relationsJson) {
+    for (const relationName of Object.keys(this.$rels)) {
+      const relation: Relation = this.$rels[relationName]
+      if (!relationsJson.hasOwnProperty('relationName') && relation.type === Relation.HAS_ONE) {
+        if (attibutesJson.hasOwnProperty(relationName + '_id')) {
+          const id = attibutesJson[relationName + '_id']
+          relationsJson[relationName] = id ? {
+            id: attibutesJson[relationName + '_id']
+          } : null
+        }
+      }
+    }
   }
 
   private countJsonKeys (json: object, level: number = 0): number {

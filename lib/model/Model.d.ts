@@ -50,6 +50,8 @@ export default class Model {
     protected init(): void;
     protected beforeDeserialize(json: any): any;
     protected afterDeserializeAttributes(): void;
+    protected afterDeserialize(): void;
+    private guessHasOneRelationKeys(attibutesJson, relationsJson);
     private countJsonKeys(json, level?);
     /**
      * magic clone function :-)
