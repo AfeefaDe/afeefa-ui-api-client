@@ -93,7 +93,7 @@ export default class Relation {
     this.reset()
 
     // { data: null } is valid
-    json = json.hasOwnProperty('data') ? json.data : json // jsonapi-spec fallback
+    json = json && json.hasOwnProperty('data') ? json.data : json // jsonapi-spec fallback
 
     // cache item
     if (this.type === Relation.HAS_ONE) {
