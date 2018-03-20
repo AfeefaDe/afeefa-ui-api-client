@@ -149,6 +149,10 @@ export default class Resource implements IResource, IQuery {
     model.unregisterParentRelation(this.relation)
   }
 
+  public listLoaded (_models: Model[], _params?: object) {
+    // hook into
+  }
+
   public itemAdded (model: Model) {
     // reload all relations to this model
     model.getParentRelations().forEach(relation => {

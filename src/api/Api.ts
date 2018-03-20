@@ -48,7 +48,9 @@ export class Api {
       this.setRequestId()
 
       const data = response.body.data || response.body // jsonapi spec || afeefa api spec
-      return this.pushList({resource, json: data, params})
+      const items = this.pushList({resource, json: data, params})
+      resource.listLoaded(items, params)
+      return items
     }).catch(response => {
       console.log('error loading list', response)
       this.onGetError(new ApiError(response))

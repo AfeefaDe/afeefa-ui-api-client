@@ -17,6 +17,8 @@ export default interface IResource {
 
   unregisterRelation (model: Model)
 
+  listLoaded (items: Model[], params?: object)
+
   itemAdded (item: Model)
 
   itemDeleted (item: Model)

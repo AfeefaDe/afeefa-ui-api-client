@@ -8,6 +8,7 @@ export default interface IResource {
     createItem(json: any): Model;
     registerRelation(model: Model): any;
     unregisterRelation(model: Model): any;
+    listLoaded(items: Model[], params?: object): any;
     itemAdded(item: Model): any;
     itemDeleted(item: Model): any;
     itemSaved(itemOld: Model, item: Model): any;

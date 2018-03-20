@@ -34,6 +34,7 @@ export default class Resource implements IResource, IQuery {
     findAll(params?: object): Model[];
     registerRelation(model: Model): void;
     unregisterRelation(model: Model): void;
+    listLoaded(_models: Model[], _params?: object): void;
     itemAdded(model: Model): void;
     itemDeleted(model: Model): void;
     itemSaved(_modelOld: Model, _model: Model): void;
