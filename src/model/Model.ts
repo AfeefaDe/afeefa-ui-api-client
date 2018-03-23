@@ -6,6 +6,7 @@ import Resource from '../resource/Resource'
 import DataTypes from './DataTypes'
 import IAttributeConfig, { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig'
 import IRelationConfig, { IRelationsConfig } from './IRelationConfig'
+import PlainJson from './PlainJson'
 import Relation from './Relation'
 
 let ID = 0
@@ -376,7 +377,14 @@ export default class Model {
         const localName = this.class._relationRemoteNameMap[name] || name
         if (this.hasRelation(localName)) {
           const relation: Relation = this.$rels[localName]
-          relation.deserialize(relationsJson[name])
+          // if we just have a plain json relation we want to
+          // assign to our model
+          if (relation.Model && relation.Model === PlainJson) {
+            this[localName] = relationsJson[name].data || relationsJson[name] // jsonapi spec fallback
+            continue
+          } else {
+            relation.deserialize(relationsJson[name])
+          }
           deserializedRelations.push(localName)
         }
       }
