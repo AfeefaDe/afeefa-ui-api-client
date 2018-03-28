@@ -20,6 +20,8 @@ export default class Resource implements IResource, IQuery {
     getItemType(json?: any): string;
     getItemJson(json: any): any;
     createItem(json: any): Model;
+    serializeAttachOrDetach(model: Model): string | object;
+    serializeAttachOrDetachMany(models: Model[]): object;
     /**
      * IQuery
      */
@@ -29,6 +31,7 @@ export default class Resource implements IResource, IQuery {
     save(model: Model): Promise<Model | null>;
     delete(model: any): Promise<boolean | null>;
     attach(model: Model): Promise<boolean | null>;
+    attachMany(models: Model[]): Promise<boolean | null>;
     detach(model: Model): Promise<boolean | null>;
     find(id?: string | null): Model | null;
     findAll(params?: object): Model[];

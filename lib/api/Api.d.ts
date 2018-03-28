@@ -37,13 +37,17 @@ export declare class Api {
         item: Model;
         attributes: object;
     }): Promise<any | null>;
-    attachItem({resource, item}: {
+    attachItem({resource, model}: {
         resource: IResource;
-        item: Model;
+        model: Model;
     }): Promise<boolean | null>;
-    detachItem({resource, item}: {
+    attachItems({resource, models}: {
         resource: IResource;
-        item: Model;
+        models: Model[];
+    }): Promise<boolean | null>;
+    detachItem({resource, model}: {
+        resource: IResource;
+        model: Model;
     }): Promise<boolean | null>;
     find({resource, id}: {
         resource: IResource;

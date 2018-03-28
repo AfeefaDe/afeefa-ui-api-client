@@ -78,6 +78,17 @@ export default class Resource implements IResource, IQuery {
     return item
   }
 
+  public serializeAttachOrDetach (model: Model): string | object {
+    return model.id as string
+  }
+
+  public serializeAttachOrDetachMany (models: Model[]): object {
+    return models.map(model => ({
+      type: model.type,
+      id: model.id
+    }))
+  }
+
   /**
    * IQuery
    */
@@ -119,11 +130,15 @@ export default class Resource implements IResource, IQuery {
   }
 
   public attach (model: Model): Promise<boolean | null> {
-    return API.attachItem({resource: this, item: model})
+    return API.attachItem({resource: this, model})
+  }
+
+  public attachMany (models: Model[]): Promise<boolean | null> {
+    return API.attachItems({resource: this, models})
   }
 
   public detach (model: Model): Promise<boolean | null> {
-    return API.detachItem({resource: this, item: model})
+    return API.detachItem({resource: this, model})
   }
 
   public find (id?: string | null): Model | null {

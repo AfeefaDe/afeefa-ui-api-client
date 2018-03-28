@@ -8,9 +8,9 @@ export default abstract class ResourceProvider {
         id: string;
     }, body: object): Promise<IResponse>;
     abstract save({id}: {
-        id: string | null;
-    }, body: object): Promise<IResponse>;
+        id?: string | null;
+    }, body?: object): Promise<IResponse>;
     abstract delete({id}: {
-        id: string;
-    }): Promise<IResponse>;
+        id?: string;
+    }, body?: object): Promise<IResponse>;
 }

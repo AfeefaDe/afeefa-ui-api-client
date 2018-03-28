@@ -245,17 +245,39 @@ export class Api {
   }
 
   public attachItem (
-    {resource, item}: {resource: IResource, item: Model}
+    {resource, model}: {resource: IResource, model: Model}
   ): Promise<boolean | null> {
-    if (!item.id) {
+    if (!model.id) {
       console.debug(`API: attachItem() - keine item.id gegeben.`)
       return Promise.resolve(null)
     }
 
     const resourceProvider = this.getResourceProvider(resource)
-    const promise = resourceProvider.save({id: item.id}, {}).then(() => {
-      resource.registerRelation(item)
-      resource.itemAttached(item)
+    const data = resource.serializeAttachOrDetach(model)
+    const id = typeof data === 'object' ? {} : data
+    const payload = typeof data === 'object' ? data : {}
+    const promise = resourceProvider.save(id, payload).then(() => {
+      resource.registerRelation(model)
+      resource.itemAttached(model)
+      return true
+    }).catch(response => {
+      console.log('error attaching item', response)
+      this.onSaveError(new ApiError(response))
+      return null
+    })
+    return promise
+  }
+
+  public attachItems (
+    {resource, models}: {resource: IResource, models: Model[]}
+  ): Promise<boolean | null> {
+    const resourceProvider = this.getResourceProvider(resource)
+    const data = resource.serializeAttachOrDetachMany(models)
+    const promise = resourceProvider.save({}, data).then(() => {
+      models.forEach(model => {
+        resource.registerRelation(model)
+        resource.itemAttached(model)
+      })
       return true
     }).catch(response => {
       console.log('error attaching item', response)
@@ -266,17 +288,20 @@ export class Api {
   }
 
   public detachItem (
-    {resource, item}: {resource: IResource, item: Model}
+    {resource, model}: {resource: IResource, model: Model}
   ): Promise<boolean | null> {
-    if (!item.id) {
+    if (!model.id) {
       console.debug(`API: detachItem() - keine item.id gegeben.`)
       return Promise.resolve(null)
     }
 
     const resourceProvider = this.getResourceProvider(resource)
-    const promise = resourceProvider.delete({id: item.id}).then(() => {
-      resource.itemDetached(item)
-      resource.unregisterRelation(item)
+    const data = resource.serializeAttachOrDetach(model)
+    const id = typeof data === 'object' ? {} : data
+    const payload = typeof data === 'object' ? data : {}
+    const promise = resourceProvider.delete(id, payload).then(() => {
+      resource.itemDetached(model)
+      resource.unregisterRelation(model)
       return true
     }).catch(response => {
       console.log('error detaching item', response)

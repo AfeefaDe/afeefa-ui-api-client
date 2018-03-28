@@ -8,6 +8,8 @@ export default interface IResource {
     createItem(json: any): Model;
     registerRelation(model: Model): any;
     unregisterRelation(model: Model): any;
+    serializeAttachOrDetach(model: Model): string | object;
+    serializeAttachOrDetachMany(models: Model[]): object;
     listLoaded(items: Model[], params?: object): any;
     itemAdded(item: Model): any;
     itemDeleted(item: Model): any;

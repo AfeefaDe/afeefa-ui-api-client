@@ -17,6 +17,10 @@ export default interface IResource {
 
   unregisterRelation (model: Model)
 
+  serializeAttachOrDetach (model: Model): string | object
+
+  serializeAttachOrDetachMany (models: Model[]): object
+
   listLoaded (items: Model[], params?: object)
 
   itemAdded (item: Model)
