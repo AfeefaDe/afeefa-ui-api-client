@@ -1,9 +1,20 @@
 import API from '../api/Api'
+import LoadingState from '../api/LoadingState'
 import Relation from './Relation'
 
 export default class AppRelation extends Relation {
   public reloadOnNextGet () {
     API.purgeList(this.resource)
+
+    // TODO: by convention, if a app relation contains
+    // only one model, that ID should be set to 'app'
+    const singleModel = API.find({
+      resource: this.resource,
+      id: 'app'
+    })
+    if (singleModel) {
+      singleModel._loadingState = LoadingState.NOT_FULLY_LOADED
+    }
   }
 
   public listKey (): object {
