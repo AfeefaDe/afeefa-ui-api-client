@@ -218,6 +218,10 @@ export default class Resource implements IResource, IQuery {
     resourceCache.purgeList(type, key)
   }
 
+  public cachePurgeItem (type, id) {
+    resourceCache.purgeItem(type, id)
+  }
+
   public clone (relation?: Relation): Resource {
     const Constructor = this.constructor as any
     const clone = new Constructor(this.resourceType, relation || this.relation)

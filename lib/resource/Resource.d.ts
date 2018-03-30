@@ -47,6 +47,7 @@ export default class Resource implements IResource, IQuery {
      * Convenient Resource Cache Access
      */
     cachePurgeList(type: any, key?: any): void;
+    cachePurgeItem(type: any, id: any): void;
     clone(relation?: Relation): Resource;
     protected getItemModel(_json: any): typeof Model;
 }
