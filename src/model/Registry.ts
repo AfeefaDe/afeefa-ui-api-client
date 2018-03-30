@@ -9,7 +9,7 @@ export class ModelRegistry {
   private models: {[key: string]: typeof ModelType} = {}
 
   public add (Model: typeof ModelType) {
-    this.models[Model.name] = Model
+    this.models[Model.type] = Model
     return Model
   }
 
