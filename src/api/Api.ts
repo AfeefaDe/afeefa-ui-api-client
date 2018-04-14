@@ -254,7 +254,7 @@ export class Api {
 
     const resourceProvider = this.getResourceProvider(resource)
     const data = resource.serializeAttachOrDetach(model)
-    const id = typeof data === 'object' ? {} : data
+    const id = typeof data === 'object' ? {} : {id: data}
     const payload = typeof data === 'object' ? data : {}
     const promise = resourceProvider.save(id, payload).then(() => {
       resource.registerRelation(model)
@@ -298,7 +298,7 @@ export class Api {
 
     const resourceProvider = this.getResourceProvider(resource)
     const data = resource.serializeAttachOrDetach(model)
-    const id = typeof data === 'object' ? {} : data
+    const id = typeof data === 'object' ? {} : {id: data}
     const payload = typeof data === 'object' ? data : {}
     const promise = resourceProvider.delete(id, payload).then(() => {
       resource.itemDetached(model)
