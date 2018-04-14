@@ -42,6 +42,7 @@ export default class Resource implements IResource, IQuery {
     itemDeleted(model: Model): void;
     itemSaved(_modelOld: Model, _model: Model): void;
     itemAttached(_model: Model): void;
+    itemsAttached(_models: Model[]): void;
     itemDetached(_model: Model): void;
     /**
      * Convenient Resource Cache Access

@@ -28,6 +28,7 @@ export default class Relation {
     getRelatedModels(): ModelType[];
     listKey(): object;
     deserialize(json: any): void;
+    refetch(): Promise<any>;
     fetch(clone: boolean, forceLoading: boolean): Promise<any>;
     /**
      * A cloned item will also have all relations cloned from it's orginal.

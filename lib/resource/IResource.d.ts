@@ -10,10 +10,11 @@ export default interface IResource {
     unregisterRelation(model: Model): any;
     serializeAttachOrDetach(model: Model): string | object;
     serializeAttachOrDetachMany(models: Model[]): object;
-    listLoaded(items: Model[], params?: object): any;
-    itemAdded(item: Model): any;
-    itemDeleted(item: Model): any;
-    itemSaved(itemOld: Model, item: Model): any;
-    itemAttached(item: Model): any;
-    itemDetached(item: Model): any;
+    listLoaded(models: Model[], params?: object): any;
+    itemAdded(model: Model): any;
+    itemDeleted(model: Model): any;
+    itemSaved(modelOld: Model, model: Model): any;
+    itemAttached(model: Model): any;
+    itemsAttached(models: Model[]): any;
+    itemDetached(model: Model): any;
 }

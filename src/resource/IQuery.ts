@@ -14,6 +14,8 @@ export default interface IQuery {
 
   attach (model: Model): Promise<boolean | null>
 
+  attachMany (models: Model[]): Promise<boolean | null>
+
   detach (model: Model): Promise<boolean | null>
 
   find (id?: string | null): Model | null

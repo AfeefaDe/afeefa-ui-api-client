@@ -112,6 +112,10 @@ export default class Relation {
     }
   }
 
+  public refetch (): Promise<any> {
+    return this.fetch(false, true)
+  }
+
   public fetch (clone: boolean, forceLoading: boolean): Promise<any> {
     if (this.fetched) {
       return Promise.resolve(true)

@@ -21,15 +21,17 @@ export default interface IResource {
 
   serializeAttachOrDetachMany (models: Model[]): object
 
-  listLoaded (items: Model[], params?: object)
+  listLoaded (models: Model[], params?: object)
 
-  itemAdded (item: Model)
+  itemAdded (model: Model)
 
-  itemDeleted (item: Model)
+  itemDeleted (model: Model)
 
-  itemSaved (itemOld: Model, item: Model)
+  itemSaved (modelOld: Model, model: Model)
 
-  itemAttached (item: Model)
+  itemAttached (model: Model)
 
-  itemDetached (item: Model)
+  itemsAttached (models: Model[])
+
+  itemDetached (model: Model)
 }

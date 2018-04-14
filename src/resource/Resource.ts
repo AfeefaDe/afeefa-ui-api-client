@@ -205,6 +205,11 @@ export default class Resource implements IResource, IQuery {
     this.relation.reloadOnNextGet()
   }
 
+  public itemsAttached (_models: Model[]) {
+    // reload relation the models are attached to
+    this.relation.reloadOnNextGet()
+  }
+
   public itemDetached (_model: Model) {
     // reload relation the model is detached from
     this.relation.reloadOnNextGet()

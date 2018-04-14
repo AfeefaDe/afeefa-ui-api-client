@@ -278,6 +278,7 @@ export class Api {
         resource.registerRelation(model)
         resource.itemAttached(model)
       })
+      resource.itemsAttached(models)
       return true
     }).catch(response => {
       console.log('error attaching item', response)

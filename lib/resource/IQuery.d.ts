@@ -7,6 +7,7 @@ export default interface IQuery {
     save(model: Model): Promise<Model | null>;
     delete(model: any): Promise<boolean | null>;
     attach(model: Model): Promise<boolean | null>;
+    attachMany(models: Model[]): Promise<boolean | null>;
     detach(model: Model): Promise<boolean | null>;
     find(id?: string | null): Model | null;
     findAll(params?: object): Model[];
