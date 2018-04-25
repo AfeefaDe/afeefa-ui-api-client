@@ -125,6 +125,10 @@ export default class Resource implements IResource, IQuery {
     return API[action]({resource: this, item: model})
   }
 
+  public updateAttributes (model: Model, attributes: object): Promise<Model | null> {
+    return API.updateItemAttributes({resource: this, item: model, attributes})
+  }
+
   public delete (model): Promise<boolean | null> {
     return API.deleteItem({resource: this, item: model})
   }

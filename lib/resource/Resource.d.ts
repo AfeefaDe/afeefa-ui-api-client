@@ -29,6 +29,7 @@ export default class Resource implements IResource, IQuery {
     get(id?: string | null): Promise<Model | null>;
     getAll(params?: object): Promise<Model[]>;
     save(model: Model): Promise<Model | null>;
+    updateAttributes(model: Model, attributes: object): Promise<Model | null>;
     delete(model: any): Promise<boolean | null>;
     attach(model: Model): Promise<boolean | null>;
     attachMany(models: Model[]): Promise<boolean | null>;

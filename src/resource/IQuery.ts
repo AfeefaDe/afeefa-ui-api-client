@@ -10,6 +10,8 @@ export default interface IQuery {
 
   save (model: Model): Promise<Model | null>
 
+  updateAttributes (model: Model, attributes: object): Promise<Model | null>
+
   delete (model): Promise<boolean | null>
 
   attach (model: Model): Promise<boolean | null>
