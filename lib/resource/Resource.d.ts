@@ -1,3 +1,4 @@
+import ReverseRelations from '../lib/ReverseRelations';
 import Model from '../model/Model';
 import Relation from '../model/Relation';
 import IQuery from './IQuery';
@@ -36,15 +37,18 @@ export default class Resource implements IResource, IQuery {
     detach(model: Model): Promise<boolean | null>;
     find(id?: string | null): Model | null;
     findAll(params?: object): Model[];
-    registerRelation(model: Model): void;
-    unregisterRelation(model: Model): void;
-    listLoaded(_models: Model[], _params?: object): void;
+    /**
+     * Api Hooks
+     */
+    itemLoaded(model: Model): void;
+    listLoaded(models: Model[], _params?: object): void;
     itemAdded(model: Model): void;
     itemDeleted(model: Model): void;
-    itemSaved(_modelOld: Model, _model: Model): void;
-    itemAttached(_model: Model): void;
-    itemsAttached(_models: Model[]): void;
-    itemDetached(_model: Model): void;
+    itemSaved(modelOld: Model, model: Model): void;
+    itemAttached(model: Model): void;
+    itemsAttached(models: Model[]): void;
+    itemDetached(model: Model): void;
+    includedRelationInitialized(models: Model[]): void;
     /**
      * Convenient Resource Cache Access
      */
@@ -52,4 +56,7 @@ export default class Resource implements IResource, IQuery {
     cachePurgeItem(type: any, id: any): void;
     clone(relation?: Relation): Resource;
     protected getItemModel(_json: any): typeof Model;
+    protected ensureReverseRelations(model: Model): ReverseRelations;
+    private registerRelation;
+    private unregisterRelation;
 }

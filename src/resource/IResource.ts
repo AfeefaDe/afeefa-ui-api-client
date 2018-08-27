@@ -13,13 +13,11 @@ export default interface IResource {
 
   createItem (json: any): Model
 
-  registerRelation (model: Model)
-
-  unregisterRelation (model: Model)
-
   serializeAttachOrDetach (model: Model): string | object
 
   serializeAttachOrDetachMany (models: Model[]): object
+
+  itemLoaded (model: Model)
 
   listLoaded (models: Model[], params?: object)
 
@@ -34,4 +32,6 @@ export default interface IResource {
   itemsAttached (models: Model[])
 
   itemDetached (model: Model)
+
+  includedRelationInitialized (models: Model[])
 }

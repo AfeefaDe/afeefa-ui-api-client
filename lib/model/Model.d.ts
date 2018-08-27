@@ -4,6 +4,7 @@ import { IAttributesConfig, IAttributesMixedConfig } from './IAttributeConfig';
 import { IRelationsConfig } from './IRelationConfig';
 import Relation from './Relation';
 export default class Model {
+    static LEVEL: number;
     static type: string;
     static Query: IQuery;
     static Resource: typeof Resource | null;
@@ -12,6 +13,8 @@ export default class Model {
     static _attributes: IAttributesConfig;
     static _attributeRemoteNameMap: object;
     static _relationRemoteNameMap: object;
+    static relations(): IRelationsConfig;
+    static attributes(): IAttributesMixedConfig;
     id: string | null;
     type: string | null;
     $rels: {
@@ -26,15 +29,13 @@ export default class Model {
     private _parentRelations;
     private _numDeserializedAttributes;
     constructor();
-    static relations(): IRelationsConfig;
-    static attributes(): IAttributesMixedConfig;
     /**
      * Relations
      */
     fetchRelationsAfterGet(relationsToFullyFetch?: any[]): void;
-    registerParentRelation(relation: Relation): void;
+    registerParentRelation(relation: Relation): boolean;
     getParentRelations(): Set<Relation>;
-    unregisterParentRelation(relation: Relation): void;
+    unregisterParentRelation(relation: Relation): boolean;
     /**
      * Serialization
      */
@@ -51,19 +52,19 @@ export default class Model {
     protected beforeDeserialize(json: any): any;
     protected afterDeserializeAttributes(): void;
     protected afterDeserialize(): void;
-    private guessHasOneRelationKeys(attibutesJson, relationsJson);
-    private countJsonKeys(json, level?);
+    private guessHasOneRelationKeys;
+    private countJsonKeys;
     /**
      * magic clone function :-)
      * clone anything but no model relations
      */
-    private _clone(value);
+    private _clone;
     private readonly class;
-    private hasAttr(name);
-    private getAttrValue(name, value);
-    private hasRelation(name);
-    private fetchAllRelations(relationsToClone?);
-    private fetchRelations(relationsToFetch);
-    private deserializeAttributes(attributesJson);
-    private deserializeRelations(relationsJson);
+    private hasAttr;
+    private getAttrValue;
+    private hasRelation;
+    private fetchAllRelations;
+    private fetchRelations;
+    private deserializeAttributes;
+    private deserializeRelations;
 }

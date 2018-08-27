@@ -4,10 +4,9 @@ import ModelType from './Model';
 export default class Relation {
     static HAS_ONE: string;
     static HAS_MANY: string;
-    static ASSOCIATION_COMPOSITION: string;
-    static ASSOCIATION_LINK: string;
     owner: ModelType;
     name: string;
+    reverseName: string | null;
     type: string;
     Model: typeof ModelType | null;
     instanceId: number;
@@ -17,9 +16,10 @@ export default class Relation {
     invalidated: boolean;
     id: string | null;
     _Query: IQuery | null;
-    constructor({owner, name, type, Model}: {
+    constructor({ owner, name, reverseName, type, Model }: {
         owner: ModelType;
         name: string;
+        reverseName?: string;
         type: string;
         Model?: typeof ModelType;
     });
@@ -27,7 +27,7 @@ export default class Relation {
     reloadOnNextGet(): void;
     getRelatedModels(): ModelType[];
     listKey(): object;
-    deserialize(json: any): void;
+    deserialize(json: any): Promise<any>;
     refetch(): Promise<any>;
     fetch(clone: boolean, forceLoading: boolean): Promise<any>;
     /**
@@ -42,9 +42,9 @@ export default class Relation {
     clone(owner: ModelType): Relation;
     readonly info: string;
     protected readonly resource: IResource;
-    private findHasOne();
-    private getHasOne();
-    private findHasMany();
-    private getHasMany();
-    private reset();
+    private findHasOne;
+    private getHasOne;
+    private findHasMany;
+    private getHasMany;
+    private reset;
 }

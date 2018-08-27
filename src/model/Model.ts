@@ -12,6 +12,8 @@ import Relation from './Relation'
 let ID = 0
 
 export default class Model {
+  public static LEVEL = 0
+
   public static type: string = 'models'
   public static Query: IQuery
   public static Resource: typeof Resource | null = null
@@ -21,6 +23,18 @@ export default class Model {
   public static _attributes: IAttributesConfig = {}
   public static _attributeRemoteNameMap: object = {}
   public static _relationRemoteNameMap: object = {}
+
+  public static relations (): IRelationsConfig {
+    return {}
+  }
+
+  public static attributes (): IAttributesMixedConfig {
+    return {
+      id: DataTypes.String,
+
+      type: DataTypes.String
+    }
+  }
 
   public id: string | null = null
   public type: string | null = null
@@ -90,18 +104,6 @@ export default class Model {
     this.init()
   }
 
-  public static relations (): IRelationsConfig {
-    return {}
-  }
-
-  public static attributes (): IAttributesMixedConfig {
-    return {
-      id: DataTypes.String,
-
-      type: DataTypes.String
-    }
-  }
-
   /**
    * Relations
    */
@@ -118,18 +120,26 @@ export default class Model {
     }
   }
 
-  public registerParentRelation (relation: Relation) {
+  public registerParentRelation (relation: Relation): boolean {
+    if (this._parentRelations.has(relation)) {
+      return false
+    }
     // console.log('register parent', this._ID, this.type, this.id, relation.info)
     this._parentRelations.add(relation)
+    return true
   }
 
   public getParentRelations (): Set<Relation> {
     return this._parentRelations
   }
 
-  public unregisterParentRelation (relation: Relation) {
-    // console.log('unregister parent', this._ID, this.type, this.id, relation.info)
-    this._parentRelations.delete(relation)
+  public unregisterParentRelation (relation: Relation): boolean {
+    if (this._parentRelations.has(relation)) {
+      // console.log('unregister parent', this._ID, this.type, this.id, relation.info)
+      this._parentRelations.delete(relation)
+      return true
+    }
+    return false
   }
 
   /**
@@ -155,10 +165,14 @@ export default class Model {
 
     this.guessHasOneRelationKeys(json.attributes || json, json.relationships || json)
 
-    const deserializedRelations = this.deserializeRelations(json.relationships || json)
+    // console.log('--'.repeat(Model.LEVEL), this.info)
 
-    return this.fetchRelations(deserializedRelations).then(() => {
-      this.afterDeserialize()
+    Model.LEVEL++
+    return this.deserializeRelations(json.relationships || json).then(deserializedRelations => {
+      return this.fetchRelations(deserializedRelations).then(() => {
+        Model.LEVEL--
+        this.afterDeserialize()
+      })
     })
   }
 
@@ -370,8 +384,9 @@ export default class Model {
     }
   }
 
-  private deserializeRelations (relationsJson: object): string[] {
+  private deserializeRelations (relationsJson: object): Promise<string[]> {
     const deserializedRelations: string[] = []
+    let promise: Promise<any> = Promise.resolve()
     if (relationsJson) {
       for (const name of Object.keys(relationsJson)) {
         const localName = this.class._relationRemoteNameMap[name] || name
@@ -383,12 +398,17 @@ export default class Model {
             this[localName] = relationsJson[name].data || relationsJson[name] // jsonapi spec fallback
             continue
           } else {
-            relation.deserialize(relationsJson[name])
+            promise = promise.then(() => {
+              return relation.deserialize(relationsJson[name]).then(() => {
+                deserializedRelations.push(localName)
+              })
+            })
           }
-          deserializedRelations.push(localName)
         }
       }
     }
-    return deserializedRelations
+    return promise.then(() => {
+      return deserializedRelations
+    })
   }
 }

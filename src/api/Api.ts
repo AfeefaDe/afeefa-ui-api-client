@@ -48,9 +48,10 @@ export class Api {
       this.setRequestId()
 
       const data = response.body.data || response.body // jsonapi spec || afeefa api spec
-      const items = this.pushList({resource, json: data, params})
-      resource.listLoaded(items, params)
-      return items
+      return this.pushList({resource, json: data, params}).then(items => {
+        resource.listLoaded(items, params)
+        return items
+      })
     }).catch(response => {
       console.log('error loading list', response)
       this.onGetError(new ApiError(response))
@@ -93,9 +94,11 @@ export class Api {
       this.setRequestId()
 
       const json = response.body.data || response.body // jsonapi spec || afeefa api spec
-      const item: Model = this.pushItem({resource, json})
-      item._loadingState = LoadingState.FULLY_LOADED
-      return item
+      return this.pushItem({resource, json}).then(item => {
+        item._loadingState = LoadingState.FULLY_LOADED
+        resource.itemLoaded(item)
+        return item
+      })
     }).catch(response => {
       console.log('error loading item', response)
       this.onGetError(new ApiError(response))
@@ -122,9 +125,7 @@ export class Api {
     const oldItem = (resourceCache.getItem(itemType, item.id) as Model).clone()
 
     const resourceProvider = this.getResourceProvider(resource)
-    const promise = resourceProvider.update(
-      {id: item.id}, item.toJson()
-    ).then(response => {
+    return resourceProvider.update({id: item.id}, item.toJson()).then(response => {
       this.setRequestId()
 
       // reset all tracked changes in order to force item.hasChanges to return false after save
@@ -132,8 +133,7 @@ export class Api {
 
       // get the original item for the case the given item is a clone
       item = resourceCache.getItem(itemType, item.id) as Model
-      let json = response.body.data || response.body // jsonapi spec || afeefa api spec
-      json = resource.getItemJson(json)
+      const json = response.body.data || response.body // jsonapi spec || afeefa api spec
 
       return item.deserialize(json, this.requestId).then(() => {
         resource.itemSaved(oldItem, item)
@@ -145,8 +145,6 @@ export class Api {
       this.onSaveError(new ApiError(response))
       return null
     })
-
-    return promise
   }
 
   public addItem (
@@ -154,26 +152,18 @@ export class Api {
     {resource: IResource, item: Model}
   ): Promise<Model | null> {
     const resourceProvider = this.getResourceProvider(resource)
-    return resourceProvider.save(
-      {id: null}, item.toJson()
-    ).then(response => {
+    return resourceProvider.save({id: null}, item.toJson()).then(response => {
       this.setRequestId()
-
-      let json = response.body.data || response.body // jsonapi spec || afeefa api spec
-      json = resource.getItemJson(json)
 
       // reset all tracked changes in order to force item.hasChanges to return false after save
       item.markSaved()
 
-      item = resource.createItem(json)
-      const itemType = resource.getItemType()
-      resourceCache.addItem(itemType, item)
-
-      return item.deserialize(json, this.requestId).then(() => {
-        resource.registerRelation(item)
-        resource.itemAdded(item)
-        this.onAdd(item)
-        return item
+      const json = response.body.data || response.body // jsonapi spec || afeefa api spec
+      return this.pushItem({resource, json}).then(addedItem => {
+        addedItem._loadingState = LoadingState.FULLY_LOADED
+        resource.itemAdded(addedItem)
+        this.onAdd(addedItem)
+        return addedItem
       })
     }).catch(response => {
       console.log('error adding item', response)
@@ -196,9 +186,9 @@ export class Api {
       // reset all tracked changes in order to force item.hasChanges to return false after save
       item.markSaved()
 
+      this.purgeItem(resource, item.id)
       resource.itemDeleted(item)
       this.onDelete(item)
-      resource.unregisterRelation(item)
       return true
     }).catch(response => {
       console.log('error deleting item', response)
@@ -228,8 +218,7 @@ export class Api {
       // reset all tracked changes in order to force item.hasChanges to return false after save
       item.markSaved()
 
-      let json = response.body.data || response.body // jsonapi spec || afeefa api spec
-      json = resource.getItemJson(json)
+      const json = response.body.data || response.body // jsonapi spec || afeefa api spec
 
       const itemType = resource.getItemType()
       const cachedItem = resourceCache.getItem(itemType, item.id)
@@ -257,7 +246,6 @@ export class Api {
     const id = typeof data === 'object' ? {} : {id: data}
     const payload = typeof data === 'object' ? data : {}
     const promise = resourceProvider.save(id, payload).then(() => {
-      resource.registerRelation(model)
       resource.itemAttached(model)
       return true
     }).catch(response => {
@@ -274,10 +262,6 @@ export class Api {
     const resourceProvider = this.getResourceProvider(resource)
     const data = resource.serializeAttachOrDetachMany(models)
     const promise = resourceProvider.save({}, data).then(() => {
-      models.forEach(model => {
-        resource.registerRelation(model)
-        resource.itemAttached(model)
-      })
       resource.itemsAttached(models)
       return true
     }).catch(response => {
@@ -302,7 +286,6 @@ export class Api {
     const payload = typeof data === 'object' ? data : {}
     const promise = resourceProvider.delete(id, payload).then(() => {
       resource.itemDetached(model)
-      resource.unregisterRelation(model)
       return true
     }).catch(response => {
       console.log('error detaching item', response)
@@ -326,24 +309,26 @@ export class Api {
     return resourceCache.getList(listType, listKey, listParams)
   }
 
-  public pushList ({resource, json, params}: {resource: IResource, json: any, params?: object}): Model[] {
+  public pushList ({resource, json, params}: {resource: IResource, json: any, params?: object}): Promise<Model[]> {
     const {listType, listKey, listParams} = this.getListMeta(resource, params)
 
     const items: Model[] = []
+    let promise: Promise<any> = Promise.resolve()
     for (const itemJson of json) {
-      // update existing cached items but not replace them!
-      const item = this.pushItem({resource, json: itemJson})
-      // register relation to this item
-      resource.registerRelation(item)
-      // add model to list
-      items.push(item)
+      promise = promise.then(() => {
+        return this.pushItem({resource, json: itemJson}).then(item => {
+          items.push(item)
+        })
+      })
     }
 
-    resourceCache.addList(listType, listKey, listParams, items)
-    return items
+    return promise.then(() => {
+      resourceCache.addList(listType, listKey, listParams, items)
+      return items
+    })
   }
 
-  public pushItem ({resource, json}: {resource: IResource, json: any}): Model {
+  public pushItem ({resource, json}: {resource: IResource, json: any}): Promise<Model> {
     json = resource.getItemJson(json)
     const itemType = resource.getItemType(json)
     const itemId = json.id
@@ -356,10 +341,10 @@ export class Api {
       item = resource.createItem(json)
       resourceCache.addItem(itemType, item)
     }
-    item.deserialize(json, this.requestId)
 
-    resource.registerRelation(item)
-    return item
+    return item.deserialize(json, this.requestId).then(() => {
+      return item
+    })
   }
 
   public purgeItem (resource: IResource, id: string | null) {

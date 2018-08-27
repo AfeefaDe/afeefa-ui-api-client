@@ -8,13 +8,12 @@ let ID = 0
 export default class Relation {
   public static HAS_ONE = 'has_one'
   public static HAS_MANY = 'has_many'
-  public static ASSOCIATION_COMPOSITION = 'composition'
-  public static ASSOCIATION_LINK = 'link'
 
   public owner: ModelType
   public name: string
+  public reverseName: string | null
   public type: string
-  public Model: typeof ModelType | null = null
+  public Model: typeof ModelType | null
 
   public instanceId: number
   public isClone: boolean
@@ -26,8 +25,8 @@ export default class Relation {
   public _Query: IQuery | null = null
 
   constructor (
-    {owner, name, type, Model}:
-    {owner: ModelType, name: string, type: string, Model?: typeof ModelType}
+    {owner, name, reverseName, type, Model}:
+    {owner: ModelType, name: string, reverseName?: string, type: string, Model?: typeof ModelType}
   ) {
     if (!type) {
       console.error('Relation configuration invalid', ...Array.from(arguments))
@@ -35,6 +34,7 @@ export default class Relation {
 
     this.owner = owner
     this.name = name
+    this.reverseName = reverseName || null
     this.type = type
     this.Model = Model || null
 
@@ -54,6 +54,14 @@ export default class Relation {
   }
 
   public reloadOnNextGet () {
+    if (!this.fetched) { // not fetched yet
+      return
+    }
+
+    if (this.invalidated) { // already invalidated
+      return
+    }
+
     if (this.original) {
       this.original.reloadOnNextGet()
       return
@@ -89,7 +97,7 @@ export default class Relation {
     }
   }
 
-  public deserialize (json: any) {
+  public deserialize (json: any): Promise<any> {
     this.reset()
 
     // { data: null } is valid
@@ -99,16 +107,23 @@ export default class Relation {
     if (this.type === Relation.HAS_ONE) {
       // if no json given -> related object === null
       if (json) {
-        const item = API.pushItem({resource: this.resource, json})
-        // store the id
-        this.id = item.id
+        return API.pushItem({resource: this.resource, json}).then(item => {
+          // store the id
+          this.id = item.id
+          // track new relation
+          this.resource.includedRelationInitialized([item])
+        })
       } else {
         // reset id to null
         this.id = null
+        return Promise.resolve()
       }
     // cache list
     } else {
-      API.pushList({resource: this.resource, json, params: {}})
+      return API.pushList({resource: this.resource, json, params: {}}).then(items => {
+        // track new relation
+        this.resource.includedRelationInitialized(items)
+      })
     }
   }
 
@@ -162,6 +177,7 @@ export default class Relation {
     const clone = new Relation({
       owner,
       name: this.name,
+      reverseName: this.reverseName || undefined,
       type: this.type,
       Model: this.Model || undefined
     })

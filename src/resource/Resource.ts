@@ -1,5 +1,6 @@
 import API from '../api/Api'
 import resourceCache from '../cache/ResourceCache'
+import ReverseRelations from '../lib/ReverseRelations'
 import App from '../model/App'
 import Model from '../model/Model'
 import Relation from '../model/Relation'
@@ -7,9 +8,9 @@ import IQuery from './IQuery'
 import IResource from './IResource'
 
 export default class Resource implements IResource, IQuery {
-  public static TYPE_RELATION: string = 'relation'
-  public static TYPE_MODEL: string = 'model'
-  public static TYPE_APP: string = 'app'
+  public static TYPE_RELATION: string = 'relation' //
+  public static TYPE_MODEL: string = 'model' // orgas events
+  public static TYPE_APP: string = 'app' // search todos
 
   public url: string = ''
   protected relation: Relation
@@ -23,6 +24,9 @@ export default class Resource implements IResource, IQuery {
       this.relation = relation
     } else {
       this.relation = App.getRelationByType(this.getListType())
+      if (!this.relation.Query) {
+        this.relation.Query = this
+      }
     }
   }
 
@@ -59,7 +63,10 @@ export default class Resource implements IResource, IQuery {
     if (this.relation.Model) {
       return this.relation.Model.type
     }
-    return this.getItemModel(json).type
+    if (json) {
+      return this.getItemModel(json).type
+    }
+    return 'models'
   }
 
   public getItemJson (json: any): any {
@@ -156,67 +163,105 @@ export default class Resource implements IResource, IQuery {
     return API.findAll({resource: this, params})
   }
 
-  // Api Hooks
+  /**
+   * Api Hooks
+   */
 
-  public registerRelation (model: Model) {
-    // register parent relations after item has been added to cache
-    model.registerParentRelation(this.relation)
+  public itemLoaded (model: Model) {
+    this.registerRelation(model)
   }
 
-  public unregisterRelation (model: Model) {
-    // register parent relations after item has been added to cache
-    model.unregisterParentRelation(this.relation)
-  }
-
-  public listLoaded (_models: Model[], _params?: object) {
-    // hook into
+  public listLoaded (models: Model[], _params?: object) {
+    models.forEach(model => {
+      this.registerRelation(model)
+    })
   }
 
   public itemAdded (model: Model) {
-    // reload all relations to this model
-    model.getParentRelations().forEach(relation => {
-      relation.reloadOnNextGet()
-    })
+    // register relation with the model
+    this.registerRelation(model)
+
     // reload relation the model is attached to
     this.relation.reloadOnNextGet()
+
+    // invalidate new reverse relations to be established
+    const relations: ReverseRelations = this.ensureReverseRelations(model)
+    relations.reloadOnNextGet()
   }
 
   public itemDeleted (model: Model) {
-    // remove model from item cache
-    API.purgeItem(this, model.id)
-    // reload all relations to this model
+    // update all relations to this model
     model.getParentRelations().forEach(relation => {
+      // reload relation
       relation.reloadOnNextGet()
+      // unregister relation from model
+      model.unregisterParentRelation(relation)
     })
-    // unregister all relations that link to this model
+
+    // update relation registry of all models that
+    // are linked by the deleted model
     for (const name of Object.keys(model.$rels)) {
       const relation: Relation = model.$rels[name]
       const relatedModels = relation.getRelatedModels()
-      relatedModels.forEach(related => {
-        related.unregisterParentRelation(relation)
+      relatedModels.forEach(relatedModel => {
+        relatedModel.unregisterParentRelation(relation)
       })
     }
-    // reload relation the model was attached to
-    this.relation.reloadOnNextGet()
+
+    // invalidate obsolete reverse relations
+    const relations: ReverseRelations = this.ensureReverseRelations(model)
+    relations.reloadOnNextGet()
   }
 
-  public itemSaved (_modelOld: Model, _model: Model) {
-    // handle reload relations specific to model
+  public itemSaved (modelOld: Model, model: Model) {
+    // invalidate obsolete or new reverse relations to be established
+    const oldRelations: ReverseRelations = this.ensureReverseRelations(modelOld)
+    const newRelations: ReverseRelations = this.ensureReverseRelations(model)
+    const relations = ReverseRelations.getDiff(oldRelations, newRelations)
+    relations.reloadOnNextGet()
   }
 
-  public itemAttached (_model: Model) {
+  public itemAttached (model: Model) {
+    this.registerRelation(model)
+
     // reload relation the model is attached to
     this.relation.reloadOnNextGet()
+
+    // invalidate new reverse relations to be established
+    const relations: ReverseRelations = this.ensureReverseRelations(model)
+    relations.reloadOnNextGet()
   }
 
-  public itemsAttached (_models: Model[]) {
-    // reload relation the models are attached to
-    this.relation.reloadOnNextGet()
+  public itemsAttached (models: Model[]) {
+    const oldModels: Model[] = this.relation.owner[this.relation.name] || []
+    oldModels.forEach(oldModel => {
+      if (!models.includes(oldModel)) {
+        this.itemDetached(oldModel)
+      }
+    })
+
+    models.forEach(model => {
+      if (!oldModels.includes(model)) {
+        this.itemAttached(model)
+      }
+    })
   }
 
-  public itemDetached (_model: Model) {
+  public itemDetached (model: Model) {
+    this.unregisterRelation(model)
+
     // reload relation the model is detached from
     this.relation.reloadOnNextGet()
+
+    // invalidate obsolete reverse relations
+    const relations: ReverseRelations = this.ensureReverseRelations(model)
+    relations.reloadOnNextGet()
+  }
+
+  public includedRelationInitialized (models: Model[]) {
+    models.forEach(model => {
+      this.registerRelation(model)
+    })
   }
 
   /**
@@ -241,5 +286,25 @@ export default class Resource implements IResource, IQuery {
 
   protected getItemModel (_json: any): typeof Model {
     throw new Error('The resource needs to implement the getItemModel() method')
+  }
+
+  protected ensureReverseRelations (model: Model): ReverseRelations {
+    const reverseRelations = new ReverseRelations()
+    if (this.relation.reverseName) {
+      reverseRelations.add(model.$rels[this.relation.reverseName])
+    }
+    return reverseRelations
+  }
+
+  private registerRelation (model: Model) {
+    // register parent relations after item has been added to cache
+    model.registerParentRelation(this.relation)
+    // && console.log('register', this.relation.info, model.info, model.getParentRelations())
+  }
+
+  private unregisterRelation (model: Model) {
+    // register parent relations after item has been added to cache
+    model.unregisterParentRelation(this.relation)
+    // && console.log('unregister', this.relation.info, model.info)
   }
 }

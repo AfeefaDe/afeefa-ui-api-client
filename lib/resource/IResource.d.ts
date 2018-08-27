@@ -6,10 +6,9 @@ export default interface IResource {
     getItemType(json?: any): string;
     getItemJson(json: any): any;
     createItem(json: any): Model;
-    registerRelation(model: Model): any;
-    unregisterRelation(model: Model): any;
     serializeAttachOrDetach(model: Model): string | object;
     serializeAttachOrDetachMany(models: Model[]): object;
+    itemLoaded(model: Model): any;
     listLoaded(models: Model[], params?: object): any;
     itemAdded(model: Model): any;
     itemDeleted(model: Model): any;
@@ -17,4 +16,5 @@ export default interface IResource {
     itemAttached(model: Model): any;
     itemsAttached(models: Model[]): any;
     itemDetached(model: Model): any;
+    includedRelationInitialized(models: Model[]): any;
 }
