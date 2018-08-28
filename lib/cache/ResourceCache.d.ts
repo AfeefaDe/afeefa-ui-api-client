@@ -1,4 +1,16 @@
 import Model from '../model/Model';
+export interface IResourceCacheItem {
+    key: string;
+    value: Model;
+}
+export interface IResourceCacheList {
+    key: string;
+    value: IResourceCacheParamList;
+}
+export interface IResourceCacheParamList {
+    key: string;
+    value: Model[];
+}
 export declare class ResourceCache {
     private cache;
     purge(): void;
@@ -10,6 +22,8 @@ export declare class ResourceCache {
     addItem(type: any, item: Model): void;
     hasItem(type: string, id: string): boolean;
     getItem(type: string, id: string | null): Model | null;
+    getItems(type: string): IResourceCacheItem[];
+    getLists(type: string): IResourceCacheList[];
     purgeItem(type: string, id: string): void;
 }
 declare const _default: ResourceCache;

@@ -4,6 +4,7 @@ import Relation from './Relation'
 
 export default class AppRelation extends Relation {
   public reloadOnNextGet () {
+    console.log('AppRelation.reloadOnNextGet', this.info)
     API.purgeList(this.resource)
 
     // TODO: by convention, if a app relation contains

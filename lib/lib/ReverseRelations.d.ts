@@ -6,6 +6,7 @@ export default class ReverseRelations {
     private relationParamsMap;
     toArray(): Relation[];
     add(relation: Relation, params?: string): void;
+    addMany(relations: Relation[], params?: string): void;
     reloadAlways(relation: Relation): void;
     reloadOnNextGet(): void;
 }

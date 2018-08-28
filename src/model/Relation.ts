@@ -11,7 +11,7 @@ export default class Relation {
 
   public owner: ModelType
   public name: string
-  public reverseName: string | null
+  public reverseName: string | ((Model) => string) | null
   public type: string
   public Model: typeof ModelType | null
 
@@ -26,7 +26,7 @@ export default class Relation {
 
   constructor (
     {owner, name, reverseName, type, Model}:
-    {owner: ModelType, name: string, reverseName?: string, type: string, Model?: typeof ModelType}
+    {owner: ModelType, name: string, reverseName?: string | ((Model) => string), type: string, Model?: typeof ModelType}
   ) {
     if (!type) {
       console.error('Relation configuration invalid', ...Array.from(arguments))
@@ -66,6 +66,8 @@ export default class Relation {
       this.original.reloadOnNextGet()
       return
     }
+
+    console.log('Relation.reloadOnNextGet', this.info)
 
     if (this.type === Relation.HAS_ONE) {
       API.purgeItem(this.resource, this.id)
@@ -211,7 +213,7 @@ export default class Relation {
   }
 
   private findHasMany (): Promise<ModelType[]> {
-    return Promise.resolve(this.Query.findAll())
+    return Promise.resolve(this.Query.findAll(this.resource.getDefaultListParams()))
   }
 
   private getHasMany (): Promise<ModelType[]> {

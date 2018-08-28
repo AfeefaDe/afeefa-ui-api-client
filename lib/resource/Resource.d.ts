@@ -18,6 +18,7 @@ export default class Resource implements IResource, IQuery {
     getUrl(): string;
     getListType(): string;
     getListKey(): object;
+    getDefaultListParams(): object;
     getItemType(json?: any): string;
     getItemJson(json: any): any;
     createItem(json: any): Model;
@@ -37,6 +38,9 @@ export default class Resource implements IResource, IQuery {
     detach(model: Model): Promise<boolean | null>;
     find(id?: string | null): Model | null;
     findAll(params?: object): Model[];
+    select(filterFunction: (model: Model) => boolean): Model[];
+    findOwners(filterFunction: (model: Model) => boolean): Model[];
+    clone(relation?: Relation): Resource;
     /**
      * Api Hooks
      */
@@ -50,13 +54,14 @@ export default class Resource implements IResource, IQuery {
     itemDetached(model: Model): void;
     includedRelationInitialized(models: Model[]): void;
     /**
-     * Convenient Resource Cache Access
+     * Protected
      */
-    cachePurgeList(type: any, key?: any): void;
-    cachePurgeItem(type: any, id: any): void;
-    clone(relation?: Relation): Resource;
     protected getItemModel(_json: any): typeof Model;
-    protected ensureReverseRelations(model: Model): ReverseRelations;
+    protected ensureReverseRelationsAfterAttachOrDetach(model: Model): ReverseRelations;
+    protected ensureReverseRelationsAfterAddOrSave(model: Model): ReverseRelations;
+    private setRelationCountsAfterAttachOrDetach;
+    private setRelationCountsAfterAddOrDelete;
+    private getRelationReverseName;
     private registerRelation;
     private unregisterRelation;
 }

@@ -1,5 +1,4 @@
 import API from '../api/Api'
-import resourceCache from '../cache/ResourceCache'
 import ReverseRelations from '../lib/ReverseRelations'
 import App from '../model/App'
 import Model from '../model/Model'
@@ -56,6 +55,10 @@ export default class Resource implements IResource, IQuery {
     if (this.resourceType === Resource.TYPE_RELATION) {
       return this.relation.listKey()
     }
+    return {}
+  }
+
+  public getDefaultListParams (): object {
     return {}
   }
 
@@ -163,6 +166,22 @@ export default class Resource implements IResource, IQuery {
     return API.findAll({resource: this, params})
   }
 
+  public select (filterFunction: (model: Model) => boolean): Model[] {
+    return API.select({resource: this, filterFunction})
+  }
+
+  public findOwners (filterFunction: (model: Model) => boolean): Model[] {
+    return API.findOwners({resource: this, filterFunction})
+  }
+
+  public clone (relation?: Relation): Resource {
+    const Constructor = this.constructor as any
+    const clone = new Constructor(this.resourceType, relation || this.relation)
+    clone.url = this.url
+    clone.relationsToFetch = this.relationsToFetch
+    return clone
+  }
+
   /**
    * Api Hooks
    */
@@ -185,8 +204,10 @@ export default class Resource implements IResource, IQuery {
     this.relation.reloadOnNextGet()
 
     // invalidate new reverse relations to be established
-    const relations: ReverseRelations = this.ensureReverseRelations(model)
+    const relations: ReverseRelations = this.ensureReverseRelationsAfterAddOrSave(model)
     relations.reloadOnNextGet()
+
+    this.setRelationCountsAfterAddOrDelete(model, 1)
   }
 
   public itemDeleted (model: Model) {
@@ -209,14 +230,16 @@ export default class Resource implements IResource, IQuery {
     }
 
     // invalidate obsolete reverse relations
-    const relations: ReverseRelations = this.ensureReverseRelations(model)
+    const relations: ReverseRelations = this.ensureReverseRelationsAfterAddOrSave(model)
     relations.reloadOnNextGet()
+
+    this.setRelationCountsAfterAddOrDelete(model, -1)
   }
 
   public itemSaved (modelOld: Model, model: Model) {
     // invalidate obsolete or new reverse relations to be established
-    const oldRelations: ReverseRelations = this.ensureReverseRelations(modelOld)
-    const newRelations: ReverseRelations = this.ensureReverseRelations(model)
+    const oldRelations: ReverseRelations = this.ensureReverseRelationsAfterAddOrSave(modelOld)
+    const newRelations: ReverseRelations = this.ensureReverseRelationsAfterAddOrSave(model)
     const relations = ReverseRelations.getDiff(oldRelations, newRelations)
     relations.reloadOnNextGet()
   }
@@ -228,8 +251,10 @@ export default class Resource implements IResource, IQuery {
     this.relation.reloadOnNextGet()
 
     // invalidate new reverse relations to be established
-    const relations: ReverseRelations = this.ensureReverseRelations(model)
+    const relations: ReverseRelations = this.ensureReverseRelationsAfterAttachOrDetach(model)
     relations.reloadOnNextGet()
+
+    this.setRelationCountsAfterAttachOrDetach(model, 1)
   }
 
   public itemsAttached (models: Model[]) {
@@ -254,8 +279,10 @@ export default class Resource implements IResource, IQuery {
     this.relation.reloadOnNextGet()
 
     // invalidate obsolete reverse relations
-    const relations: ReverseRelations = this.ensureReverseRelations(model)
+    const relations: ReverseRelations = this.ensureReverseRelationsAfterAttachOrDetach(model)
     relations.reloadOnNextGet()
+
+    this.setRelationCountsAfterAttachOrDetach(model, -1)
   }
 
   public includedRelationInitialized (models: Model[]) {
@@ -265,35 +292,104 @@ export default class Resource implements IResource, IQuery {
   }
 
   /**
-   * Convenient Resource Cache Access
+   * Protected
    */
-
-  public cachePurgeList (type, key?) {
-    resourceCache.purgeList(type, key)
-  }
-
-  public cachePurgeItem (type, id) {
-    resourceCache.purgeItem(type, id)
-  }
-
-  public clone (relation?: Relation): Resource {
-    const Constructor = this.constructor as any
-    const clone = new Constructor(this.resourceType, relation || this.relation)
-    clone.url = this.url
-    clone.relationsToFetch = this.relationsToFetch
-    return clone
-  }
 
   protected getItemModel (_json: any): typeof Model {
     throw new Error('The resource needs to implement the getItemModel() method')
   }
 
-  protected ensureReverseRelations (model: Model): ReverseRelations {
-    const reverseRelations = new ReverseRelations()
-    if (this.relation.reverseName) {
-      reverseRelations.add(model.$rels[this.relation.reverseName])
+  protected ensureReverseRelationsAfterAttachOrDetach (model: Model): ReverseRelations {
+    const ensure = new ReverseRelations()
+
+    // check reverse of current relation
+    const reverseName: string = this.getRelationReverseName(this.relation.owner, this.relation)
+    if (reverseName) {
+      ensure.add(model.$rels[reverseName])
     }
-    return reverseRelations
+    return ensure
+  }
+
+  protected ensureReverseRelationsAfterAddOrSave (model: Model): ReverseRelations {
+    const ensure = new ReverseRelations()
+
+    // check reverse relations of updated model
+    for (const name of Object.keys(model.$rels)) {
+      const relation: Relation = model.$rels[name]
+      const reverseName = this.getRelationReverseName(model, relation)
+      if (reverseName) {
+        if (relation.type === Relation.HAS_ONE) {
+          ensure.add(model[relation.name].$rels[reverseName])
+        } else {
+          ensure.addMany(model[relation.name].map(m => m.$rels[reverseName]))
+        }
+      }
+    }
+
+    return ensure
+  }
+
+  private setRelationCountsAfterAttachOrDetach (model: Model, diff: number) {
+    // count attached
+    if (this.relation.owner.hasOwnProperty('count_' + this.relation.name)) {
+      this.relation.owner['count_' + this.relation.name] += diff
+      console.log('set count', 'count_' + this.relation.name, this.relation.owner['count_' + this.relation.name], 'for', this.relation.owner.info)
+    }
+
+    // reverse count
+    const reverseName: string = this.getRelationReverseName(this.relation.owner, this.relation)
+    if (reverseName) {
+      let countProperty = ''
+      if (model.hasOwnProperty('count_' + reverseName)) {
+        countProperty = reverseName
+      } else if (this.relation.owner.type && model.hasOwnProperty('count_' + this.relation.owner.type)) {
+        countProperty = this.relation.owner.type
+      }
+      if (countProperty) {
+        model['count_' + countProperty] += diff
+        console.log('set count', 'count_' + countProperty, model['count_' + countProperty], 'for', model.info)
+      }
+    }
+  }
+
+  private setRelationCountsAfterAddOrDelete (model: Model, diff: number) {
+    // check reverse relations of updated model
+    for (const name of Object.keys(model.$rels)) {
+      const relation: Relation = model.$rels[name]
+      const reverseName = this.getRelationReverseName(model, relation)
+      if (reverseName) {
+        let owners: Model[] = []
+        if (relation.type === Relation.HAS_ONE) {
+          owners.push(model[relation.name])
+        } else {
+          owners = model[relation.name]
+        }
+        owners.forEach(owner => {
+          const relatedModel = owner.$rels[reverseName].Model
+          if (relatedModel) {
+            if (relatedModel.type === model.type) {
+              let countProperty = ''
+              if (owner.hasOwnProperty('count_' + reverseName)) {
+                countProperty = reverseName
+              } else if (owner.hasOwnProperty('count_' + model.type)) {
+                countProperty = model.type
+              }
+              if (countProperty) {
+                owner['count_' + countProperty] += diff
+                console.log('set count', 'count_' + countProperty, owner['count_' + countProperty], 'for', owner.info)
+              }
+            }
+          }
+        })
+      }
+    }
+  }
+
+  private getRelationReverseName (model: Model, relation: Relation): string {
+    if (relation.reverseName instanceof Function) {
+      return relation.reverseName(model)
+    }
+    return relation.reverseName || ''
   }
 
   private registerRelation (model: Model) {

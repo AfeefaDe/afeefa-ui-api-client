@@ -45,7 +45,8 @@ export class ModelRegistry {
       resource = new Resource(Resource.TYPE_MODEL, relation)
       resource.url = Model.ResourceUrl
     } else {
-      // Model is by config not allowed to be queried using Model.Query.get...()
+      // create a default resource (experimentally)
+      resource = new Resource(Resource.TYPE_MODEL, relation)
     }
     if (resource) {
       Model.Query = resource

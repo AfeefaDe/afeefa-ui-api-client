@@ -57,6 +57,14 @@ export declare class Api {
         resource: IResource;
         params?: object;
     }): Model[];
+    select({ resource, filterFunction }: {
+        resource: IResource;
+        filterFunction: (model: Model) => boolean;
+    }): Model[];
+    findOwners({ resource, filterFunction }: {
+        resource: IResource;
+        filterFunction: (model: Model) => boolean;
+    }): Model[];
     pushList({ resource, json, params }: {
         resource: IResource;
         json: any;

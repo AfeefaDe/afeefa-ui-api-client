@@ -233,6 +233,21 @@ export default class Model {
   public onRelationFetched (relation: Relation, data: Model | Model[] | null) {
     this[relation.name] = data
 
+    // set counts
+    if (Array.isArray(data)) {
+      let countProperty = ''
+      if (this.hasOwnProperty('count_' + relation.name)) {
+        countProperty = relation.name
+      } else if (relation.Model && this.hasOwnProperty('count_' + relation.Model.type)) {
+        countProperty = relation.Model.type
+      }
+      if (countProperty) {
+        this['count_' + countProperty] = data.length
+        console.log('set count', 'count_' + countProperty, data.length, 'for', this.info)
+      }
+    }
+
+    // hook after fetched
     const fetchHook = 'on' + toCamelCase(relation.name)
     this[fetchHook] && this[fetchHook](data)
   }

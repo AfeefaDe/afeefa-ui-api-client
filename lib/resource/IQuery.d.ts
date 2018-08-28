@@ -12,5 +12,7 @@ export default interface IQuery {
     detach(model: Model): Promise<boolean | null>;
     find(id?: string | null): Model | null;
     findAll(params?: object): Model[];
+    select(filterFunction: (model: Model) => boolean): Model[];
+    findOwners(filterFunction: (model: Model) => boolean): Model[];
     clone(relation?: Relation): IQuery;
 }

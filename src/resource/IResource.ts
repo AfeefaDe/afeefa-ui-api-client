@@ -7,6 +7,8 @@ export default interface IResource {
 
   getListKey (): object
 
+  getDefaultListParams (): object
+
   getItemType (json?: any): string
 
   getItemJson (json: any): any

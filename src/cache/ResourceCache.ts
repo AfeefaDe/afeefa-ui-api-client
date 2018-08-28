@@ -1,5 +1,20 @@
 import Model from '../model/Model'
 
+export interface IResourceCacheItem {
+  key: string,
+  value: Model
+}
+
+export interface IResourceCacheList {
+  key: string,
+  value: IResourceCacheParamList
+}
+
+export interface IResourceCacheParamList {
+  key: string,
+  value: Model[]
+}
+
 export class ResourceCache {
   private cache: object = {}
 
@@ -89,6 +104,14 @@ export class ResourceCache {
       return null
     }
     return this.getCache(type).items[id] || null
+  }
+
+  public getItems (type: string): IResourceCacheItem[] {
+    return this.getCache(type).items
+  }
+
+  public getLists (type: string): IResourceCacheList[] {
+    return this.getCache(type).lists
   }
 
   public purgeItem (type: string, id: string) {

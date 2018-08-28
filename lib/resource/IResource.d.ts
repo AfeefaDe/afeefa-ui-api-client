@@ -3,6 +3,7 @@ export default interface IResource {
     getUrl(): string;
     getListType(): string;
     getListKey(): object;
+    getDefaultListParams(): object;
     getItemType(json?: any): string;
     getItemJson(json: any): any;
     createItem(json: any): Model;

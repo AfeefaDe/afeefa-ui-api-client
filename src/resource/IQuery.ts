@@ -24,5 +24,9 @@ export default interface IQuery {
 
   findAll (params?: object): Model[]
 
+  select (filterFunction: (model: Model) => boolean): Model[]
+
+  findOwners (filterFunction: (model: Model) => boolean): Model[]
+
   clone (relation?: Relation): IQuery
 }

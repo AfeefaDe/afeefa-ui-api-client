@@ -42,6 +42,12 @@ export default class ReverseRelations {
     }
   }
 
+  public addMany (relations: Relation[], params?: string) {
+    relations.forEach(relation => {
+      this.add(relation, params)
+    })
+  }
+
   public reloadAlways (relation: Relation) {
     this.relations.push(relation)
     this.relationParamsMap.set(relation, ReverseRelations.FORCE_RELOAD)

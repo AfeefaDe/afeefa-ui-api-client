@@ -6,7 +6,7 @@ export default class Relation {
     static HAS_MANY: string;
     owner: ModelType;
     name: string;
-    reverseName: string | null;
+    reverseName: string | ((Model: any) => string) | null;
     type: string;
     Model: typeof ModelType | null;
     instanceId: number;
@@ -19,7 +19,7 @@ export default class Relation {
     constructor({ owner, name, reverseName, type, Model }: {
         owner: ModelType;
         name: string;
-        reverseName?: string;
+        reverseName?: string | ((Model: any) => string);
         type: string;
         Model?: typeof ModelType;
     });

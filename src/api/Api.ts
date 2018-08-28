@@ -1,5 +1,5 @@
 import requestCache from '../cache/RequestCache'
-import resourceCache from '../cache/ResourceCache'
+import resourceCache, { IResourceCacheItem, IResourceCacheList } from '../cache/ResourceCache'
 import Model from '../model/Model'
 import IResource from '../resource/IResource'
 import ResourceProvider from '../resource/ResourceProvider'
@@ -309,6 +309,37 @@ export class Api {
     return resourceCache.getList(listType, listKey, listParams)
   }
 
+  public select ({resource, filterFunction}: {resource: IResource, filterFunction: (model: Model) => boolean}): Model[] {
+    const itemType = resource.getItemType()
+    const items: IResourceCacheItem[] = resourceCache.getItems(itemType)
+    return Object.keys(items).map(id => items[id]).filter(filterFunction)
+  }
+
+  public findOwners ({resource, filterFunction}: {resource: IResource, filterFunction: (model: Model) => boolean}): Model[] {
+    const itemType = resource.getItemType()
+    const lists: IResourceCacheList[] = resourceCache.getLists(itemType)
+    const owners: Model[] = []
+    Object.keys(lists).forEach((key: any) => {
+      const {owner_type, owner_id} = JSON.parse(key)
+      if (owner_type) {
+        const paramObject = lists[key]
+        Object.keys(paramObject).forEach(params => {
+          const models: Model[] = paramObject[params]
+          models.forEach(model => {
+            const res = filterFunction(model)
+            if (res) {
+              const owner: Model | null = resourceCache.getItem(owner_type, owner_id)
+              if (owner && !owners.includes(owner)) {
+                owners.push(owner)
+              }
+            }
+          })
+        })
+      }
+    })
+    return owners
+  }
+
   public pushList ({resource, json, params}: {resource: IResource, json: any, params?: object}): Promise<Model[]> {
     const {listType, listKey, listParams} = this.getListMeta(resource, params)
 
@@ -364,7 +395,7 @@ export class Api {
   private getListMeta (resource: IResource, params?: object): any {
     const listType = resource.getListType()
     const listKey = JSON.stringify(resource.getListKey())
-    const listParams = JSON.stringify(params || {})
+    const listParams = JSON.stringify(params || resource.getDefaultListParams() || {})
     return {listType, listKey, listParams}
   }
 
