@@ -251,7 +251,7 @@ export default class Model {
   }
 
   public get hasListData (): boolean {
-    return this.loadingState === LoadingState.LIST_DATA_LOADED
+    return this.loadingState >= LoadingState.LIST_DATA_LOADED
   }
 
   public get hasFullData (): boolean {
