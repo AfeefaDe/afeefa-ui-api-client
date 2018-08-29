@@ -1,5 +1,6 @@
 import Model from '../model/Model';
 export default interface IResource {
+    lazyLoadList: boolean;
     getUrl(): string;
     getListType(): string;
     getListKey(): object;

@@ -14,7 +14,7 @@ describe('Model - Model', () => {
 
     expect(model[`_ID`]).to.be.an('number')
     expect(model[`_requestId`]).to.equal(0)
-    expect(model._loadingState).to.equal(LoadingState.NOT_FULLY_LOADED)
+    expect(model.loadingState).to.equal(LoadingState.NOT_LOADED)
     expect(model[`_isClone`]).to.be.false()
     expect(model[`_original`]).to.be.null()
     expect(model[`_lastSnapshot`]).to.equal('')
@@ -23,22 +23,22 @@ describe('Model - Model', () => {
   it('hides private members in for loop', () => {
     const model: Model = new Model()
     // keys return only id and type
-    expect(Object.keys(model)).to.deep.equal(['id', 'type'])
+    expect(Object.keys(model)).to.deep.equal(['id', 'type', 'loadingState'])
     // for .. in only over id and type
     for (const key in model) {
       if (model) { // satisfy eslint forin rule (for .. in requires filter)
-        expect(['id', 'type'].includes(key)).to.be.true()
+        expect(['id', 'type', 'loadingState'].includes(key)).to.be.true()
       }
     }
     // but all other props accessible
     expect(Object.getOwnPropertyNames(model).sort()).to.deep.equal([
       'id',
       'type',
+      'loadingState',
       '$rels',
 
       '_ID',
       '_requestId',
-      '_loadingState',
       '_numDeserializedAttributes',
       '_isClone',
       '_original',

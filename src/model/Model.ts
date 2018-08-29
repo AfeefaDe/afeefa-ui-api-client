@@ -38,12 +38,10 @@ export default class Model {
 
   public id: string | null = null
   public type: string | null = null
+  public loadingState: number = LoadingState.NOT_LOADED
 
   @enumerable(false)
   public $rels: {[key: string]: Relation} = {}
-
-  @enumerable(false)
-  public _loadingState: number = LoadingState.NOT_FULLY_LOADED
 
   @enumerable(false)
   private _ID: number = ++ID
@@ -213,7 +211,7 @@ export default class Model {
     clone._isClone = true
     clone._original = this
     clone._requestId = this._requestId
-    clone._loadingState = this._loadingState
+    clone.loadingState = this.loadingState
 
     clone._parentRelations = this._parentRelations
 
@@ -243,13 +241,21 @@ export default class Model {
       }
       if (countProperty) {
         this['count_' + countProperty] = data.length
-        console.log('set count', 'count_' + countProperty, data.length, 'for', this.info)
+        // console.log('set count', 'count_' + countProperty, data.length, 'for', this.info)
       }
     }
 
     // hook after fetched
     const fetchHook = 'on' + toCamelCase(relation.name)
     this[fetchHook] && this[fetchHook](data)
+  }
+
+  public get hasListData (): boolean {
+    return this.loadingState === LoadingState.LIST_DATA_LOADED
+  }
+
+  public get hasFullData (): boolean {
+    return this.loadingState === LoadingState.FULLY_LOADED
   }
 
   protected init () {

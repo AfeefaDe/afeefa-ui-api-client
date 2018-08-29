@@ -14,7 +14,7 @@ export default class AppRelation extends Relation {
       id: 'app'
     })
     if (singleModel) {
-      singleModel._loadingState = LoadingState.NOT_FULLY_LOADED
+      singleModel.loadingState = LoadingState.NOT_LOADED
     }
   }
 

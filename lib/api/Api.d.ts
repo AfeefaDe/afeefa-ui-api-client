@@ -14,7 +14,9 @@ export declare class Api {
     onDeleteError: (_apiError: ApiError) => null;
     getList({ resource, params }: {
         resource: IResource;
-        params?: object;
+        params?: {
+            [key: string]: any;
+        };
     }): Promise<Model[]>;
     getItem({ resource, id }: {
         resource: IResource;
@@ -65,10 +67,11 @@ export declare class Api {
         resource: IResource;
         filterFunction: (model: Model) => boolean;
     }): Model[];
-    pushList({ resource, json, params }: {
+    pushList({ resource, json, params, skipCachingList }: {
         resource: IResource;
         json: any;
         params?: object;
+        skipCachingList?: boolean;
     }): Promise<Model[]>;
     pushItem({ resource, json }: {
         resource: IResource;

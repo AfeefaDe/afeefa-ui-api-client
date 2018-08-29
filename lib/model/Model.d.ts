@@ -17,10 +17,10 @@ export default class Model {
     static attributes(): IAttributesMixedConfig;
     id: string | null;
     type: string | null;
+    loadingState: number;
     $rels: {
         [key: string]: Relation;
     };
-    _loadingState: number;
     private _ID;
     private _requestId;
     private _isClone;
@@ -48,6 +48,8 @@ export default class Model {
     cloneWith(...relationsToClone: any[]): Model;
     readonly info: string;
     onRelationFetched(relation: Relation, data: Model | Model[] | null): void;
+    readonly hasListData: boolean;
+    readonly hasFullData: boolean;
     protected init(): void;
     protected beforeDeserialize(json: any): any;
     protected afterDeserializeAttributes(): void;

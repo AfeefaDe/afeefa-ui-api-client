@@ -8,6 +8,7 @@ export default class Resource implements IResource, IQuery {
     static TYPE_MODEL: string;
     static TYPE_APP: string;
     url: string;
+    lazyLoadList: boolean;
     protected relation: Relation;
     private relationsToFetch;
     private resourceType;

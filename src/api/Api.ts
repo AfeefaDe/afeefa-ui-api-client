@@ -23,9 +23,20 @@ export class Api {
 
   public getList (
     {resource, params}:
-    {resource: IResource, params?: object}
+    {resource: IResource, params?: {[key: string]: any}}
   ): Promise<Model[]> {
     const {listType, listKey, listParams} = this.getListMeta(resource, params)
+
+    // check if ids are given and we already loaded models for that id
+    if (params && params.ids) {
+      params.ids = params.ids.filter(id => {
+        const item = resourceCache.getItem(listType, id)
+        return !item || item.loadingState === LoadingState.NOT_LOADED
+      })
+      if (!params.ids.length) {
+        return Promise.resolve([])
+      }
+    }
 
     if (resourceCache.hasList(listType, listKey, listParams)) {
       // list already loaded
@@ -48,8 +59,12 @@ export class Api {
       this.setRequestId()
 
       const data = response.body.data || response.body // jsonapi spec || afeefa api spec
-      return this.pushList({resource, json: data, params}).then(items => {
+      const skipCachingList = params && params.ids
+      return this.pushList({resource, json: data, params, skipCachingList}).then(items => {
         resource.listLoaded(items, params)
+        if (!resource.lazyLoadList || params && params.ids) {
+          items.forEach(item => item.loadingState = LoadingState.LIST_DATA_LOADED)
+        }
         return items
       })
     }).catch(response => {
@@ -77,7 +92,7 @@ export class Api {
     // check if item already loaded
     if (resourceCache.hasItem(itemType, id)) {
       const item = resourceCache.getItem(itemType, id) as Model
-      if (item._loadingState === LoadingState.FULLY_LOADED) {
+      if (item.loadingState === LoadingState.FULLY_LOADED) {
         return Promise.resolve(resourceCache.getItem(itemType, id) as Model)
       }
     }
@@ -95,7 +110,7 @@ export class Api {
 
       const json = response.body.data || response.body // jsonapi spec || afeefa api spec
       return this.pushItem({resource, json}).then(item => {
-        item._loadingState = LoadingState.FULLY_LOADED
+        item.loadingState = LoadingState.FULLY_LOADED
         resource.itemLoaded(item)
         return item
       })
@@ -160,7 +175,7 @@ export class Api {
 
       const json = response.body.data || response.body // jsonapi spec || afeefa api spec
       return this.pushItem({resource, json}).then(addedItem => {
-        addedItem._loadingState = LoadingState.FULLY_LOADED
+        addedItem.loadingState = LoadingState.FULLY_LOADED
         resource.itemAdded(addedItem)
         this.onAdd(addedItem)
         return addedItem
@@ -340,7 +355,7 @@ export class Api {
     return owners
   }
 
-  public pushList ({resource, json, params}: {resource: IResource, json: any, params?: object}): Promise<Model[]> {
+  public pushList ({resource, json, params, skipCachingList}: {resource: IResource, json: any, params?: object, skipCachingList?: boolean}): Promise<Model[]> {
     const {listType, listKey, listParams} = this.getListMeta(resource, params)
 
     const items: Model[] = []
@@ -354,7 +369,9 @@ export class Api {
     }
 
     return promise.then(() => {
-      resourceCache.addList(listType, listKey, listParams, items)
+      if (!skipCachingList) {
+        resourceCache.addList(listType, listKey, listParams, items)
+      }
       return items
     })
   }

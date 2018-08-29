@@ -12,6 +12,7 @@ export default class Resource implements IResource, IQuery {
   public static TYPE_APP: string = 'app' // search todos
 
   public url: string = ''
+  public lazyLoadList: boolean = false
   protected relation: Relation
   private relationsToFetch: Relation[] = []
   private resourceType: string = ''
@@ -333,7 +334,7 @@ export default class Resource implements IResource, IQuery {
     // count attached
     if (this.relation.owner.hasOwnProperty('count_' + this.relation.name)) {
       this.relation.owner['count_' + this.relation.name] += diff
-      console.log('set count', 'count_' + this.relation.name, this.relation.owner['count_' + this.relation.name], 'for', this.relation.owner.info)
+      // console.log('set count', 'count_' + this.relation.name, this.relation.owner['count_' + this.relation.name], 'for', this.relation.owner.info)
     }
 
     // reverse count
@@ -347,7 +348,7 @@ export default class Resource implements IResource, IQuery {
       }
       if (countProperty) {
         model['count_' + countProperty] += diff
-        console.log('set count', 'count_' + countProperty, model['count_' + countProperty], 'for', model.info)
+        // console.log('set count', 'count_' + countProperty, model['count_' + countProperty], 'for', model.info)
       }
     }
   }
@@ -376,7 +377,7 @@ export default class Resource implements IResource, IQuery {
               }
               if (countProperty) {
                 owner['count_' + countProperty] += diff
-                console.log('set count', 'count_' + countProperty, owner['count_' + countProperty], 'for', owner.info)
+                // console.log('set count', 'count_' + countProperty, owner['count_' + countProperty], 'for', owner.info)
               }
             }
           }
