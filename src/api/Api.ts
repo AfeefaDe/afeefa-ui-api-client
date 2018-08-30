@@ -221,13 +221,8 @@ export class Api {
       return Promise.resolve(null)
     }
 
-    const data = {
-      id: item.id,
-      type: item.type,
-      attributes
-    }
     const resourceProvider = this.getResourceProvider(resource)
-    return resourceProvider.update({id: item.id}, {data}).then(response => {
+    return resourceProvider.update({id: item.id}, item.attributesToJson(attributes)).then(response => {
       this.setRequestId()
 
       // reset all tracked changes in order to force item.hasChanges to return false after save

@@ -178,6 +178,14 @@ export default class Model {
     return this.serialize()
   }
 
+  public attributesToJson (attributes: object): object {
+    return {
+      id: this.id,
+      type: this.type,
+      attributes
+    }
+  }
+
   public serialize (): object {
     // default serialization
     const data = {

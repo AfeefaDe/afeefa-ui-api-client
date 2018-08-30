@@ -41,6 +41,7 @@ export default class Model {
      */
     deserialize(json: any, requestId: number): Promise<any>;
     toJson(): object;
+    attributesToJson(attributes: object): object;
     serialize(): object;
     hasChanges(): boolean;
     markSaved(): void;
