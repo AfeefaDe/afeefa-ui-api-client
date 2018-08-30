@@ -1,4 +1,5 @@
 import API from '../api/Api'
+import LoadingState from '../api/LoadingState'
 import ReverseRelations from '../lib/ReverseRelations'
 import App from '../model/App'
 import Model from '../model/Model'
@@ -288,6 +289,9 @@ export default class Resource implements IResource, IQuery {
 
   public includedRelationInitialized (models: Model[]) {
     models.forEach(model => {
+      if (model.loadingState === LoadingState.NOT_LOADED) {
+        model.loadingState = LoadingState.LIST_DATA_LOADED
+      }
       this.registerRelation(model)
     })
   }
