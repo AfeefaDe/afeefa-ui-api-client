@@ -31,7 +31,7 @@ export class Api {
     if (params && params.ids) {
       params.ids = params.ids.filter(id => {
         const item = resourceCache.getItem(listType, id)
-        return !item || item.loadingState === LoadingState.NOT_LOADED
+        return !item || item.loadingState < LoadingState.LIST_DATA_LOADED
       })
       if (!params.ids.length) {
         return Promise.resolve([])
@@ -63,7 +63,7 @@ export class Api {
       return this.pushList({resource, json: data, params, skipCachingList}).then(items => {
         if (!resource.lazyLoadList || params && params.ids) {
           items.forEach(item => {
-            if (item.loadingState === LoadingState.NOT_LOADED) {
+            if (item.loadingState < LoadingState.LIST_DATA_LOADED) {
               item.loadingState = LoadingState.LIST_DATA_LOADED
             }
           })

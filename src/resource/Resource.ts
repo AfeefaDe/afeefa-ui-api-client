@@ -289,8 +289,15 @@ export default class Resource implements IResource, IQuery {
 
   public includedRelationInitialized (models: Model[]) {
     models.forEach(model => {
-      if (model.loadingState === LoadingState.NOT_LOADED) {
+      const loadingState = model.calculateLoadingState()
+      // if calculateLoadingState is not implemented it returns the
+      // latest loading state of the model.
+      // it model not yet loaded, assume list data
+      if (loadingState === LoadingState.NOT_LOADED) {
         model.loadingState = LoadingState.LIST_DATA_LOADED
+      // set custom loading state
+      } else {
+        model.loadingState = loadingState
       }
       this.registerRelation(model)
     })

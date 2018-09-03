@@ -262,8 +262,8 @@ export default class Model {
     return this.loadingState >= LoadingState.LIST_DATA_LOADED
   }
 
-  public get hasFullData (): boolean {
-    return this.loadingState === LoadingState.FULLY_LOADED
+  public calculateLoadingState (): number {
+    return this.loadingState
   }
 
   protected init () {
