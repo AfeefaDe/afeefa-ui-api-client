@@ -61,13 +61,17 @@ export class Api {
       const data = response.body.data || response.body // jsonapi spec || afeefa api spec
       const skipCachingList = params && params.ids
       return this.pushList({resource, json: data, params, skipCachingList}).then(items => {
-        if (!resource.lazyLoadList || params && params.ids) {
-          items.forEach(item => {
+        items.forEach(item => {
+          if (resource.lazyLoadList && (!params || !params.ids)) {
+            if (item.loadingState < LoadingState.ATTRIBUTES_LOADED) {
+              item.loadingState = LoadingState.ATTRIBUTES_LOADED
+            }
+          } else {
             if (item.loadingState < LoadingState.LIST_DATA_LOADED) {
               item.loadingState = LoadingState.LIST_DATA_LOADED
             }
-          })
-        }
+          }
+        })
         resource.listLoaded(items, params)
         return items
       })
