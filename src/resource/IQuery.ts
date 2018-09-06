@@ -6,6 +6,8 @@ export default interface IQuery {
 
   get (id?: string | null, strategy?: number): Promise<Model | null>
 
+  reloadAll (params?: object): Promise<Model[]>
+
   getAll (params?: object): Promise<Model[]>
 
   save (model: Model): Promise<Model | null>

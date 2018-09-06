@@ -233,7 +233,7 @@ export default class Model {
 
   public get info (): string {
     const isClone = this._isClone ? '(CLONE)' : ''
-    return `[${this.class.name}] id="${this.id}" ID="${this._ID}${isClone}" request="${this._requestId}"`
+    return `[${this.class.name}] id="${this.id}" ID="${this._ID}${isClone}" request="${this._requestId}" loading="${this.loadingState}"`
   }
 
   public onRelationFetched (relation: Relation, data: Model | Model[] | null) {
@@ -241,15 +241,9 @@ export default class Model {
 
     // set counts
     if (Array.isArray(data)) {
-      let countProperty = ''
       if (this.hasOwnProperty('count_' + relation.name)) {
-        countProperty = relation.name
-      } else if (relation.Model && this.hasOwnProperty('count_' + relation.Model.type)) {
-        countProperty = relation.Model.type
-      }
-      if (countProperty) {
-        this['count_' + countProperty] = data.length
-        // console.log('set count', 'count_' + countProperty, data.length, 'for', this.info)
+        this['count_' + relation.name] = data.length
+        // console.log('set count', 'count_' + relation.name, data.length, 'for', this.info)
       }
     }
 
@@ -262,7 +256,7 @@ export default class Model {
     return this.loadingState >= LoadingState.LIST_DATA_LOADED
   }
 
-  public calculateLoadingState (): number {
+  public calculateLoadingState (_json: any): number {
     return this.loadingState
   }
 
@@ -409,6 +403,9 @@ export default class Model {
       const localName = this.class._attributeRemoteNameMap[name] || name
       if (this.hasAttr(localName)) {
         this[localName] = this.getAttrValue(localName, attributesJson[name])
+        if (localName.match(/count_/)) {
+          // console.log('set count attribute:', localName, this[localName], 'for', this.info)
+        }
       }
     }
   }

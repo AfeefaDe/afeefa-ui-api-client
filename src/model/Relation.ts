@@ -112,8 +112,9 @@ export default class Relation {
         return API.pushItem({resource: this.resource, json}).then(item => {
           // store the id
           this.id = item.id
+          const loadingState = item.calculateLoadingState(json)
           // track new relation
-          this.resource.includedRelationInitialized([item])
+          this.resource.includedRelationInitialized(item, loadingState)
         })
       } else {
         // reset id to null
@@ -123,8 +124,13 @@ export default class Relation {
     // cache list
     } else {
       return API.pushList({resource: this.resource, json, params: {}}).then(items => {
-        // track new relation
-        this.resource.includedRelationInitialized(items)
+        if (items.length) {
+          const loadingState = items[0].calculateLoadingState(json[0])
+          // track new relation
+          items.forEach(item => {
+            this.resource.includedRelationInitialized(item, loadingState)
+          })
+        }
       })
     }
   }

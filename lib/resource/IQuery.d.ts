@@ -3,6 +3,7 @@ import Relation from '../model/Relation';
 export default interface IQuery {
     with(...relations: string[]): IQuery;
     get(id?: string | null, strategy?: number): Promise<Model | null>;
+    reloadAll(params?: object): Promise<Model[]>;
     getAll(params?: object): Promise<Model[]>;
     save(model: Model): Promise<Model | null>;
     updateAttributes(model: Model, attributes: object): Promise<Model | null>;

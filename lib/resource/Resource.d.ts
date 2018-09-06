@@ -30,6 +30,9 @@ export default class Resource implements IResource, IQuery {
      */
     with(...relations: any[]): IQuery;
     get(id?: string | null): Promise<Model | null>;
+    reloadAll(params?: {
+        [key: string]: any;
+    }): Promise<Model[]>;
     getAll(params?: object): Promise<Model[]>;
     save(model: Model): Promise<Model | null>;
     updateAttributes(model: Model, attributes: object): Promise<Model | null>;
@@ -53,7 +56,7 @@ export default class Resource implements IResource, IQuery {
     itemAttached(model: Model): void;
     itemsAttached(models: Model[]): void;
     itemDetached(model: Model): void;
-    includedRelationInitialized(models: Model[]): void;
+    includedRelationInitialized(model: Model, jsonLoadingState: number): void;
     /**
      * Protected
      */

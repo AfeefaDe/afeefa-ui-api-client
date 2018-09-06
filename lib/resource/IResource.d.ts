@@ -18,5 +18,5 @@ export default interface IResource {
     itemAttached(model: Model): any;
     itemsAttached(models: Model[]): any;
     itemDetached(model: Model): any;
-    includedRelationInitialized(models: Model[]): any;
+    includedRelationInitialized(model: Model, jsonLoadingState: number): any;
 }

@@ -50,7 +50,7 @@ export default class Model {
     readonly info: string;
     onRelationFetched(relation: Relation, data: Model | Model[] | null): void;
     readonly hasListData: boolean;
-    calculateLoadingState(): number;
+    calculateLoadingState(_json: any): number;
     protected init(): void;
     protected beforeDeserialize(json: any): any;
     protected afterDeserializeAttributes(): void;

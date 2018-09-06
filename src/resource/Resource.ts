@@ -123,6 +123,20 @@ export default class Resource implements IResource, IQuery {
     })
   }
 
+  public reloadAll (params?: {[key: string]: any}): Promise<Model[]> {
+    if (params && params.ids) {
+      params.ids.forEach(id => {
+        const model = API.find({resource: this, id})
+        if (model) {
+          model.loadingState = LoadingState.NOT_LOADED
+        }
+      })
+    } else {
+      this.relation.reloadOnNextGet()
+    }
+    return this.getAll(params)
+  }
+
   public getAll (params?: object): Promise<Model[]> {
     return API.getList({resource: this, params}).then(models => {
       models.forEach(model => {
@@ -287,20 +301,18 @@ export default class Resource implements IResource, IQuery {
     this.setRelationCountsAfterAttachOrDetach(model, -1)
   }
 
-  public includedRelationInitialized (models: Model[]) {
-    models.forEach(model => {
-      const loadingState = model.calculateLoadingState()
-      // if calculateLoadingState is not implemented it returns the
-      // latest loading state of the model.
-      // it model not yet loaded, assume list data
-      if (loadingState === LoadingState.NOT_LOADED) {
-        model.loadingState = LoadingState.LIST_DATA_LOADED
-      // set custom loading state
-      } else {
-        model.loadingState = loadingState
-      }
-      this.registerRelation(model)
-    })
+  public includedRelationInitialized (model: Model, jsonLoadingState: number) {
+    const loadingState = Math.max(jsonLoadingState, model.loadingState)
+    // if calculateLoadingState is not implemented it returns the
+    // latest loading state of the model.
+    // it model not yet loaded, assume list data
+    if (loadingState === LoadingState.NOT_LOADED) {
+      model.loadingState = LoadingState.LIST_DATA_LOADED
+    // set custom loading state
+    } else {
+      model.loadingState = loadingState
+    }
+    this.registerRelation(model)
   }
 
   /**
@@ -351,15 +363,9 @@ export default class Resource implements IResource, IQuery {
     // reverse count
     const reverseName: string = this.getRelationReverseName(this.relation.owner, this.relation)
     if (reverseName) {
-      let countProperty = ''
       if (model.hasOwnProperty('count_' + reverseName)) {
-        countProperty = reverseName
-      } else if (this.relation.owner.type && model.hasOwnProperty('count_' + this.relation.owner.type)) {
-        countProperty = this.relation.owner.type
-      }
-      if (countProperty) {
-        model['count_' + countProperty] += diff
-        // console.log('set count', 'count_' + countProperty, model['count_' + countProperty], 'for', model.info)
+        model['count_' + reverseName] += diff
+        // console.log('set count', 'count_' + reverseName, model['count_' + reverseName], 'for', model.info)
       }
     }
   }
@@ -380,15 +386,9 @@ export default class Resource implements IResource, IQuery {
           const relatedModel = owner.$rels[reverseName].Model
           if (relatedModel) {
             if (relatedModel.type === model.type) {
-              let countProperty = ''
               if (owner.hasOwnProperty('count_' + reverseName)) {
-                countProperty = reverseName
-              } else if (owner.hasOwnProperty('count_' + model.type)) {
-                countProperty = model.type
-              }
-              if (countProperty) {
-                owner['count_' + countProperty] += diff
-                // console.log('set count', 'count_' + countProperty, owner['count_' + countProperty], 'for', owner.info)
+                owner['count_' + reverseName] += diff
+                // console.log('set count', 'count_' + reverseName, owner['count_' + reverseName], 'for', owner.info)
               }
             }
           }

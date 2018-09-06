@@ -37,5 +37,5 @@ export default interface IResource {
 
   itemDetached (model: Model)
 
-  includedRelationInitialized (models: Model[])
+  includedRelationInitialized (model: Model, jsonLoadingState: number)
 }
