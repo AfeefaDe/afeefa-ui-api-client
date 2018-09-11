@@ -6,6 +6,8 @@ export default interface IQuery {
 
   get (id?: string | null, strategy?: number): Promise<Model | null>
 
+  getWithType (type?: string, id?: string | null, strategy?: number): Promise<Model | null>
+
   reloadAll (params?: object): Promise<Model[]>
 
   getAll (params?: object): Promise<Model[]>
@@ -22,7 +24,7 @@ export default interface IQuery {
 
   detach (model: Model): Promise<boolean | null>
 
-  find (id?: string | null): Model | null
+  find (type?: string, id?: string | null): Model | null
 
   findAll (params?: object): Model[]
 

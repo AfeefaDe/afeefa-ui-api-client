@@ -15,6 +15,7 @@ export default class Relation {
     fetched: boolean;
     invalidated: boolean;
     id: string | null;
+    itemType: string | null;
     _Query: IQuery | null;
     constructor({ owner, name, reverseName, type, Model }: {
         owner: ModelType;

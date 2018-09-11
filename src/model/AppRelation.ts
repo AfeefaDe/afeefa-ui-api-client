@@ -10,7 +10,7 @@ export default class AppRelation extends Relation {
     // TODO: by convention, if a app relation contains
     // only one model, that ID should be set to 'app'
     const singleModel = API.find({
-      resource: this.resource,
+      type: this.resource.getItemType(),
       id: 'app'
     })
     if (singleModel) {

@@ -87,15 +87,15 @@ export class Api {
   }
 
   public getItem (
-    {resource, id}:
-    {resource: IResource, id: string}
+    {resource, type, id}:
+    {resource: IResource, type: string, id: string}
   ): Promise<Model | null> {
     if (!id) {
       console.debug(`API: getItem() - keine id gegeben.`)
       return Promise.resolve(null)
     }
 
-    const itemType = resource.getItemType()
+    const itemType = type
 
     // check if item already loaded
     if (resourceCache.hasItem(itemType, id)) {
@@ -209,7 +209,7 @@ export class Api {
       // reset all tracked changes in order to force item.hasChanges to return false after save
       item.markSaved()
 
-      this.purgeItem(resource, item.id)
+      this.purgeItem(item.type as string, item.id)
       resource.itemDeleted(item)
       this.onDelete(item)
       return true
@@ -313,13 +313,11 @@ export class Api {
     return promise
   }
 
-  public find ({resource, id}: {resource: IResource, id?: string | null}): Model | null {
-    if (!id) {
+  public find ({type, id}: {type?: string, id?: string | null}): Model | null {
+    if (!type || !id) {
       return null
     }
-
-    const itemType = resource.getItemType()
-    return resourceCache.getItem(itemType, id)
+    return resourceCache.getItem(type, id)
   }
 
   public findAll ({resource, params}: {resource: IResource, params?: object}): Model[] {
@@ -398,11 +396,10 @@ export class Api {
     })
   }
 
-  public purgeItem (resource: IResource, id: string | null) {
+  public purgeItem (type: string, id: string | null) {
     if (id) {
-      const itemType = resource.getItemType()
-      // console.log('purge item', itemType, id, resource)
-      resourceCache.purgeItem(itemType, id)
+      // console.log('purge item', type, id)
+      resourceCache.purgeItem(type, id)
     }
   }
 

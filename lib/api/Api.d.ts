@@ -18,8 +18,9 @@ export declare class Api {
             [key: string]: any;
         };
     }): Promise<Model[]>;
-    getItem({ resource, id }: {
+    getItem({ resource, type, id }: {
         resource: IResource;
+        type: string;
         id: string;
     }): Promise<Model | null>;
     saveItem({ resource, item }: {
@@ -51,8 +52,8 @@ export declare class Api {
         resource: IResource;
         model: Model;
     }): Promise<boolean | null>;
-    find({ resource, id }: {
-        resource: IResource;
+    find({ type, id }: {
+        type?: string;
         id?: string | null;
     }): Model | null;
     findAll({ resource, params }: {
@@ -77,7 +78,7 @@ export declare class Api {
         resource: IResource;
         json: any;
     }): Promise<Model>;
-    purgeItem(resource: IResource, id: string | null): void;
+    purgeItem(type: string, id: string | null): void;
     purgeList(resource: IResource): void;
     private getListMeta;
     private getResourceProvider;

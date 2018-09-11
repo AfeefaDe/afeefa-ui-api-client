@@ -22,6 +22,7 @@ export default class Relation {
   public invalidated: boolean = false
 
   public id: string | null = null
+  public itemType: string | null = null
   public _Query: IQuery | null = null
 
   constructor (
@@ -70,7 +71,7 @@ export default class Relation {
     console.log('Relation.reloadOnNextGet', this.info)
 
     if (this.type === Relation.HAS_ONE) {
-      API.purgeItem(this.resource, this.id)
+      API.purgeItem(this.itemType as string, this.id)
     } else {
       API.purgeList(this.resource)
     }
@@ -112,6 +113,7 @@ export default class Relation {
         return API.pushItem({resource: this.resource, json}).then(item => {
           // store the id
           this.id = item.id
+          this.itemType = item.type as string
           const loadingState = item.calculateLoadingState(json)
           // track new relation
           this.resource.includedRelationInitialized(item, loadingState)
@@ -119,6 +121,7 @@ export default class Relation {
       } else {
         // reset id to null
         this.id = null
+        this.itemType = null
         return Promise.resolve()
       }
     // cache list
@@ -191,6 +194,7 @@ export default class Relation {
     })
 
     clone.id = this.id
+    clone.itemType = this.itemType
     clone.isClone = true
     clone.original = this
     // clone resource with our cloned relation
@@ -201,7 +205,7 @@ export default class Relation {
 
   public get info () {
     const isClone = this.isClone ? '(CLONE)' : ''
-    const itemId = this.type === Relation.HAS_ONE ? `itemId="${this.id}" ` : ''
+    const itemId = this.type === Relation.HAS_ONE ? `itemId="${this.id}" itemType="${this.itemType}" ` : ''
     return `[Relation] id="${this.instanceId}${isClone}" owner="${this.owner.type}(${this.owner.id})" type="${this.type}" name="${this.name}" ` +
       `${itemId}fetched="${this.fetched}" invalidated="${this.invalidated}"`
   }
@@ -211,11 +215,13 @@ export default class Relation {
   }
 
   private findHasOne (): Promise<ModelType | null> {
-    return Promise.resolve(this.Query.find())
+    const type = this.itemType || (this.Model && this.Model.type)
+    return Promise.resolve(this.Query.find(type as string, this.id))
   }
 
   private getHasOne (): Promise<ModelType | null> {
-    return this.Query.get(this.id)
+    const type = this.itemType || (this.Model && this.Model.type)
+    return this.Query.getWithType(type as string, this.id)
   }
 
   private findHasMany (): Promise<ModelType[]> {
@@ -229,6 +235,7 @@ export default class Relation {
   private reset () {
     // id of a has_one relation, may be accompanied by json data but does not need to
     this.id = null
+    this.itemType = null
 
     this.fetched = false
     this.invalidated = false

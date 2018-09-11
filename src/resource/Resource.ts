@@ -112,10 +112,14 @@ export default class Resource implements IResource, IQuery {
   }
 
   public get (id?: string | null): Promise<Model | null> {
-    if (!id) {
+    return this.getWithType(this.getItemType(), id)
+  }
+
+  public getWithType (type?: string, id?: string | null): Promise<Model | null> {
+    if (!type || !id) {
       return Promise.resolve(null)
     }
-    return API.getItem({resource: this, id}).then(model => {
+    return API.getItem({resource: this, type, id}).then(model => {
       if (model) {
         model.fetchRelationsAfterGet(this.relationsToFetch)
       }
@@ -126,7 +130,8 @@ export default class Resource implements IResource, IQuery {
   public reloadAll (params?: {[key: string]: any}): Promise<Model[]> {
     if (params && params.ids) {
       params.ids.forEach(id => {
-        const model = API.find({resource: this, id})
+        const type = this.getItemType()
+        const model = API.find({type, id})
         if (model) {
           model.loadingState = LoadingState.NOT_LOADED
         }
@@ -171,11 +176,8 @@ export default class Resource implements IResource, IQuery {
     return API.detachItem({resource: this, model})
   }
 
-  public find (id?: string | null): Model | null {
-    if (!id && this.relation.type === Relation.HAS_ONE) {
-      id = this.relation.id
-    }
-    return API.find({resource: this, id})
+  public find (type: string, id: string): Model | null {
+    return API.find({type, id})
   }
 
   public findAll (params?: object): Model[] {

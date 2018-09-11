@@ -30,6 +30,7 @@ export default class Resource implements IResource, IQuery {
      */
     with(...relations: any[]): IQuery;
     get(id?: string | null): Promise<Model | null>;
+    getWithType(type?: string, id?: string | null): Promise<Model | null>;
     reloadAll(params?: {
         [key: string]: any;
     }): Promise<Model[]>;
@@ -40,7 +41,7 @@ export default class Resource implements IResource, IQuery {
     attach(model: Model): Promise<boolean | null>;
     attachMany(models: Model[]): Promise<boolean | null>;
     detach(model: Model): Promise<boolean | null>;
-    find(id?: string | null): Model | null;
+    find(type: string, id: string): Model | null;
     findAll(params?: object): Model[];
     select(filterFunction: (model: Model) => boolean): Model[];
     findOwners(filterFunction: (model: Model) => boolean): Model[];

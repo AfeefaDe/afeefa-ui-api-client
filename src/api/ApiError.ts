@@ -21,6 +21,8 @@ function getErrorDescription (response: IResponse): string {
     }
   } else if (response.body && response.body.exception) {
     description = response.body.exception
+  } else if (response.body && response.body.error) {
+    description = response.body.error
   } else {
     description = response.statusText || response + ''
   }
