@@ -4,11 +4,14 @@
   "description": "Data loading and caching framework",
   "files": [
     "src",
-    "lib"
+    "lib",
+    "types"
   ],
+  "main": "lib/index.js",
+  "types": "typings/index.d.ts",
   "scripts": {
     "compile": "tsc -p tsconfig.build.json",
-    "build": "rm -rf lib/* && tsc -p tsconfig.build.json",
+    "build": "rm -rf lib/* && rm -rf types/* && tsc -p tsconfig.build.json",
     "test": "mocha -r ts-node/register -r tsconfig-paths/register -r ./test/config.ts 'test/**/*.ts'"
   },
   "repository": {
