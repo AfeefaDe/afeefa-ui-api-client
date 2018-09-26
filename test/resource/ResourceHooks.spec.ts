@@ -61,7 +61,7 @@ describe('Resource - Hooks', () => {
     querySpy = sinon.spy(resourceProvider, 'query')
 
     const newTodo = new Todo()
-    return Todo.Query.getAll().then(ts => {
+    return Todo.Query.getAll().then(_ts => {
       expect(querySpy).to.have.been.called()
     }).then(() => {
       return Todo.Query.save(newTodo)

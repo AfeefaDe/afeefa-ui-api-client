@@ -6,7 +6,7 @@ export default class Relation {
     static HAS_MANY: string;
     owner: ModelType;
     name: string;
-    reverseName: string | ((Model) => string) | null;
+    reverseName: string | ((Model: any) => string) | null;
     type: string;
     Model: typeof ModelType | null;
     instanceId: number;
@@ -17,10 +17,10 @@ export default class Relation {
     id: string | null;
     itemType: string | null;
     _Query: IQuery | null;
-    constructor({owner, name, reverseName, type, Model}: {
+    constructor({ owner, name, reverseName, type, Model }: {
         owner: ModelType;
         name: string;
-        reverseName?: string | ((Model) => string);
+        reverseName?: string | ((Model: any) => string);
         type: string;
         Model?: typeof ModelType;
     });
@@ -43,9 +43,9 @@ export default class Relation {
     clone(owner: ModelType): Relation;
     readonly info: string;
     protected readonly resource: IResource;
-    private findHasOne();
-    private getHasOne();
-    private findHasMany();
-    private getHasMany();
-    private reset();
+    private findHasOne;
+    private getHasOne;
+    private findHasMany;
+    private getHasMany;
+    private reset;
 }

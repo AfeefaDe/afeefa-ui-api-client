@@ -40,7 +40,7 @@ export class Api {
 
     if (resourceCache.hasList(listType, listKey, listParams)) {
       // list already loaded
-      return Promise.resolve(resourceCache.getList(listType, listKey, listParams) as Model[])
+      return Promise.resolve(resourceCache.getList(listType, listKey, listParams))
     }
 
     if (!resource.getUrl()) {
@@ -241,6 +241,7 @@ export class Api {
       const itemType = resource.getItemType()
       const cachedItem = resourceCache.getItem(itemType, item.id)
       if (cachedItem) {
+        // tslint:disable-next-line no-floating-promises
         cachedItem.deserialize(json, this.requestId)
       }
       return attributes

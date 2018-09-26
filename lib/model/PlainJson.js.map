@@ -1,1 +1,1 @@
-{"version":3,"file":"PlainJson.js","sourceRoot":"","sources":["../../src/model/PlainJson.ts"],"names":[],"mappings":"AAAA,MAAM,CAAC,OAAO;CACb"}
+{"version":3,"file":"PlainJson.js","sourceRoot":"","sources":["../../src/model/PlainJson.ts"],"names":[],"mappings":"AAAA,MAAM,CAAC,OAAO,OAAO,SAAS;CAC7B"}

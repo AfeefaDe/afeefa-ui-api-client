@@ -1,1 +1,1 @@
-{"version":3,"file":"LoadingState.js","sourceRoot":"","sources":["../../src/api/LoadingState.ts"],"names":[],"mappings":"AAAA,MAAM,CAAC,OAAO;;AACE,uBAAU,GAAG,CAAC,CAAA;AACd,8BAAiB,GAAG,CAAC,CAAA;AACrB,6BAAgB,GAAG,CAAC,CAAA;AACpB,yBAAY,GAAG,CAAC,CAAA"}
+{"version":3,"file":"LoadingState.js","sourceRoot":"","sources":["../../src/api/LoadingState.ts"],"names":[],"mappings":"AAAA,MAAM,CAAC,OAAO,OAAO,YAAY;;AACjB,uBAAU,GAAG,CAAC,CAAA;AACd,8BAAiB,GAAG,CAAC,CAAA;AACrB,6BAAgB,GAAG,CAAC,CAAA;AACpB,yBAAY,GAAG,CAAC,CAAA"}

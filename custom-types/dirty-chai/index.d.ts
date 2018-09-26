@@ -22,7 +22,7 @@ declare namespace Chai {
      */
     (message?: string): Assertion;
 
-    // // From: chai
+    // From: chai
     ok(message?: string): Assertion;
     true(message?: string): Assertion;
     false(message?: string): Assertion;
@@ -40,7 +40,6 @@ declare namespace Chai {
     calledOnce(message?: string): Assertion;
     calledTwice(message?: string): Assertion;
     calledThrice(message?: string): Assertion;
-
     calledWithNew(message?: string): Assertion;
 
     callCount(count: number): Assertion;

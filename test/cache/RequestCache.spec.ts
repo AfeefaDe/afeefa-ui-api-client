@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import { RequestCache } from '../../src/cache/RequestCache'
 
 function newPromise () {
-  return new Promise((resolve, reject) => undefined)
+  return new Promise((_resolve, _reject) => undefined)
 }
 
 describe('Cache - RequestCache', () => {
@@ -88,7 +88,7 @@ describe('Cache - RequestCache', () => {
   it('should remove item when promises resolves', async () => {
     const cache = new RequestCache()
     let pResolve
-    const promise = new Promise((resolve, reject) => {
+    const promise = new Promise((resolve, _reject) => {
       pResolve = resolve
     })
 
@@ -108,7 +108,7 @@ describe('Cache - RequestCache', () => {
     const cache = new RequestCache()
 
     let pReject
-    const promise = new Promise((resolve, reject) => {
+    const promise = new Promise((_resolve, reject) => {
       pReject = reject
     })
 

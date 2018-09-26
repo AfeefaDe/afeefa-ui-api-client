@@ -111,8 +111,10 @@ export default class Model {
       const relation: Relation = this.$rels[relationName]
       if (relationsToFullyFetch.includes(relationName)) {
         relation.fetched = false
+        // tslint:disable-next-line no-floating-promises
         relation.fetch(false, true)
       } else if (relation.invalidated) {
+        // tslint:disable-next-line no-floating-promises
         relation.fetch(false, true)
       }
     }
@@ -290,7 +292,7 @@ export default class Model {
     }
   }
 
-  private countJsonKeys (json: object, level: number = 0): number {
+  private countJsonKeys (json: any, level: number = 0): number {
     let numKeys = 0
     if (level < 3 && json && typeof json === 'object') {
       for (const key of Object.keys(json)) {
@@ -378,6 +380,7 @@ export default class Model {
     for (const relationName of Object.keys(this.$rels)) {
       const relation = this.$rels[relationName]
       const clone = relationsToClone.includes(relationName)
+      // tslint:disable-next-line no-floating-promises
       relation.fetch(clone, false)
     }
   }
