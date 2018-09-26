@@ -7,6 +7,6 @@ export default interface IRelationConfig {
     type: string;
     Model?: typeof Model;
     remoteName?: string;
-    reverseName?: string | ((Model: any) => string);
+    reverseName?: string | ((Model) => string);
     Resource?: typeof Resource;
 }

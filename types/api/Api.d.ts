@@ -12,77 +12,77 @@ export declare class Api {
     onSaveError: (_apiError: ApiError) => null;
     onDelete: (_model: Model) => null;
     onDeleteError: (_apiError: ApiError) => null;
-    getList({ resource, params }: {
+    getList({resource, params}: {
         resource: IResource;
         params?: {
             [key: string]: any;
         };
     }): Promise<Model[]>;
-    getItem({ resource, type, id }: {
+    getItem({resource, type, id}: {
         resource: IResource;
         type: string;
         id: string;
     }): Promise<Model | null>;
-    saveItem({ resource, item }: {
+    saveItem({resource, item}: {
         resource: IResource;
         item: Model;
     }): Promise<Model | null>;
-    addItem({ resource, item }: {
+    addItem({resource, item}: {
         resource: IResource;
         item: Model;
     }): Promise<Model | null>;
-    deleteItem({ resource, item }: {
+    deleteItem({resource, item}: {
         resource: IResource;
         item: Model;
     }): Promise<boolean | null>;
-    updateItemAttributes({ resource, item, attributes }: {
+    updateItemAttributes({resource, item, attributes}: {
         resource: IResource;
         item: Model;
         attributes: object;
     }): Promise<any | null>;
-    attachItem({ resource, model }: {
+    attachItem({resource, model}: {
         resource: IResource;
         model: Model;
     }): Promise<boolean | null>;
-    attachItems({ resource, models }: {
+    attachItems({resource, models}: {
         resource: IResource;
         models: Model[];
     }): Promise<boolean | null>;
-    detachItem({ resource, model }: {
+    detachItem({resource, model}: {
         resource: IResource;
         model: Model;
     }): Promise<boolean | null>;
-    find({ type, id }: {
+    find({type, id}: {
         type?: string;
         id?: string | null;
     }): Model | null;
-    findAll({ resource, params }: {
+    findAll({resource, params}: {
         resource: IResource;
         params?: object;
     }): Model[];
-    select({ resource, filterFunction }: {
+    select({resource, filterFunction}: {
         resource: IResource;
         filterFunction: (model: Model) => boolean;
     }): Model[];
-    findOwners({ resource, filterFunction }: {
+    findOwners({resource, filterFunction}: {
         resource: IResource;
         filterFunction: (model: Model) => boolean;
     }): Model[];
-    pushList({ resource, json, params, skipCachingList }: {
+    pushList({resource, json, params, skipCachingList}: {
         resource: IResource;
         json: any;
         params?: object;
         skipCachingList?: boolean;
     }): Promise<Model[]>;
-    pushItem({ resource, json }: {
+    pushItem({resource, json}: {
         resource: IResource;
         json: any;
     }): Promise<Model>;
     purgeItem(type: string, id: string | null): void;
     purgeList(resource: IResource): void;
-    private getListMeta;
-    private getResourceProvider;
-    private setRequestId;
+    private getListMeta(resource, params?);
+    private getResourceProvider(resource);
+    private setRequestId();
 }
 declare const _default: Api;
 export default _default;

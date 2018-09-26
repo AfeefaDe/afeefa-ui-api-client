@@ -64,9 +64,9 @@ export default class Resource implements IResource, IQuery {
     protected getItemModel(_json: any): typeof Model;
     protected ensureReverseRelationsAfterAttachOrDetach(model: Model): ReverseRelations;
     protected ensureReverseRelationsAfterAddOrSave(model: Model): ReverseRelations;
-    private setRelationCountsAfterAttachOrDetach;
-    private setRelationCountsAfterAddOrDelete;
-    private getRelationReverseName;
-    private registerRelation;
-    private unregisterRelation;
+    private setRelationCountsAfterAttachOrDetach(model, diff);
+    private setRelationCountsAfterAddOrDelete(model, diff);
+    private getRelationReverseName(model, relation);
+    private registerRelation(model);
+    private unregisterRelation(model);
 }

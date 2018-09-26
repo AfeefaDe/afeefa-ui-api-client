@@ -55,19 +55,19 @@ export default class Model {
     protected beforeDeserialize(json: any): any;
     protected afterDeserializeAttributes(): void;
     protected afterDeserialize(): void;
-    private guessHasOneRelationKeys;
-    private countJsonKeys;
+    private guessHasOneRelationKeys(attibutesJson, relationsJson);
+    private countJsonKeys(json, level?);
     /**
      * magic clone function :-)
      * clone anything but no model relations
      */
-    private _clone;
+    private _clone(value);
     private readonly class;
-    private hasAttr;
-    private getAttrValue;
-    private hasRelation;
-    private fetchAllRelations;
-    private fetchRelations;
-    private deserializeAttributes;
-    private deserializeRelations;
+    private hasAttr(name);
+    private getAttrValue(name, value);
+    private hasRelation(name);
+    private fetchAllRelations(relationsToClone?);
+    private fetchRelations(relationsToFetch);
+    private deserializeAttributes(attributesJson);
+    private deserializeRelations(relationsJson);
 }
